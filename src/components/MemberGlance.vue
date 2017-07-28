@@ -1,9 +1,7 @@
 <template>
 
-    <div class="box is-info">
-        <p>
-            <slot></slot>
-        </p>
+    <div class="member-glance">
+        {{ person.name }}
     </div>
 
 </template>
@@ -11,7 +9,8 @@
 <script>
 
     export default {
-
+        name: 'member-glance',
+        props: ['person']
     }
 
 </script>

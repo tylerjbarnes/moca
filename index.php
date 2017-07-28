@@ -32,7 +32,6 @@
   </head>
   <body>
     <div id="app"></div>
-    <!-- @todo: remove jquery --> <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="http://localhost:8080/dist/build.js"></script>
     <!-- <script src="/dist/build.js"></script> -->
   </body>
