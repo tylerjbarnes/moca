@@ -10,6 +10,7 @@
 <script>
     import Message from './components/Message.vue';
     import axios from 'axios';
+    import qs from 'qs';
 
     export default {
         name: 'app',
@@ -21,9 +22,12 @@
             }
         },
         mounted() {
-            axios.get('/api/test').then(({data}) => {
-                this.name = data.name;
-                this.status = data.status;
+            axios.post(ajaxurl, qs.stringify({
+                action: 'hpm_api',
+                function: 'load'
+            }))
+            .then(({data}) => {
+                console.log(data);
             });
         }
     }
