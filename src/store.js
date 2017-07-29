@@ -1,12 +1,16 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-
 Vue.use(Vuex);
+
+import Project from './objects/project.js';
+import Client from './objects/client.js';
+import Member from './objects/member.js';
 
 const state = {
     messages: [],
     packages: [],
-    persons: [],
+    members: [],
+    clients:[],
     profile: null,
     projects: [],
     resources: [],
@@ -14,28 +18,52 @@ const state = {
 };
 
 const getters = {
-    members () {
-        return _.filter(state.persons, function(o){
-            let memberRoles = ['administrator', 'manager', 'contractor'];
-            return memberRoles.includes(o.role);
-        });
+    project: (state, getters) => (id) => {
+        return state.projects.find(project => project.id === id);
+    },
+    member: (state, getters) => (id) => {
+        return state.members.find(member => member.id === id);
+    },
+    projectsByContractor: (state, getters) => (id) => {
+        return state.projects.filter(project => project.contractor_id === id);
     }
 };
 
 const mutations = {
+    addProject (state, project) {
+        state.projects.push(project);
+    },
     addProjects (state, projects) {
         state.projects = [...state.projects, ...projects];
     },
     addPersons (state, persons) {
-        state.persons = [...state.persons, ...persons];
+        for (const person of persons) {
+            if (person.role == 'client') {
+                state.clients.push(person);
+            } else {
+                state.members.push(person);
+            }
+        }
     }
 };
 
 const actions = {
-    addProjects (context, projects) {
+    addProject (context, projectPrimitive) {
+        let project = new Project(projectPrimitive);
+        context.commit('addProject', project);
+    },
+    addProjects (context, projectPrimitives) {
+        let projects = projectPrimitives.map((projectPrimitive) => {
+            return new Project(projectPrimitive);
+        });
         context.commit('addProjects', projects);
     },
-    addPersons (context, persons) {
+    addPersons (context, personPrimitives) {
+        let persons = personPrimitives.map((personPrimitive) => {
+            return personPrimitive.role == 'client' ?
+                new Client(personPrimitive) :
+                new Member(personPrimitive);
+        });
         context.commit('addPersons', persons);
     }
 };
