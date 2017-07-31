@@ -418,7 +418,7 @@ class Moca {
 
     public function hpm_api() {
         header('Content-Type: application/json');
-        
+
         $function = $_POST['function'];
         $args = array_slice( $_POST, 2 );
         $output = call_user_func_array( 'hpm_api_' . $function, $args );
@@ -431,7 +431,7 @@ class Moca {
 }
 
 // Setup Dropbox SDK //@todo move this
-require("api/vendor/autoload.php");
+// require("api/vendor/autoload.php");
 
 /**
  * Returns the only Moca instance
