@@ -1,10 +1,6 @@
 <template>
     <div id="team-view">
-        <section class="title-section section">
-            <div class="container">
-                <h1 class="title">Team</h1>
-            </div>
-        </section>
+        <h1 class="title">Team</h1>
         <member-glance v-for="member in members" :member="member" :key="member.id"></member-glance>
     </div>
 </template>
@@ -35,15 +31,11 @@
 <style lang="scss">
 
     #team-view {
+        overflow-y: auto;
 
-        .title-section {
-            background-color: transparent;
-            padding-bottom: 0;
-
-            h1 {
-                font-weight: 700;
-
-            }
+        h1 {
+            font-weight: 500;
+            padding: 40px 20px 0 20px;
 
         }
 

@@ -30,6 +30,19 @@
         border-radius: 5px;
         box-shadow: 0px 0px 15px 0px $shadow;
         margin: 30px 20px;
+        // max-width: $max-width;
+
+        p.title {
+            font-size: 1.2em;
+            font-weight: 900;
+
+        }
+        p.subtitle {
+            font-size: 0.9em;
+            padding-top: 3px;
+            opacity: 0.9;
+
+        }
 
     }
 

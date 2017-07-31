@@ -21,6 +21,9 @@ const getters = {
     project: (state, getters) => (id) => {
         return state.projects.find(project => project.id === id);
     },
+    client: (state, getters) => (id) => {
+        return state.clients.find(client => client.id === id);
+    },
     member: (state, getters) => (id) => {
         return state.members.find(member => member.id === id);
     },

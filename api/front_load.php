@@ -28,7 +28,7 @@ function hpm_api_load() {
         // "archived" => "false"
     ]);
     $response->projects = hpm_api_load_projects([
-        // "archived" => "false"
+        "archived" => "false"
     ]);
     $response->times = hpm_api_load_times([
         // "archived" => "false"
