@@ -16,6 +16,10 @@ class Member extends Person {
         return store.getters.projectsByContractor(this.id);
     }
 
+    get currentProjectsAssigned () {
+        return store.getters.projectsByContractor(this.id).filter(project => project.isCurrent);
+    }
+
     get projectsManaged () {
         return store.getters.projectsByManager(this.id);
     }
@@ -26,8 +30,17 @@ class Member extends Person {
         return store.getters.timesByContractor(this.id);
     }
 
-    get hoursWorked () {
-        return this.timesWorked.map(time => time.hours).reduce((a,b) => a + b, 0);
+    get timesWorkedOnCurrentProjects () {
+        let timesWorked = this.timesWorked;
+        return timesWorked.filter(time => time.isCurrent);
+    }
+
+    get hoursWorkedOnCurrentProjects () {
+        return this.timesWorkedOnCurrentProjects.map(time => time.hours).reduce((a,b) => a + b, 0);
+    }
+
+    get hoursAssignedOnCurrentProjects () {
+        return this.currentProjectsAssigned.map(project => project.estimate).reduce((a,b) => a + b, 0);
     }
 
 }

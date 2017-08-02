@@ -9,8 +9,10 @@ class Project {
         this.estimate = parseFloat(this.estimate);
         this.flagged = this.flagged === '1';
         this.max = parseFloat(this.max);
-        
+
     }
+
+    // Persons
 
     get client () {
         return this.client_id ? store.getters.client(this.client_id) : null;
@@ -23,6 +25,8 @@ class Project {
     get contractor () {
         return store.getters.member(this.contractor_id);
     }
+
+    // Times
 
     get dueString () {
         var hasNone = !this.target && !this.due;
@@ -41,6 +45,17 @@ class Project {
             return moment(onlyDate).format("MMM D") + ( this.target ? " • Soft" : "" );
         }
     }
+
+    get startsInCurrentPeriod () {
+        return this.start >= currentPeriod.start && this.start <= currentPeriod.end;
+    }
+
+    get isCurrent () {
+        return (this.status === 'do' && this.start < currentPeriod.start ) ||
+            this.startsInCurrentPeriod;
+    }
+
+    // Messages
 
     get unresolvedMessages () {
         let messages = store.getters.messagesByProject(this.id);

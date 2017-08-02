@@ -56,13 +56,14 @@
 
                 img.avatar {
                     border-radius: 25px;
+                    flex: 0 0 50px;
+                    height: 50px;
                     margin-right: 10px;
-                    width: 50px; height: 50px;
 
                 }
 
                 .titles {
-                    float: left;
+                    flex: 0 0 180px;
 
                     p.title {
                         font-size: 1.2em;

@@ -11,6 +11,9 @@ window.moment = moment;
 window.lodash = lodash;
 window.bus = new Vue();
 
+import Period from './period.js';
+window.currentPeriod = new Period();
+
 window.customElements.define("ceri-icon", require("ceri-icon"));
 require('./filters.js');
 

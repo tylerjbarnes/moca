@@ -16,7 +16,10 @@
         <footer>
             <span v-if="show.manager" class="manager-tag" :style="{borderColor: managerColor(), color: managerColor('darker')}">{{ project.manager.firstName }}</span>
             <span v-if="show.contractor && project.contractor" class="contractor-tag" :style="{backgroundColor: contractorColor('faded'), borderColor: contractorColor('faded'), color: contractorColor('darker')}">{{ project.contractor.firstName }}</span>
-            <span class="due">{{ project.dueString }}</span>
+            <div class="meta">
+                <span class="estimate">{{ project.estimate | formatHours }}</span>
+                <span class="due" v-if="project.dueString">{{ project.dueString }}</span>
+            </div>
         </footer>
     </router-link>
 
@@ -75,13 +78,18 @@
 
     .project-card {
         background: white;
-        // box-shadow: 0px 2px 10px 0px $shadow;
         border: 1px solid $shadow;
         border-radius: 5px;
         margin: 20px 0;
         padding: 10px;
         position: relative;
         width: 100%;
+        &:hover {
+            border-color: white;
+            box-shadow: 0px 2px 10px 0px $shadow;
+            transform: scale(1.03);
+        }
+        transition: all 0.15s ease;
 
         @include no-select;
 
@@ -99,7 +107,7 @@
             &.active {
                 border: none;
                 top: -2px;
-                
+
             }
         }
         .flag {
@@ -173,10 +181,21 @@
 
             }
 
-            .due {
-                font-size: 0.9em;
-                font-weight: 700;
-                opacity: 0.75;
+            .meta {
+                display: flex;
+
+                span {
+                    display: block;
+                    font-size: 0.9em;
+                    opacity: 0.75;
+
+                    &.due {
+                        font-weight: 900;
+                        padding-left: 5px;
+
+                    }
+
+                }
 
             }
 
