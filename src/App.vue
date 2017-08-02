@@ -1,12 +1,13 @@
 <template>
     <div id="app">
-        <nav class="navbar">
-            <div class="navbar-brand">
+        <header>
+            <div class="logo"></div>
+            <nav>
                 <router-link to="/team" class="navbar-item">Team</router-link>
                 <router-link to="/clients" class="navbar-item">Clients</router-link>
                 <router-link to="/time" class="navbar-item">Time</router-link>
-            </div>
-        </nav>
+            </nav>
+        </header>
         <router-view></router-view>
         <router-view name="modal"></router-view>
     </div>
@@ -43,15 +44,17 @@
         },
         mounted() {
             axios.post(ajaxurl, qs.stringify({
-                    action: 'hpm_api',
-                    function: 'load'
-                }))
-                .then(({
-                    data
-                }) => {
-                    this.$store.dispatch('addPersons', data.persons);
-                    this.$store.dispatch('addProjects', data.projects);
-                });
+                action: 'hpm_api',
+                function: 'load'
+            }))
+            .then(({data}) => {
+                this.$store.dispatch('addPersons', data.persons);
+                this.$store.dispatch('addMessages', data.messages);
+                this.$store.dispatch('addPackages', data.packages);
+                this.$store.dispatch('addProjects', data.projects);
+                this.$store.dispatch('addResources', data.resources);
+                this.$store.dispatch('addTimes', data.times);
+            });
         }
     }
 </script>
@@ -64,5 +67,15 @@
 
     #app {
         background-color: $white-ter;
+        display: flex;
+        font-size: 14px;
+
+        > header {
+            background-color: white;
+            box-shadow: 0px 0px 15px 0px $shadow;
+            width: 80px;
+
+        }
+
     }
 </style>

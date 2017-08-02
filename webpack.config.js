@@ -35,6 +35,17 @@ module.exports = {
         options: {
           name: '[name].[ext]?[hash]'
         }
+    },
+    {
+        test: /ceri-icon\/icon/,
+        enforce: "post",
+        loader: "ceri-icon",
+        options: {
+          icons: [
+            "fa-flag",
+            "fa-comment"
+          ]
+      }
       }
     ]
   },

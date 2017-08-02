@@ -5,25 +5,25 @@
             <div class="column">
                 <header><span>Delegate</span></header>
                 <div class="items">
-                    <project-card v-for="project in projectsInDelegate" :project="project" :key="project.id"></project-card>
+                    <project-card v-for="project in projectsToDelegate" :project="project" :key="project.id"></project-card>
                 </div>
             </div>
             <div class="column">
                 <header><span>Do</span></header>
                 <div class="items">
-                    <project-card v-for="project in projectsInDo" :project="project" :key="project.id"></project-card>
+                    <project-card v-for="project in projectsToDo" :project="project" :key="project.id" :show="{contractor: true, manager: false}"></project-card>
                 </div>
             </div>
             <div class="column">
                 <header><span>Approve</span></header>
                 <div class="items">
-                    <project-card v-for="project in projectsInApprove" :project="project" :key="project.id"></project-card>
+                    <project-card v-for="project in projectsToApprove" :project="project" :key="project.id"></project-card>
                 </div>
             </div>
             <div class="column">
                 <header><span>Send</span></header>
                 <div class="items">
-                    <project-card v-for="project in projectsInSend" :project="project" :key="project.id"></project-card>
+                    <project-card v-for="project in projectsToSend" :project="project" :key="project.id"></project-card>
                 </div>
             </div>
         </div>
@@ -40,16 +40,16 @@
         props: ['projects'],
         components: {ProjectCard},
         computed: {
-            projectsInDelegate () {
+            projectsToDelegate () {
                 return this.projects.filter(project => project.status === 'delegate');
             },
-            projectsInDo () {
+            projectsToDo () {
                 return this.projects.filter(project => project.status === 'do');
             },
-            projectsInApprove () {
+            projectsToApprove () {
                 return this.projects.filter(project => project.status === 'approve');
             },
-            projectsInSend () {
+            projectsToSend () {
                 return this.projects.filter(project => project.status === 'send');
             }
         }
@@ -69,18 +69,22 @@
             display: flex;
 
             .column {
+                flex: 0 0 25%;
+                padding-top: 5px; padding-bottom: 5px;
 
                 header {
+                    margin-bottom: 4px;
+
                     span {
                         display: block;
-                        font-size: 0.75em;
+                        font-size: 0.9em;
                         font-weight: 700;
                         opacity: 0.5;
-                        padding-bottom: 4px;
                     }
                 }
 
                 .items {
+                    margin-top: -10px;
                     min-height: 100px;
 
                 }

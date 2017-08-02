@@ -51,8 +51,10 @@ function hpm_api_load_persons($filters = []) {
     }
 
     // Clients
+
+    // SELECT persons.*, SUM(time.hours) balance
     $query = "
-        SELECT persons.*, SUM(time.hours) balance
+        SELECT persons.*
         FROM $person_table persons
         LEFT JOIN $times_table time
             ON persons.id = time.client_id

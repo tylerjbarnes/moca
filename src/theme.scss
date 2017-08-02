@@ -1,7 +1,18 @@
 $white-ter: #f4f8f9;
 $shadow: darken($white-ter, 5%);
-$green: #00d714;
+$green: #2ecc6e;
 $max-width: 1000px;
+
+@mixin no-select {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+
+  cursor: default;
+}
 
 body { // @todo remove actual styles from this file - it gets repeated
     font-family: Lato;

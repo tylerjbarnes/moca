@@ -2,16 +2,21 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 Vue.use(VueRouter);
 
+import tinycolor2 from 'tinycolor2';
+import moment from 'moment';
+import lodash from 'lodash';
+
+window.tinycolor = tinycolor2;
+window.moment = moment;
+window.lodash = lodash;
+window.bus = new Vue();
+
+window.customElements.define("ceri-icon", require("ceri-icon"));
+require('./filters.js');
+
 import router from './router.js';
 import Store from './store.js';
 import App from './App.vue';
-import lodash from 'lodash';
-
-window.lodash = lodash;
-
-window.bus = new Vue();
-
-require('./filters.js');
 
 new Vue({
   el: '#app',
