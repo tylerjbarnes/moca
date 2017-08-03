@@ -12,10 +12,9 @@ import Time from './objects/time.js';
 
 
 const state = {
-    clients: [],
-    members:  [],
     messages:  [],
     packages:  [],
+    persons: [],
     projects:  [],
     resources:  [],
     times:  [],
@@ -25,14 +24,6 @@ const state = {
 
 const getters = {
 
-    // Clients & Members
-    client: (state, getters) => (id) => {
-        return state.clients.find(client => client.id === id);
-    },
-    member: (state, getters) => (id) => {
-        return state.members.find(member => member.id === id);
-    },
-
     // Messages
     messagesByProject: (state, getters) => (id) => {
         return state.messages.filter(message => message.project_id === id);
@@ -41,6 +32,13 @@ const getters = {
     // Packages
     packagesByClient: (state, getters) => (id) => {
         return state.packages.filter(mocaPackage => mocaPackage.client_id === id);
+    },
+
+    // Persons
+    clients: (state, getters) => state.persons.filter(person => person.role === 'client'),
+    members: (state, getters) => state.persons.filter(person => person.role !== 'client'),
+    person: (state, getters) => (id) => {
+        return state.persons.find(person => person.id === id);
     },
 
     // Projects
@@ -78,20 +76,14 @@ const mutations = {
     },
 
     // Remove Single
-    removeProject (state,id) { state.projects = state.projects.filter(project => project.id !== id) },
+    removeProject (state, id) { state.projects = state.projects.filter(project => project.id !== id) },
 
     // Update Single
     updateProject (state, data) { store.getters.project(data.id).update(data); },
 
     // Add Multiple
     addPersons (state, persons) {
-        for (const person of persons) {
-            if (person.role == 'client') {
-                state.clients.push(person);
-            } else {
-                state.members.push(person);
-            }
-        }
+        state.persons = [...state.persons, ...persons];
     },
     addMessages (state, messages) {
         state.messages = [...state.messages, ...messages];
@@ -114,7 +106,7 @@ const mutations = {
         state.searchTerm = searchTerm;
     },
     setUser(state, wpId) {
-        state.user = state.members.find(person => person.wp_id == wpId);
+        state.user = state.persons.find(person => person.wp_id == wpId);
     }
 
 };

@@ -35,7 +35,10 @@
         border-bottom: 1px solid $shadow;
         display: flex;
         padding: 0 40px;
+        position: fixed;
+            top: 0; right: 0; left: $headerWidth;
         width: 100%; height: $headerWidth;
+        z-index: 1;
 
         ceri-icon {
             opacity: 0.25;

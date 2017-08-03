@@ -1,12 +1,7 @@
-class Resource {
+import MocaObject from './mocaObject.js';
+class Resource extends MocaObject {
 
-    constructor (resourcePrimitive) {
-        Object.assign(this, resourcePrimitive);
 
-        // Typify
-        this.cycle = parseFloat(this.cycle);
-
-    }
 
 }
 

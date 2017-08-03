@@ -16,7 +16,7 @@
         name: 'clients-view',
         computed: {
             allPersons () {
-                return this.$store.state.clients;
+                return this.$store.getters.clients;
             }
         },
         components: {

@@ -1,46 +1,18 @@
-class Project {
-
-    constructor (projectPrimitive) {
-        Object.assign(this, this.typify(projectPrimitive));
-    }
-
-    typify (primitive) {
-        let keys = Object.keys(primitive);
-        let typified = {};
-        for (let key of keys) {
-            switch (key) {
-                case 'archived':
-                case 'flagged':
-                    typified[key] = primitive[key] === '1'; break;
-                case 'cycle':
-                case 'estimate':
-                case 'max':
-                    typified[key] = parseFloat(primitive[key]); break;
-                default:
-                    typified[key] = primitive[key];
-            }
-        }
-        return typified;
-    }
-
-    // Update
-
-    update (data) {
-        Object.assign(this, this.typify(data));
-    }
+import MocaObject from './mocaObject.js';
+class Project extends MocaObject {
 
     // Persons
 
     get client () {
-        return this.client_id ? store.getters.client(this.client_id) : null;
+        return this.client_id ? store.getters.person(this.client_id) : null;
     }
 
     get manager () {
-        return store.getters.member(this.manager_id);
+        return store.getters.person(this.manager_id);
     }
 
     get contractor () {
-        return store.getters.member(this.contractor_id);
+        return store.getters.person(this.contractor_id);
     }
 
     // Times

@@ -17,7 +17,7 @@
         name: 'team-view',
         computed: {
             allPersons () {
-                return this.$store.state.members;
+                return this.$store.getters.members;
             }
         },
         components: {

@@ -1,13 +1,7 @@
-class Message {
+import MocaObject from './mocaObject.js';
+class Message extends MocaObject {
 
-    constructor (messagePrimitive) {
-        Object.assign(this, messagePrimitive);
 
-        // Typify
-        this.cycle = parseInt(this.cycle);
-        this.resolved = this.resolved === '1';
-
-    }
 
 }
 

@@ -1,16 +1,9 @@
-class Person {
+import MocaObject from './mocaObject.js';
+class Person extends MocaObject {
 
     constructor (personPrimitive) {
-        Object.assign(this, personPrimitive);
-
-        // Typify
-        this.archived = this.archived === '1';
-        this.notification_time = parseInt(this.notification_time);
-        this.time_offset = parseFloat(this.time_offset);
-
-        // Presence
+        super(personPrimitive);
         this.online = false;
-
     }
 
     get firstName () {

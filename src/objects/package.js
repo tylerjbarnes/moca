@@ -1,12 +1,5 @@
-class Package {
-
-    constructor (packagePrimitive) {
-        Object.assign(this, packagePrimitive);
-
-        // Typify
-        this.hours = parseFloat(this.hours);
-
-    }
+import MocaObject from './mocaObject.js';
+class Package extends MocaObject {
 
     get time () {
         return store.getters.purchaseForPackage(this.id);

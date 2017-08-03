@@ -45,7 +45,7 @@
                 return this.$store.state.projects;
             },
             members() {
-                return this.$store.state.members;
+                return this.$store.getters.members;
             }
         },
         mounted() {
@@ -82,9 +82,9 @@
         > header {
             background-color: white;
             border-right: 1px solid $shadow;
-            // box-shadow: 0px 0px 15px 0px $shadow;
             position: fixed;
             width: $headerWidth; height: 100vh;
+            z-index: 2;
 
             nav {
                 padding-top: $headerWidth;
@@ -112,6 +112,7 @@
             flex-grow: 1;
             margin-left: $headerWidth;
             margin-bottom: 20px;
+            padding-top: $headerWidth;
         }
 
     }

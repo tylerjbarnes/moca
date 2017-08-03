@@ -1,14 +1,5 @@
-class Time {
-
-    constructor (timePrimitive) {
-        Object.assign(this, timePrimitive);
-
-        // Typify
-        this.cycle = parseFloat(this.cycle);
-        this.hours = Math.abs(parseFloat(this.hours));
-        this.pending = this.pending === '1';
-
-    }
+import MocaObject from './mocaObject.js';
+class Time extends MocaObject {
 
     get project () {
         return this.project_id ? store.getters.project(this.project_id) : null;
