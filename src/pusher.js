@@ -19,6 +19,7 @@ class MocaPusher {
     init () {
         this.subscribeToChannels();
         this.bindPresenceEvents();
+        this.bindObjectEvents();
     }
 
     subscribeToChannels () {
@@ -44,6 +45,13 @@ class MocaPusher {
         this.presenceChannel.bind('pusher:member_removed', member => {
             store.getters.member(member.id).online = false;
         });
+    }
+
+    bindObjectEvents () {
+        let me = this;
+        me.pusher.bind('add-project', data => { store.dispatch('addProject', data) });
+        me.pusher.bind('update-project', data => { store.dispatch('updateProject', data) });
+        me.pusher.bind('remove-project', id => { store.dispatch('removeProject', id) });
     }
 
     // Getters

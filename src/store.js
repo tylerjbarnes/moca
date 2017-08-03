@@ -12,13 +12,13 @@ import Time from './objects/time.js';
 
 
 const state = {
-    clients:[],
-    members: [],
-    messages: [],
-    packages: [],
-    projects: [],
-    resources: [],
-    times: [],
+    clients: [],
+    members:  [],
+    messages:  [],
+    packages:  [],
+    projects:  [],
+    resources:  [],
+    times:  [],
     //
     searchTerm: ''
 };
@@ -77,6 +77,12 @@ const mutations = {
         state.projects.push(project);
     },
 
+    // Remove Single
+    removeProject (state,id) { state.projects = state.projects.filter(project => project.id !== id) },
+
+    // Update Single
+    updateProject (state, data) { store.getters.project(data.id).update(data); },
+
     // Add Multiple
     addPersons (state, persons) {
         for (const person of persons) {
@@ -120,6 +126,12 @@ const actions = {
         let project = new Project(projectPrimitive);
         context.commit('addProject', project);
     },
+
+    // Update Single
+    updateProject (context, data) { context.commit('updateProject', data) },
+
+    // Remove Single
+    removeProject (context, id) { context.commit('removeProject', id) },
 
     // Add Multiple
     addPersons (context, personPrimitives) {

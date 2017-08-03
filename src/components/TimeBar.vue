@@ -1,7 +1,7 @@
 <template>
     <div class="time-bar">
         <div class="bar">
-            <div v-for="segment in segments" class="segment" :style="{backgroundColor: segment.color, width: (segment.number / segmentTotal * 100) + '%'}"></div>
+            <div v-for="segment in segments" class="segment" :style="{backgroundColor: segment.color, width: (segmentTotal ? (segment.number / segmentTotal * 100) : 0) + '%'}"></div>
             <div class="gridlines" v-if="segmentTotal <= 20">
                 <div class="gridbox" v-for="n in Math.ceil(segmentTotal)" :style="{flexBasis: segmentWidth}"></div>
             </div>
@@ -25,7 +25,7 @@
                 return this.segments.map(segment => segment.number).reduce((a,b) => a + b, 0);
             },
             segmentWidth () {
-                return (100 / this.segmentTotal) + '%';
+                return (this.segmentTotal ? (100 / this.segmentTotal) : 0) + '%';
             }
         }
     }

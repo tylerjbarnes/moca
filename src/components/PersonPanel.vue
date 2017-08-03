@@ -6,12 +6,18 @@
                 <div class="avatar">
                     <img :src="person.avatar">
                     <transition name="scale">
-                        <div class="online" v-if="person.online"></div>
+                        <div class="online-dot" v-if="person.online"></div>
                     </transition>
                 </div>
                 <div class="titles">
                     <p class="title">{{ person.name }}</p>
-                    <p class="subtitle">{{ subtitle }}</p>
+                    <div class="subtitle">
+                        <span>{{ subtitle }}</span>
+                        <transition name="slide-fade">
+                            <div class="online-label" v-if="person.online">Online</div>
+                        </transition>
+                    </div>
+
                 </div>
                 <time-bar :person="person"></time-bar>
             </header>
@@ -80,7 +86,7 @@
 
                     }
 
-                    .online {
+                    .online-dot {
                         background: $green;
                         border: 3px solid white;
                         border-radius: 10px;
@@ -105,10 +111,24 @@
                         font-weight: 900;
 
                     }
-                    p.subtitle {
+                    .subtitle {
+                        display: flex;
                         font-size: 0.9em;
                         padding-top: 3px;
                         opacity: 0.9;
+
+                        .online-label {
+                            color: $green;
+                            font-weight: 700;
+                            margin-left: 5px;
+                        }
+                        .slide-fade-enter-active, .slide-fade-leave-active {
+                            transition: all 0.4s ease;
+                        }
+                        .slide-fade-enter, .slide-fade-leave-to {
+                            transform: translateX(10px);
+                            opacity: 0;
+                        }
 
                     }
 

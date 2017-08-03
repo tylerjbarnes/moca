@@ -1,15 +1,32 @@
 class Project {
 
     constructor (projectPrimitive) {
-        Object.assign(this, projectPrimitive);
+        Object.assign(this, this.typify(projectPrimitive));
+    }
 
-        // Typify
-        this.archived = this.archived === '1';
-        this.cycle = parseFloat(this.cycle);
-        this.estimate = parseFloat(this.estimate);
-        this.flagged = this.flagged === '1';
-        this.max = parseFloat(this.max);
+    typify (primitive) {
+        let keys = Object.keys(primitive);
+        let typified = {};
+        for (let key of keys) {
+            switch (key) {
+                case 'archived':
+                case 'flagged':
+                    typified[key] = primitive[key] === '1'; break;
+                case 'cycle':
+                case 'estimate':
+                case 'max':
+                    typified[key] = parseFloat(primitive[key]); break;
+                default:
+                    typified[key] = primitive[key];
+            }
+        }
+        return typified;
+    }
 
+    // Update
+
+    update (data) {
+        Object.assign(this, this.typify(data));
     }
 
     // Persons
