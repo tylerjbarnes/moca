@@ -50,7 +50,7 @@ class MocaPusher {
     bindObjectEvents () {
         let me = this;
         me.pusher.bind('add-project', data => { store.dispatch('addObject', {type: 'project', primitive: data}) });
-        me.pusher.bind('update-project', data => { store.dispatch('updateProject', data) });
+        me.pusher.bind('update-project', data => { store.dispatch('updateObject', {type: 'project', primitive: data}) });
         me.pusher.bind('remove-project', id => { store.dispatch('removeObject', {type: 'project', id}) });
     }
 

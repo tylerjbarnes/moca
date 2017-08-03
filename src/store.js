@@ -81,7 +81,10 @@ const mutations = {
     },
 
     // Update
-    updateProject (state, data) { store.getters.project(data.id).update(data); },
+    updateObject (state, args) {
+        let object = store.state[args.setName].find(object => object.id === args.primitive.id);
+        object.update(args.primitive);
+    },
 
     // Remove
     removeObject (state, args) { state[args.setName] = state[args.setName].filter(object => object.id !== args.id) },
@@ -110,7 +113,7 @@ const actions = {
     },
 
     // Update
-    updateProject (context, data) { context.commit('updateProject', data) },
+    updateObject (context, args) { context.commit('updateObject', {setName: args.type + 's', primitive: args.primitive}) },
 
     // Remove
     removeObject (context, args) { context.commit('removeObject', {setName: args.type + 's', id: args.id}) },
