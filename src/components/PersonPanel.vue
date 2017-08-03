@@ -1,22 +1,25 @@
 <template>
 
-    <div class="member-glance card">
+    <div class="person-panel card">
         <div class="card-content">
             <header>
-                <img :src="member.avatar" class="avatar">
+                <img :src="person.avatar" class="avatar">
                 <div class="titles">
-                    <p class="title">{{ member.name }}</p>
-                    <p class="subtitle">{{ member.role | capitalize }}</p>
+                    <p class="title">{{ person.name }}</p>
+                    <p class="subtitle">{{ subtitle }}</p>
                 </div>
-                <time-bar :person="member"></time-bar>
+                <time-bar :person="person"></time-bar>
             </header>
-            <template v-if="member.projectsAssigned.length">
-                <h2 class="collection-title" v-if="member.canManage">Assigned</h2>
-                <project-collection :projects="member.projectsAssigned"></project-collection>
+            <template v-if="person.projectsAssigned && person.projectsAssigned.length">
+                <h2 class="collection-title" v-if="person.canManage">Assigned</h2>
+                <project-collection :projects="person.projectsAssigned"></project-collection>
             </template>
-            <template v-if="member.projectsManaged.length">
+            <template v-if="person.projectsManaged && person.projectsManaged.length">
                 <h2 class="collection-title">Managing</h2>
-                <project-collection :projects="member.projectsManaged"></project-collection>
+                <project-collection :projects="person.projectsManaged"></project-collection>
+            </template>
+            <template v-if="person.projectsOwned">
+                <project-collection :projects="person.projectsOwned"></project-collection>
             </template>
         </div>
     </div>
@@ -25,12 +28,19 @@
 
 
 <script>
-    import ProjectCollection from './ProjectCollection.vue';
-    import TimeBar from './TimeBar.vue';
+    import ProjectCollection from '../components/ProjectCollection.vue';
+    import TimeBar from '../components/TimeBar.vue';
 
     export default {
-        name: 'member-glance',
-        props: ['member'],
+        name: 'person-panel',
+        props: ['person'],
+        computed: {
+            subtitle () {
+                return this.person.role == 'client' ?
+                    this.person.expirationDescription :
+                    capitalizeFirstLetter(this.person.role);
+            }
+        },
         components: {ProjectCollection, TimeBar}
     }
 
@@ -40,10 +50,10 @@
 <style lang="scss">
     @import '../theme.scss';
 
-    .member-glance {
+    .person-panel {
         border-radius: 5px;
         box-shadow: 0px 0px 15px 0px $shadow;
-        margin: 30px 20px;
+        margin: 20px;
 
         .card-content {
 

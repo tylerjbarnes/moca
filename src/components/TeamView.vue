@@ -1,25 +1,20 @@
 <template>
     <div id="team-view">
         <h1 class="title">Managers</h1>
-        <member-glance v-for="member in managers" :member="member" :key="member.id"></member-glance>
+        <person-panel v-for="person in managers" :person="person" :key="person.id"></person-panel>
         <h1 class="title">Contractors</h1>
-        <member-glance v-for="member in contractors" :member="member" :key="member.id"></member-glance>
+        <person-panel v-for="person in contractors" :person="person" :key="person.id"></person-panel>
     </div>
 </template>
 
 
 <script>
-    import MemberGlance from './MemberGlance.vue';
+    import PersonPanel from './PersonPanel.vue';
 
     export default {
         name: 'team-view',
         components: {
-            MemberGlance
-        },
-        data() {
-            return {
-
-            }
+            PersonPanel
         },
         computed: {
             managers() {

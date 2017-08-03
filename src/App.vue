@@ -21,6 +21,7 @@
     window.store = store;
 
     import TeamView from './components/TeamView.vue';
+    import ClientsView from './components/ClientsView.vue';
 
     export default {
         name: 'app',
@@ -69,6 +70,7 @@
         background-color: $white-ter;
         display: flex;
         font-size: 14px;
+        min-height: 100vh;
 
         > header {
             background-color: white;

@@ -33,7 +33,12 @@ const getters = {
 
     // Messages
     messagesByProject: (state, getters) => (id) => {
-        return state.messages.filter(message => message.project_id == id);
+        return state.messages.filter(message => message.project_id === id);
+    },
+
+    // Packages
+    packagesByClient: (state, getters) => (id) => {
+        return state.packages.filter(mocaPackage => mocaPackage.client_id === id);
     },
 
     // Projects
@@ -46,10 +51,19 @@ const getters = {
     projectsByManager: (state, getters) => (id) => {
         return state.projects.filter(project => project.manager_id === id);
     },
+    projectsByClient: (state, getters) => (id) => {
+        return state.projects.filter(project => project.client_id === id);
+    },
 
     // Times
     timesByContractor: (state, getters) => (id) => {
-        return state.times.filter(time => time.worker_id == id);
+        return state.times.filter(time => time.worker_id === id);
+    },
+    timesByClient: (state, getters) => (id) => {
+        return state.times.filter(time => time.client_id === id);
+    },
+    purchaseForPackage: (state, getters) => (id) => {
+        return state.times.find(time => time.package_id === id);
     }
 
 };

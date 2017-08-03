@@ -88,6 +88,9 @@
             border-color: white;
             box-shadow: 0px 2px 10px 0px $shadow;
             transform: scale(1.03);
+            .flag, .unresolved {
+                border-top: 1px solid white;
+            }
         }
         transition: all 0.15s ease;
 
@@ -102,6 +105,7 @@
             position: absolute;
                 top: -1px;
             text-align: center;
+            transition: all 0.15s ease;
             width: 25px; height: 17px;
 
             &.active {

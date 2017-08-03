@@ -8,6 +8,10 @@ class Package {
 
     }
 
+    get time () {
+        return store.getters.purchaseForPackage(this.id);
+    }
+
 }
 
 export default Package;

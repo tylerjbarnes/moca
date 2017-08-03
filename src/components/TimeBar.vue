@@ -1,15 +1,13 @@
 <template>
     <div class="time-bar">
         <div class="bar">
-            <div class="assigned" :style="{backgroundColor: person.color, width: assignedPercent}"></div>
-            <div class="worked" :style="{backgroundColor: person.color, width: workedPercent}"></div>
-            <div class="gridlines">
-                <div class="gridbox" v-for="n in person.hoursAssignedOnCurrentProjects" :style="{width: segmentWidth}"></div>
+            <div v-for="segment in segments" class="segment" :style="{backgroundColor: segment.color, width: (segment.number / segmentTotal * 100) + '%'}"></div>
+            <div class="gridlines" v-if="segmentTotal <= 20">
+                <div class="gridbox" v-for="n in Math.ceil(segmentTotal)" :style="{flexBasis: segmentWidth}"></div>
             </div>
         </div>
         <div class="labels">
-            <span class="label worked-label"><strong>{{ person.hoursWorkedOnCurrentProjects | formatHours}}</strong> Worked</span>
-            <span class="label available-label"><strong>{{ person.hoursAssignedOnCurrentProjects - person.hoursWorkedOnCurrentProjects | formatHours}}</strong> Assigned</span>
+            <span v-for="segment in segments" v-if="segment.number != 0"><strong>{{ segment.number | formatHours }}</strong> {{ segment.label }}</span>
         </div>
     </div>
 </template>
@@ -20,17 +18,14 @@
         name: 'time-bar',
         props: ['person'],
         computed: {
-            workedPercent () {
-                let factor = this.person.hoursWorkedOnCurrentProjects / this.person.hoursAssignedOnCurrentProjects;
-                return (factor * 100) + '%';
+            segments () {
+                return this.person.timeBarData
             },
-            assignedPercent () {
-                let factor = this.person.hoursAssignedOnCurrentProjects / this.person.hoursAssignedOnCurrentProjects;
-                return (factor * 100) + '%';
+            segmentTotal () {
+                return this.segments.map(segment => segment.number).reduce((a,b) => a + b, 0);
             },
             segmentWidth () {
-                let width = 100 / this.person.hoursAssignedOnCurrentProjects;
-                return width + '%';
+                return (100 / this.segmentTotal) + '%';
             }
         }
     }
@@ -46,36 +41,30 @@
         flex-grow: 1;
 
         .bar {
-            background: $white-ter;
+            background-color: $white-ter;
             border-radius: 0.6em;
-            position: relative;
+            display: flex;
             overflow: hidden;
+            position: relative;
             width: 100%; height: 1.2em;
 
-            .assigned, .worked, .labels, .gridlines {
-                height: 100%;
-                position: absolute;
-                    top: 0; left: 0;
-            }
-
-            .assigned {
-                background: green;
-                opacity: 0.25;
-
-            }
-
-            .worked {
+            .segment {
                 background: $white-ter;
+                height: 100%;
+
             }
 
             .gridlines {
                 display: flex;
-                transform: translateX(2px);
+                position: absolute;
+                    left: 0.5px;
                 width: 100%; height: 100%;
 
                 .gridbox {
-                    border-right: 2px solid white;
+                    border-right: 1px solid white;
+                    flex: 0 0;
                     height: 100%;
+                    // outline: 1px solid white;
 
                 }
 
@@ -90,14 +79,10 @@
             padding-top: 5px;
             width: 100%;
 
-            .label {
+            > span {
                 font-size: 0.9em;
                 font-weight: 500;
                 margin: 0;
-
-                &strong {
-                    font-weight: 700;
-                }
 
             }
 
