@@ -4,6 +4,7 @@
         <person-panel v-for="person in managers" :person="person" :key="person.id"></person-panel>
         <h1 class="title" v-if="contractors.length">Contractors</h1>
         <person-panel v-for="person in contractors" :person="person" :key="person.id"></person-panel>
+        <h1 class="missing" v-if="!persons.length">No Team Members Found</h1>
     </div>
 </template>
 
@@ -35,6 +36,12 @@
         h1 {
             font-weight: 700;
             padding: 40px 40px 0 40px;
+
+            &.missing {
+                font-size: 2em;
+                text-align: center;
+                opacity: 0.5;
+            }
 
         }
 

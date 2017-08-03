@@ -44,7 +44,8 @@ module.exports = {
           icons: [
             "fa-flag",
             "fa-comment",
-            "fa-search"
+            "fa-search",
+            "fa-times"
           ]
       }
       }

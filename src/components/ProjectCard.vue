@@ -1,6 +1,6 @@
 <template>
 
-    <router-link tag="div" class="project-card" :to="{ name: 'team-project', params: { id: project.id }}">
+    <router-link tag="div" class="project-card" :to="{ name: projectRouteName, params: { id: project.id }}">
         <div class="flag" :class="{ active: project.flagged }">
             <ceri-icon name="fa-flag" size="10" hcenter></ceri-icon>
         </div>
@@ -39,6 +39,11 @@
                         manager: true
                     }
                 }
+            }
+        },
+        computed: {
+            projectRouteName () {
+                return this.$router.currentRoute.name + '-project';
             }
         },
         methods: {

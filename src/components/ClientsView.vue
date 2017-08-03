@@ -2,6 +2,7 @@
 
     <div id="clients-view">
         <person-panel v-for="person in clients" :person="person" :key="person.id"></person-panel>
+        <h1 class="missing" v-if="!persons.length">No Clients Found</h1>
     </div>
 
 </template>
@@ -36,6 +37,12 @@
         h1 {
             font-weight: 700;
             padding: 40px 40px 0 40px;
+
+            &.missing {
+                font-size: 2em;
+                text-align: center;
+                opacity: 0.5;
+            }
 
         }
 

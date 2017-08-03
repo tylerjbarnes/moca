@@ -3,10 +3,12 @@ import VueRouter from 'vue-router';
 const routes = [
         {
             path: '/team',
+            name: 'team',
             component: require('./components/TeamView.vue')
         },
         {
             path: '/clients',
+            name: 'clients',
             component: require('./components/ClientsView.vue')
         },
         {
