@@ -80,11 +80,12 @@ const mutations = {
         state[args.setName] = [...state[args.setName], ...args.objects];
     },
 
-    // Remove Single
-    removeProject (state, id) { state.projects = state.projects.filter(project => project.id !== id) },
-
-    // Update Single
+    // Update
     updateProject (state, data) { store.getters.project(data.id).update(data); },
+
+    // Remove
+    removeObject (state, args) { state[args.setName] = state[args.setName].filter(object => object.id !== args.id) },
+
 
     // Interface
     setSearchTerm(state, searchTerm) {
@@ -108,11 +109,12 @@ const actions = {
         context.commit('addObjects', {setName: args.type + 's', objects});
     },
 
-    // Update Single
+    // Update
     updateProject (context, data) { context.commit('updateProject', data) },
 
-    // Remove Single
-    removeProject (context, id) { context.commit('removeProject', id) },
+    // Remove
+    removeObject (context, args) { context.commit('removeObject', {setName: args.type + 's', id: args.id}) },
+
 
     // Interface
     setSearchTerm (context, searchTerm) {
