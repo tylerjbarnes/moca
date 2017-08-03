@@ -43,7 +43,8 @@ module.exports = {
         options: {
           icons: [
             "fa-flag",
-            "fa-comment"
+            "fa-comment",
+            "fa-search"
           ]
       }
       }

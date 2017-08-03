@@ -7,10 +7,13 @@ Vue.use(VueRouter);
 import tinycolor2 from 'tinycolor2';
 import moment from 'moment';
 import lodash from 'lodash';
+import fuzzy from 'fuzzy';
 
 window.tinycolor = tinycolor2;
 window.moment = moment;
 window.lodash = lodash;
+window.fuzzy = fuzzy;
+
 window.bus = new Vue();
 
 import Period from './period.js';

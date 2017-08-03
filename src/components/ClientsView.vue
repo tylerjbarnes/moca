@@ -9,17 +9,19 @@
 
 <script>
     import PersonPanel from './PersonPanel.vue';
+    import CanSearchPersons from '../mixins/CanSearchPersons.js';
 
     export default {
         name: 'clients-view',
+        computed: {
+            allPersons () {
+                return this.$store.state.clients;
+            }
+        },
         components: {
             PersonPanel
         },
-        computed: {
-            clients() {
-                return this.$store.state.clients;
-            }
-        }
+        mixins: [CanSearchPersons]
     }
 
 </script>
@@ -33,7 +35,7 @@
 
         h1 {
             font-weight: 700;
-            padding: 30px 20px 0 20px;
+            padding: 40px 40px 0 40px;
 
         }
 

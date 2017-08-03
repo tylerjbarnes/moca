@@ -18,7 +18,9 @@ const state = {
     packages: [],
     projects: [],
     resources: [],
-    times: []
+    times: [],
+    //
+    searchTerm: ''
 };
 
 const getters = {
@@ -99,6 +101,11 @@ const mutations = {
     },
     addTimes (state, times) {
         state.times = [...state.times, ...times];
+    },
+
+    // Interface
+    setSearchTerm( state, searchTerm) {
+        state.searchTerm = searchTerm;
     }
 
 };
@@ -139,6 +146,11 @@ const actions = {
     addTimes (context, timePrimitives) {
         let times = timePrimitives.map(timePrimitive => new Time(timePrimitive));
         context.commit('addTimes', times);
+    },
+
+    // Interface
+    setSearchTerm (context, searchTerm) {
+        context.commit('setSearchTerm', searchTerm);
     }
 
 };

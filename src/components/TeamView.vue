@@ -1,8 +1,8 @@
 <template>
     <div id="team-view">
-        <h1 class="title">Managers</h1>
+        <h1 class="title" v-if="managers.length">Managers</h1>
         <person-panel v-for="person in managers" :person="person" :key="person.id"></person-panel>
-        <h1 class="title">Contractors</h1>
+        <h1 class="title" v-if="contractors.length">Contractors</h1>
         <person-panel v-for="person in contractors" :person="person" :key="person.id"></person-panel>
     </div>
 </template>
@@ -10,20 +10,19 @@
 
 <script>
     import PersonPanel from './PersonPanel.vue';
+    import CanSearchPersons from '../mixins/CanSearchPersons.js';
 
     export default {
         name: 'team-view',
+        computed: {
+            allPersons () {
+                return this.$store.state.members;
+            }
+        },
         components: {
             PersonPanel
         },
-        computed: {
-            managers() {
-                return this.$store.state.members.filter( member => member.canManage);
-            },
-            contractors() {
-                return this.$store.state.members.filter( member => !member.canManage);
-            }
-        }
+        mixins: [CanSearchPersons]
     }
 </script>
 
@@ -35,7 +34,7 @@
 
         h1 {
             font-weight: 700;
-            padding: 30px 20px 0 20px;
+            padding: 40px 40px 0 40px;
 
         }
 

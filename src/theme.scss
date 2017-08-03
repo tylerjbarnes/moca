@@ -2,6 +2,7 @@ $white-ter: #f4f8f9;
 $shadow: darken($white-ter, 5%);
 $green: #2ecc6e;
 $max-width: 1000px;
+$headerWidth: 80px;
 
 @mixin no-select {
   -webkit-touch-callout: none;

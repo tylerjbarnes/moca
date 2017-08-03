@@ -53,7 +53,7 @@
     .person-panel {
         border-radius: 5px;
         box-shadow: 0px 0px 15px 0px $shadow;
-        margin: 20px;
+        margin: 40px;
 
         .card-content {
 

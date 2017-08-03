@@ -8,7 +8,10 @@
                 <router-link to="/time" class="navbar-item">Time</router-link>
             </nav>
         </header>
-        <router-view></router-view>
+        <div class="main">
+            <toolbar></toolbar>
+            <router-view></router-view>
+        </div>
         <router-view name="modal"></router-view>
     </div>
 </template>
@@ -20,15 +23,14 @@
     import store from './store.js';
     window.store = store;
 
+    import Toolbar from './components/Toolbar.vue';
     import TeamView from './components/TeamView.vue';
     import ClientsView from './components/ClientsView.vue';
 
     export default {
         name: 'app',
         store,
-        components: {
-            TeamView
-        },
+        components: {Toolbar, TeamView, ClientsView},
         data() {
             return {
                 activeView: 'team',
@@ -74,9 +76,37 @@
 
         > header {
             background-color: white;
-            box-shadow: 0px 0px 15px 0px $shadow;
-            width: 80px;
+            border-right: 1px solid $shadow;
+            // box-shadow: 0px 0px 15px 0px $shadow;
+            position: fixed;
+            width: $headerWidth; height: 100vh;
 
+            nav {
+                padding-top: $headerWidth;
+
+                .navbar-item {
+                    text-align: center;
+
+                    &:hover {
+                        background: $white-ter;
+                    }
+
+                    &.is-active {
+                        background: white;
+                        color: $green;
+                        font-weight: 900;
+                    }
+
+                }
+
+            }
+
+        }
+
+        > .main {
+            flex-grow: 1;
+            margin-left: $headerWidth;
+            margin-bottom: 20px;
         }
 
     }
