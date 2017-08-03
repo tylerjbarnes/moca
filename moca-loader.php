@@ -254,7 +254,7 @@ class Moca {
         add_rewrite_rule($this->dashboard_slug.'/([^/]*)/?','index.php?page_id='.PAGE_ID.'&tab=$matches[1]','top');
 
         // pusher auth
-        add_rewrite_rule('pusher_auth/?', 'wp-content/plugins/hershey-project-manager/pusher_auth.php', 'top');
+        add_rewrite_rule('pusher_auth/?', 'wp-content/plugins/moca/pusher_auth.php', 'top');
 
     }
 

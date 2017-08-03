@@ -3,7 +3,12 @@
     <div class="person-panel card">
         <div class="card-content">
             <header>
-                <img :src="person.avatar" class="avatar">
+                <div class="avatar">
+                    <img :src="person.avatar">
+                    <transition name="scale">
+                        <div class="online" v-if="person.online"></div>
+                    </transition>
+                </div>
                 <div class="titles">
                     <p class="title">{{ person.name }}</p>
                     <p class="subtitle">{{ subtitle }}</p>
@@ -64,12 +69,32 @@
                 margin-bottom: 20px;
                 padding-bottom: 20px;
 
-                img.avatar {
-                    border-radius: 25px;
+                .avatar {
                     flex: 0 0 50px;
-                    height: 50px;
                     margin-right: 10px;
+                    position: relative;
 
+                    img {
+                        border-radius: 25px;
+                        height: 50px;
+
+                    }
+
+                    .online {
+                        background: $green;
+                        border: 3px solid white;
+                        border-radius: 10px;
+                        position: absolute;
+                            bottom: -1px; right: -4px;
+                        width: 20px; height: 20px;
+                    }
+
+                }
+                .scale-enter-active, .scale-leave-active {
+                    transition: transform 0.4s ease;
+                }
+                .scale-enter, .scale-leave-to {
+                    transform: scale(0);
                 }
 
                 .titles {

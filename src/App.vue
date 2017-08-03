@@ -20,8 +20,11 @@
 <script>
     import axios from 'axios';
     import qs from 'qs';
+
     import store from './store.js';
     window.store = store;
+
+    import MocaPusher from './pusher.js';
 
     import Toolbar from './components/Toolbar.vue';
     import TeamView from './components/TeamView.vue';
@@ -51,12 +54,14 @@
                 function: 'load'
             }))
             .then(({data}) => {
+                window.pusher = new MocaPusher();
                 this.$store.dispatch('addPersons', data.persons);
                 this.$store.dispatch('addMessages', data.messages);
                 this.$store.dispatch('addPackages', data.packages);
                 this.$store.dispatch('addProjects', data.projects);
                 this.$store.dispatch('addResources', data.resources);
                 this.$store.dispatch('addTimes', data.times);
+                this.$store.dispatch('setUser', currentUserWpId);
             });
         }
     }

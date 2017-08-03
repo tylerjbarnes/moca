@@ -8,6 +8,9 @@ class Person {
         this.notification_time = parseInt(this.notification_time);
         this.time_offset = parseFloat(this.time_offset);
 
+        // Presence
+        this.online = false;
+
     }
 
     get firstName () {

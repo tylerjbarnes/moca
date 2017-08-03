@@ -104,8 +104,11 @@ const mutations = {
     },
 
     // Interface
-    setSearchTerm( state, searchTerm) {
+    setSearchTerm(state, searchTerm) {
         state.searchTerm = searchTerm;
+    },
+    setUser(state, wpId) {
+        state.user = state.members.find(person => person.wp_id == wpId);
     }
 
 };
@@ -151,6 +154,9 @@ const actions = {
     // Interface
     setSearchTerm (context, searchTerm) {
         context.commit('setSearchTerm', searchTerm);
+    },
+    setUser (context, wpId) {
+        context.commit('setUser', wpId);
     }
 
 };

@@ -25,6 +25,7 @@
             mode: "<?php echo get_query_var('tab') ? get_query_var('tab') : "projects"; ?>",
             itemId: "<?php echo get_query_var('item'); ?>" ? "<?php echo get_query_var('item'); ?>" : null
         };
+        var currentUserWpId = <?php echo get_current_user_id(); ?>;
         if (appState.mode == 'people') {
             appState.mode = 'persons';
         }
@@ -32,6 +33,7 @@
   </head>
   <body>
     <div id="app"></div>
+    <script src="https://js.pusher.com/4.1/pusher.min.js"></script>
     <script src="http://localhost:8080/dist/build.js"></script>
     <!-- <script src="/dist/build.js"></script> -->
   </body>
