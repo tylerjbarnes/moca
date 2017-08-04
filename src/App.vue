@@ -3,9 +3,9 @@
         <header>
             <div class="logo"></div>
             <nav>
-                <router-link to="/team" class="navbar-item">Team</router-link>
-                <router-link to="/clients" class="navbar-item">Clients</router-link>
-                <router-link to="/time" class="navbar-item">Time</router-link>
+                <router-link :to="{name:'team'}" class="navbar-item">Team</router-link>
+                <router-link :to="{name:'clients'}" class="navbar-item">Clients</router-link>
+                <router-link :to="{name:'time'}" class="navbar-item">Time</router-link>
             </nav>
         </header>
         <div class="main">

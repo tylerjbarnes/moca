@@ -7,7 +7,7 @@
             </div>
         </div>
         <div class="labels">
-            <span v-for="segment in segments" v-if="segment.number != 0"><strong>{{ segment.number | formatHours }}</strong> {{ segment.label }}</span>
+            <span v-for="segment in segments"><strong>{{ segment.number | formatHours }}</strong> {{ segment.label }}</span>
         </div>
     </div>
 </template>
@@ -78,6 +78,10 @@
             justify-content: space-between;
             padding-top: 5px;
             width: 100%;
+
+            &.hidden {
+                opacity: 0;
+            }
 
             > span {
                 font-size: 0.9em;

@@ -12,6 +12,11 @@ const routes = [
             component: require('./components/ClientsView.vue')
         },
         {
+            path: '/time',
+            name: 'time',
+            component: require('./components/TimeView.vue')
+        },
+        {
             path: '/team/new-project',
             name: 'team-new-project',
             components: {
