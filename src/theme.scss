@@ -26,3 +26,34 @@ $headerWidth: 80px;
 body { // @todo remove actual styles from this file - it gets repeated
     font-family: Lato;
 }
+
+button.button {
+    align-self: center;
+    background-color: $green;
+    border: none;
+    color: white;
+    font-size: 0.85em;
+    font-weight: 900;
+    height: 35px;
+    min-width: 120px;
+    padding: 0 15px;
+    text-transform: uppercase;
+    @include lifts;
+
+    &:not(:last-child) {
+        margin-right: 20px !important;
+    }
+
+    &.inverted {
+        background-color: white;
+        color: $green;
+        &:hover, &.is-active, &:active, &:focus {
+            color: $green;
+        }
+    }
+
+    &:hover, &.is-active, &:active, &:focus {
+        color: white;
+    }
+
+}

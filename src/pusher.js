@@ -4,7 +4,7 @@ class MocaPusher {
 
     constructor () {
         this.pusher = new Pusher(
-            '2a9730534281c98fb4b3',
+            pusherKey,
             {
                 authEndpoint: '/pusher_auth',
                 cluster: 'us2'

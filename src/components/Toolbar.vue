@@ -85,22 +85,9 @@
         .actions {
             align-content: center;
             display: flex;
-            flex: 0 0 200px;
+            flex: 0 1;
             flex-flow: row;
             justify-content: flex-end;
-
-            button {
-                align-self: center;
-                background-color: $green;
-                border: none;
-                color: white;
-                font-size: 0.9em;
-                font-weight: 900;
-                height: 30px;
-                padding: 0 15px;
-                @include lifts;
-
-            }
 
         }
 

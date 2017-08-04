@@ -7,6 +7,11 @@
         header("Location: /login"); /* Redirect browser */
         exit();
     }
+    global $wpdb;
+    $option_table = $wpdb->prefix . 'hpm_options';
+    $pusher_key = $wpdb->get_var(
+        "SELECT option_value FROM $option_table messages WHERE option_name = 'pusher_key'"
+    );
 ?>
 
 <!DOCTYPE html>
@@ -25,7 +30,8 @@
             mode: "<?php echo get_query_var('tab') ? get_query_var('tab') : "projects"; ?>",
             itemId: "<?php echo get_query_var('item'); ?>" ? "<?php echo get_query_var('item'); ?>" : null
         };
-        var currentUserWpId = <?php echo get_current_user_id(); ?>;
+        var currentUserWpId = "<?php echo get_current_user_id(); ?>";
+        var pusherKey = "<?php echo $pusher_key; ?>";
         if (appState.mode == 'people') {
             appState.mode = 'persons';
         }
