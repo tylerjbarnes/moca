@@ -74,30 +74,18 @@ const mutations = {
 
     // Objects
 
-    addObjects (state, args) {
-        state[args.setName] = [...state[args.setName], ...args.objects];
-    },
-
-    addObject (state, args) {
-        state[args.setName].push(args.object);
-    },
-
+    addObjects (state, args) { state[args.setName] = [...state[args.setName], ...args.objects]; },
+    addObject (state, args) { state[args.setName].push(args.object); },
     updateObject (state, args) {
         let object = store.state[args.setName].find(object => object.id === args.primitive.id);
         object.update(args.primitive);
     },
-
     removeObject (state, args) { state[args.setName] = state[args.setName].filter(object => object.id !== args.id) },
 
     // Interface
 
-    setSearchTerm(state, searchTerm) {
-        state.searchTerm = searchTerm;
-    },
-
-    setUser(state, wpId) {
-        state.user = state.persons.find(person => person.wp_id == wpId);
-    }
+    setSearchTerm(state, searchTerm) { state.searchTerm = searchTerm; },
+    setUser(state, wpId) { state.user = state.persons.find(person => person.wp_id == wpId); }
 
 };
 
@@ -109,25 +97,17 @@ const actions = {
         let objects = MocaFactory.constructObjects(args.type, args.primitives);
         context.commit('addObjects', {setName: args.type + 's', objects});
     },
-
     addObject (context, args) {
         let object = MocaFactory.constructObject(args.type, args.primitive);
         context.commit('addObject', object);
     },
-
     updateObject (context, args) { context.commit('updateObject', {setName: args.type + 's', primitive: args.primitive}) },
-
     removeObject (context, args) { context.commit('removeObject', {setName: args.type + 's', id: args.id}) },
 
     // Interface
 
-    setSearchTerm (context, searchTerm) {
-        context.commit('setSearchTerm', searchTerm);
-    },
-
-    setUser (context, wpId) {
-        context.commit('setUser', wpId);
-    }
+    setSearchTerm (context, searchTerm) { context.commit('setSearchTerm', searchTerm); },
+    setUser (context, wpId) { context.commit('setUser', wpId); }
 
 };
 
