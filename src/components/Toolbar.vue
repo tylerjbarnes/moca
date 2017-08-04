@@ -5,6 +5,9 @@
         <div v-if="searchTerm.length" @click="searchTerm = '';" class="clear">
             <ceri-icon size="16" name="fa-times" hcenter></ceri-icon>
         </div>
+        <div class="actions">
+            <router-link tag="button" class="button" :to="{name: this.$store.state.route.view + '-new-project'}">+ New Project</router-link>
+        </div>
     </div>
 </template>
 
@@ -34,10 +37,10 @@
         background: white;
         border-bottom: 1px solid $shadow;
         display: flex;
+        height: $headerWidth;
         padding: 0 40px;
         position: fixed;
             top: 0; right: 0; left: $headerWidth;
-        width: 100%; height: $headerWidth;
         z-index: 1;
 
         ceri-icon {
@@ -50,7 +53,7 @@
             width: $headerWidth; height: $headerWidth;
             display: flex;
             justify-content: center;
-            margin-right: $headerWidth * -0.5;
+            // margin-right: $headerWidth * -0.5;
 
             &:hover {
 
@@ -75,6 +78,28 @@
                 &::placeholder {
                     opacity: 0;
                 }
+            }
+
+        }
+
+        .actions {
+            align-content: center;
+            display: flex;
+            flex: 0 0 200px;
+            flex-flow: row;
+            justify-content: flex-end;
+
+            button {
+                align-self: center;
+                background-color: $green;
+                border: none;
+                color: white;
+                font-size: 0.9em;
+                font-weight: 900;
+                height: 30px;
+                padding: 0 15px;
+                @include lifts;
+
             }
 
         }

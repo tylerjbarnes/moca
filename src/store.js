@@ -21,7 +21,11 @@ const state = {
     resources:  [],
     times:  [],
     //
-    searchTerm: ''
+    searchTerm: '',
+    route: {
+        view: null,
+        item: null
+    }
 };
 
 const getters = {
@@ -85,7 +89,8 @@ const mutations = {
     // Interface
 
     setSearchTerm(state, searchTerm) { state.searchTerm = searchTerm; },
-    setUser(state, wpId) { state.user = state.persons.find(person => person.wp_id == wpId); }
+    setUser(state, wpId) { state.user = state.persons.find(person => person.wp_id == wpId); },
+    updateRoute(state, route) { state.route = route; }
 
 };
 
@@ -107,7 +112,8 @@ const actions = {
     // Interface
 
     setSearchTerm (context, searchTerm) { context.commit('setSearchTerm', searchTerm); },
-    setUser (context, wpId) { context.commit('setUser', wpId); }
+    setUser (context, wpId) { context.commit('setUser', wpId); },
+    updateRoute (context, route) { context.commit('updateRoute', route); }
 
 };
 

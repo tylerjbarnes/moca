@@ -1,6 +1,6 @@
 <template>
 
-    <router-link tag="div" class="project-card" :to="{ name: projectRouteName, params: { id: project.id }}">
+    <router-link tag="div" class="project-card" :to="{ name: this.$store.state.route.view + '-project', params: { id: project.id }}">
         <div class="flag" :class="{ active: project.flagged }">
             <ceri-icon name="fa-flag" size="10" hcenter></ceri-icon>
         </div>
@@ -39,11 +39,6 @@
                         manager: true
                     }
                 }
-            }
-        },
-        computed: {
-            projectRouteName () {
-                return this.$router.currentRoute.name + '-project';
             }
         },
         methods: {
@@ -89,15 +84,13 @@
         padding: 10px;
         position: relative;
         width: 100%;
+        @include lifts;
         &:hover {
             border-color: white;
-            box-shadow: 0px 2px 10px 0px $shadow;
-            transform: scale(1.03);
             .flag, .unresolved {
                 border-top: 1px solid white;
             }
         }
-        transition: all 0.15s ease;
 
         @include no-select;
 
