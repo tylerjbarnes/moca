@@ -11,10 +11,11 @@
                     </div>
                 </header>
                 <section class="modal-card-body">
-                    <hours-input></hours-input>
+                    <span>{{ testVal }}</span>
+                    <hours-input v-model="testVal"></hours-input>
                 </section>
                 <footer class="modal-card-foot">
-                    <button class="button inverted">Cancel</button>
+                    <button class="button inverted" tabindex="-1">Cancel</button>
                     <button class="button">Save</button>
                 </footer>
             </div>
@@ -29,7 +30,12 @@
 
     export default {
         name: 'project-editor',
-        components: {HoursInput}
+        components: {HoursInput},
+        data () {
+            return {
+                testVal: 0.25
+            }
+        }
     }
 
 </script>
