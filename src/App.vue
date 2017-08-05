@@ -8,7 +8,7 @@
                 <router-link :to="{name:'time'}" class="navbar-item">Time</router-link>
             </nav>
         </header>
-        <div class="main">
+        <div class="main" :style="{position: $store.state.route.itemId ? 'fixed' : 'static'}">
             <toolbar></toolbar>
             <router-view></router-view>
         </div>
@@ -130,15 +130,23 @@
             margin-left: $headerWidth;
             margin-bottom: 20px;
             padding-top: $headerWidth;
+
         }
 
         .modal {
+            overflow: visible;
+            position: absolute;
+
             .modal-background {
                 background: rgba(black, 0.25);
+                position: fixed;
 
             }
             .modal-card {
+                align-self: flex-start;
                 box-shadow: 0px 5px 50px 0px rgba(black, 0.25);
+                margin: 40px auto;
+                max-height: none;
 
             }
         }

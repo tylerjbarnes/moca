@@ -8,11 +8,13 @@ import tinycolor2 from 'tinycolor2';
 import moment from 'moment';
 import lodash from 'lodash';
 import fuzzy from 'fuzzy';
+import cuid from 'cuid';
 
 window.tinycolor = tinycolor2;
 window.moment = moment;
 window.lodash = lodash;
 window.fuzzy = fuzzy;
+window.cuid = cuid;
 
 window.bus = new Vue();
 

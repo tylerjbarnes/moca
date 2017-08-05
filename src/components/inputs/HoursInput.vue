@@ -55,6 +55,7 @@
                 let result = value;
                 if (value.includes(':')) {
                     let hours = parseInt(value.split(':')[0]);
+                    hours = hours ? hours : 0;
                     let minuteString = value.split(':')[1];
                     let minutes = minuteString.length > 1 ? parseInt(minuteString) : parseInt(minuteString + '0');
                     result = hours + (minutes / 60);

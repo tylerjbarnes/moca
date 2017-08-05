@@ -57,3 +57,12 @@ button.button {
     }
 
 }
+
+input, textarea {
+    border: 1px solid darken($shadow, 15%);
+    font: inherit !important;
+    outline: none;
+    margin: 5px 0;
+    padding: 10px;
+
+}
