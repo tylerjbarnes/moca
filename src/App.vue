@@ -12,7 +12,14 @@
             <toolbar></toolbar>
             <router-view></router-view>
         </div>
-        <router-view name="modal"></router-view>
+        <transition name="modal-fade">
+            <div class="modal is-active" v-if="$store.state.route.itemId">
+                <router-link tag="div" class="modal-background" :to="{name: $store.state.route.view}"></router-link>
+                <div class="modal-card">
+                    <router-view name="modal"></router-view>
+                </div>
+            </div>
+        </transition>
     </div>
 </template>
 
@@ -123,6 +130,32 @@
             margin-left: $headerWidth;
             margin-bottom: 20px;
             padding-top: $headerWidth;
+        }
+
+        .modal {
+            .modal-background {
+                background: rgba(black, 0.25);
+
+            }
+            .modal-card {
+                box-shadow: 0px 5px 50px 0px rgba(black, 0.25);
+
+            }
+        }
+        .modal-fade-enter-active, .modal-fade-leave-active {
+            transition: all 0.2s ease;
+            .modal-background, .modal-card {
+                transition: all 0.2s ease;
+            }
+        }
+        .modal-fade-enter, .modal-fade-leave-to {
+            .modal-background {
+                opacity: 0;
+            }
+            .modal-card {
+                opacity: 0;
+                transform: scale(0.9);
+            }
         }
 
     }
