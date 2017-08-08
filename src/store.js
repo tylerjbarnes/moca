@@ -42,7 +42,10 @@ const getters = {
 
     // Persons
     clients: (state, getters) => state.persons.filter(person => person.role === 'client'),
+    managers: (state, getters) => state.persons.filter(person => person.role === 'manager'),
+    contractors: (state, getters) => state.persons.filter(person => person.role === 'contractor'),
     members: (state, getters) => state.persons.filter(person => person.role !== 'client'),
+    personsByRole: (state, getters) => (role) => state.persons.filter(person => person.role === role),
     person: (state, getters) => (id) => {
         return state.persons.find(person => person.id === id);
     },

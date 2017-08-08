@@ -1,5 +1,8 @@
+@import "./theme/inputs";
+
 $white-ter: #f4f8f9;
 $shadow: darken($white-ter, 5%);
+$gray: #ededee;
 $green: #2ecc6e;
 $max-width: 1000px;
 $headerWidth: 80px;
@@ -58,11 +61,11 @@ button.button {
 
 }
 
-input, textarea {
-    border: 1px solid darken($shadow, 15%);
-    font: inherit !important;
-    outline: none;
-    margin: 5px 0;
-    padding: 10px;
-
-}
+// input, textarea {
+//     border: 1px solid darken($shadow, 15%);
+//     font: inherit !important;
+//     outline: none;
+//     margin: 5px 0;
+//     padding: 5px 10px;
+//
+// }

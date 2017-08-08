@@ -66,10 +66,12 @@ class Client extends Person {
     }
 
     get lastPackage () {
+        if (!this.packages) { return null; }
         return this.packages[0];
     }
 
     get expirationDescription () {
+        if (!this.lastPackage) { return 'No Packages'; }
         let expirationDate = this.lastPackage.expiration_date;
         let prettyExpiration = moment(expirationDate).format('MMMM DD');
         return expirationDate < new moment().format('YYYY-MM-DD') ?

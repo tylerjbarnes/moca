@@ -16,13 +16,24 @@
                 <div class="fields">
                     <div class="field-columns">
                         <div class="field-column">
-                            <input type="text" v-model="client_id" placeholder="Client">
+                            <label>Project Name</label>
+                            <div class="moca-input">
+                                <input type="text" v-model="name" autofocus>
+                            </div>
                         </div>
                         <div class="field-column">
-                            <input type="text" v-model="name" placeholder="Project Name">
+                            <label>Client</label>
+                            <person-input role="client" v-model="client_id"></person-input>
                         </div>
                     </div>
-                    <textarea v-model="overview" placeholder="Create an overview resource for the project..."></textarea>
+                    <div class="field-columns">
+                        <div class="field-column single">
+                            <label>Overview</label>
+                            <div class="moca-input">
+                                <textarea v-model="overview" placeholder="Create an overview resource for the project..."></textarea>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </section>
             <!-- Team -->
@@ -33,10 +44,14 @@
                 <div class="fields">
                     <div class="field-columns">
                         <div class="field-column">
-                            <input type="text" v-model="manager_id" placeholder="Manager">
+                            <label>Manager</label>
+                            <div class="moca-input">
+                                <person-input role="manager" v-model="manager_id"></person-input>
+                            </div>
                         </div>
                         <div class="field-column">
-                            <input type="text" v-model="contractor_id" placeholder="Contractor">
+                            <label>Contractor</label>
+                            <person-input role="contractor" v-model="contractor_id"></person-input>
                         </div>
                     </div>
                 </div>
@@ -49,22 +64,24 @@
                 <div class="fields">
                     <div class="field-columns">
                         <div class="field-column">
+                            <label>Estimate</label>
                             <hours-input v-model="estimate"></hours-input>
                         </div>
                         <div class="field-column">
+                            <label>Max</label>
                             <hours-input v-model="max"></hours-input>
                         </div>
                     </div>
                     <div class="field-columns">
-                        <div class="field-column">
-                            <input type="date" v-model="start">
+                        <!-- <div class="field-column">
+                            <datepicker v-model="start"></datepicker>
                         </div>
                         <div class="field-column">
-                            <input type="date" v-model="target">
+                            <input type="date" v-model="target" clear-button>
                         </div>
                         <div class="field-column">
-                            <input type="date" v-model="due">
-                        </div>
+                            <input type="date" v-model="due" clear-button>
+                        </div> -->
                     </div>
 
                 </div>
@@ -91,10 +108,13 @@
 
 <script>
     import HoursInput from './inputs/HoursInput.vue';
+    import PersonInput from './inputs/PersonInput.vue';
+    import Datepicker from 'vuejs-datepicker';
+    import vSelect from 'vue-select';
 
     export default {
         name: 'project-editor',
-        components: {HoursInput},
+        components: {HoursInput,Datepicker,vSelect,PersonInput},
         data () {
             return {
                 id: cuid(),
@@ -112,8 +132,14 @@
                 contractor_id: null,
                 manager_id: null,
                 archived: false,
-                overview: ''
+                overview: '',
+                testVal: null
             }
+        },
+        computed: {
+            clients () { return this.$store.getters.clients.map(client => { return {label: client.name, value: client.id} }); },
+            managers () { return this.$store.getters.managers.map(manager => { return {label: manager.name, value: manager.id} }); },
+            contractors () { return this.$store.getters.contractors.map(contractor => { return {label: contractor.name, value: contractor.id} }); }
         }
     }
 
@@ -157,7 +183,7 @@
 
             section {
                 display: flex;
-                margin-bottom: 40px;
+                margin-bottom: 50px;
                     &:last-of-type { margin-bottom: 0; }
 
                 header {
@@ -173,17 +199,32 @@
 
                 .fields {
                     display: flex;
+                    flex: 1 1;
                     flex-flow: column;
 
                     .field-columns {
                         display: flex;
-                        flex-wrap: wrap;
+                        margin-bottom: 26px;
+                        &:last-of-type { margin-bottom: 0; }
 
                         .field-column {
                             display: flex;
+                            flex: 1 1 50%;
                             flex-flow: column;
+                            position: relative;
                             &:first-of-type { margin-right: 5px; }
                             &:last-of-type { margin-left: 5px; }
+                            &.single { margin: 0; }
+
+                            label {
+                                color: darken($gray,50%);
+                                font-size: 0.75em;
+                                font-weight: 700;
+                                position: absolute;
+                                    top: -1.6em;
+                                text-transform: uppercase;
+
+                            }
 
                         }
 

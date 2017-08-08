@@ -89,6 +89,9 @@
     @import url('https://fonts.googleapis.com/css?family=Lato:400,700,900');
     @import './node_modules/bulma/bulma.sass';
     @import './theme.scss';
+    @import './theme/inputs.scss';
+
+    .moca-input { @include moca-input; }
 
     #app {
         background-color: $white-ter;
@@ -148,12 +151,20 @@
                 margin: 40px auto;
                 max-height: none;
 
+                .modal-card-body {
+                    overflow: visible;
+
+                }
+
             }
         }
         .modal-fade-enter-active, .modal-fade-leave-active {
-            transition: all 0.2s ease;
+            transition: all 0.5s ease;
             .modal-background, .modal-card {
-                transition: all 0.2s ease;
+                transition: all 0.4s ease;
+            }
+            .modal-card {
+                transition: all 0.25s ease;
             }
         }
         .modal-fade-enter, .modal-fade-leave-to {
@@ -162,7 +173,7 @@
             }
             .modal-card {
                 opacity: 0;
-                transform: scale(0.9);
+                transform: scale(0.925);
             }
         }
 

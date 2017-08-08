@@ -45,7 +45,9 @@ module.exports = {
             "fa-flag",
             "fa-comment",
             "fa-search",
-            "fa-times"
+            "fa-times",
+            "fa-plus",
+            "fa-minus"
           ]
       }
       }

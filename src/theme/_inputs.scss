@@ -1,0 +1,27 @@
+@mixin moca-input {
+    background: $white-ter;
+    border-radius: 5px;
+    min-height: 30px;
+    padding: 0;
+
+    input, textarea {
+        background: none;
+        border: none;
+        font: inherit;
+        font-size: 0.9em;
+        font-weight: 700;
+        height: 30px;
+        outline: none;
+        padding: 0 10px;
+
+    }
+
+    textarea {
+        display: block;
+        height: 90px;
+        padding: 10px;
+        resize: vertical;
+        width: 100%;
+    }
+
+}

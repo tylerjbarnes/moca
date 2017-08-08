@@ -31,7 +31,9 @@
     "tinycolor2": "^1.4.1",
     "vue-loader": "^12.1.0",
     "vue-router": "^2.7.0",
+    "vue-select": "^2.2.0",
     "vue-template-compiler": "^2.3.3",
+    "vuejs-datepicker": "^0.9.7",
     "vuex": "^2.3.1",
     "webpack": "^2.6.1",
     "webpack-dev-server": "^2.4.5"

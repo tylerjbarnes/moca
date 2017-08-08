@@ -3,7 +3,7 @@ export default {
         persons () {
             let persons = this.allPersons;
             if (this.$store.state.searchTerm) {
-                let options = {extract: (manager) => manager.name};
+                let options = {extract: (person) => person.name};
                 persons = fuzzy.filter(this.$store.state.searchTerm, persons, options)
                     .map(result => result.original);
             }
