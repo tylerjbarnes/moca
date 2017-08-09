@@ -23,14 +23,14 @@
                         </div>
                         <div class="field-column">
                             <label>Client</label>
-                            <person-input role="client" v-model="projectPrimitive.client_id"></person-input>
+                            <person-input roles="['client']" v-model="projectPrimitive.client_id"></person-input>
                         </div>
                     </div>
                     <div class="field-columns">
                         <div class="field-column single">
                             <label>Overview</label>
                             <div class="moca-input">
-                                <textarea v-model="resourcePrimitive.body" placeholder="Create an overview resource for the project..."></textarea>
+                                <textarea v-model="resourcePrimitive.content.body" placeholder="Create an overview resource for the project..."></textarea>
                             </div>
                         </div>
                     </div>
@@ -46,12 +46,12 @@
                         <div class="field-column">
                             <label>Manager</label>
                             <div class="moca-input">
-                                <person-input role="manager" v-model="projectPrimitive.manager_id"></person-input>
+                                <person-input roles="['administrator','manager']" v-model="projectPrimitive.manager_id"></person-input>
                             </div>
                         </div>
                         <div class="field-column">
                             <label>Contractor</label>
-                            <person-input role="contractor" v-model="projectPrimitive.contractor_id"></person-input>
+                            <person-input roles="['contractor']" v-model="projectPrimitive.contractor_id"></person-input>
                         </div>
                     </div>
                 </div>
@@ -149,8 +149,11 @@
                     archived: false,
                 },
                 resourcePrimitive: {
+                    id: cuid(),
                     name: 'Overview',
-                    body: ''
+                    content: {
+                        body: ''
+                    }
                 }
             }
         },
@@ -163,12 +166,17 @@
         },
         methods: {
             save () {
-                this.$store.dispatch('addObject',{
+                if (this.projectPrimitive.contractor_id) {
+                    this.projectPrimitive.status = 'do';
+                }
+                this.$store.dispatch('createObject',{
                     type: 'project',
                     primitive: this.projectPrimitive
                 });
-                if (this.resourcePrimitive.body) {
-                    this.$store.dispatch('addObject',{
+                if (this.resourcePrimitive.content.body) {
+                    this.resourcePrimitive.client_id = this.projectPrimitive.client_id;
+                    this.resourcePrimitive.project_id = this.projectPrimitive.id;
+                    this.$store.dispatch('createObject',{
                         type: 'resource',
                         primitive: this.resourcePrimitive
                     });

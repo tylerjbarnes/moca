@@ -64,3 +64,25 @@ function hpm_save_activities( $activities ) {
         hpm_save_activity( $activity );
     }
 }
+
+
+function hpm_api_create_object( $type, $data, $socket_id ) {
+    foreach ($data as $key => $value) {
+        $data[$key] = $value !== '' ? $value : NULL;
+    }
+    $function_name = 'hpm_api_create_' . $type;
+    $function_name( $data, $socket_id );
+}
+
+function hpm_api_update_object( $type, $id, $data, $socket_id ) {
+    foreach ($data as $key => $value) {
+        $data[$key] = $value !== '' ? $value : NULL;
+    }
+    $function_name = 'hpm_api_update_' . $type;
+    $function_name( $id, $data, $socket_id );
+}
+
+function hpm_api_delete_object( $id, $socket_id ) {
+    $function_name = 'hpm_api_delete_' . $type;
+    $function_name( $id, $socket_id );
+}

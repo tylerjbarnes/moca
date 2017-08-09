@@ -12,6 +12,9 @@ import Project from './objects/project.js';
 import Resource from './objects/resource.js';
 import Time from './objects/time.js';
 
+import axios from 'axios';
+import qs from 'qs';
+
 
 const state = {
     messages:  [],
@@ -22,10 +25,7 @@ const state = {
     times:  [],
     //
     searchTerm: '',
-    route: {
-        view: null,
-        item: null
-    }
+    route: { view: null, item: null }
 };
 
 const getters = {
@@ -42,10 +42,10 @@ const getters = {
 
     // Persons
     clients: (state, getters) => state.persons.filter(person => person.role === 'client'),
-    managers: (state, getters) => state.persons.filter(person => person.role === 'manager'),
+    management: (state, getters) => getters.members.filter(person => person.canManage),
     contractors: (state, getters) => state.persons.filter(person => person.role === 'contractor'),
     members: (state, getters) => state.persons.filter(person => person.role !== 'client'),
-    personsByRole: (state, getters) => (role) => state.persons.filter(person => person.role === role),
+    personsByRoles: (state, getters) => (roles) => state.persons.filter(person => roles.includes(person.role)),
     person: (state, getters) => (id) => {
         return state.persons.find(person => person.id === id);
     },
@@ -85,7 +85,7 @@ const mutations = {
 
 const actions = {
 
-    // Objects
+    // Object Pulling
 
     addObjects (context, args) {
         let objects = MocaFactory.constructObjects(args.type, args.primitives);
@@ -96,7 +96,18 @@ const actions = {
         context.commit('addObject', {setName: args.type + 's', object});
     },
     updateObject (context, args) { context.commit('updateObject', {setName: args.type + 's', primitive: args.primitive}) },
-    removeObject (context, args) { context.commit('removeObject', {setName: args.type + 's', id: args.id}) },
+    removeObject(context, args) { context.commit('removeObject', {setName: args.type + 's', id: args.id}) },
+
+    // Object Pushing
+
+    createObject (context, args) {
+        store.dispatch('addObject', args);
+        axios.post(ajaxurl, qs.stringify({ action: 'hpm_api', function: 'create_object',
+            type: args.type,
+            object_data: args.primitive,
+            socket_id: pusher.socketId
+        })).then((response) => { console.log(response); });
+    },
 
     // Interface
 

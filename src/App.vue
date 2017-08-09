@@ -30,31 +30,14 @@
 
     import store from './store.js';
     window.store = store;
-
     import MocaPusher from './pusher.js';
 
     import Toolbar from './components/Toolbar.vue';
-    import TeamView from './components/TeamView.vue';
-    import ClientsView from './components/ClientsView.vue';
 
     export default {
         name: 'app',
         store,
-        components: {Toolbar, TeamView, ClientsView},
-        data() {
-            return {
-                activeView: 'team',
-                modalActive: false
-            }
-        },
-        computed: {
-            projects() {
-                return this.$store.state.projects;
-            },
-            members() {
-                return this.$store.getters.members;
-            }
-        },
+        components: {Toolbar},
         mounted() {
             axios.post(ajaxurl, qs.stringify({
                 action: 'hpm_api',
@@ -72,12 +55,6 @@
                 ]) {
                     this.$store.dispatch('addObjects', {type, primitives: data[type + 's']});
                 }
-                // this.$store.dispatch('addPersons', data.persons);
-                // this.$store.dispatch('addMessages', data.messages);
-                // this.$store.dispatch('addPackages', data.packages);
-                // this.$store.dispatch('addProjects', data.projects);
-                // this.$store.dispatch('addResources', data.resources);
-                // this.$store.dispatch('addTimes', data.times);
                 this.$store.dispatch('setUser', currentUserWpId);
             });
         }

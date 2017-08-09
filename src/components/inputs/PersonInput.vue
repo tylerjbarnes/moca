@@ -17,7 +17,7 @@
 
     export default {
         name: 'person-input',
-        props: ['role','value'],
+        props: ['roles','value'],
         data () {
             return {
                 searchTerm: '',
@@ -30,7 +30,7 @@
         computed: {
             persons () {
                 let options = {extract: (person) => person.name};
-                let allPersons = this.$store.getters.personsByRole(this.role);
+                let allPersons = this.$store.getters.personsByRoles(this.roles);
                 return fuzzy.filter(this.searchTerm, allPersons, options).map(result => result.original);
             },
             placeholderText () {

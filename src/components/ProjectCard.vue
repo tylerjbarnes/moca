@@ -9,7 +9,7 @@
         </div>
         <div class="content">
             <div class="names">
-                <span class="client">{{ project.client.name }}</span>
+                <span class="client">{{ project.client ? project.client.name : 'No Client' }}</span>
                 <span class="project">{{ project.name }}</span>
             </div>
         </div>

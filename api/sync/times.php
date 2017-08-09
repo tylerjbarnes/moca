@@ -116,7 +116,7 @@ function hpm_api_load_times($filters = []) {
 }
 
 function hpm_typify_time_data( $row ) {
-    $row->hours = (float) $row->hours;
+    $row->hours = abs((float) $row->hours);
     $row->cycle = (int) $row->cycle;
     $row->memo = stripslashes( $row->memo );
     $row->pending = $row->pending == 1;
