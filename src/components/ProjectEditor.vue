@@ -18,19 +18,19 @@
                         <div class="field-column">
                             <label>Project Name</label>
                             <div class="moca-input">
-                                <input type="text" v-model="name" autofocus>
+                                <input type="text" v-model="projectPrimitive.name" autofocus>
                             </div>
                         </div>
                         <div class="field-column">
                             <label>Client</label>
-                            <person-input role="client" v-model="client_id"></person-input>
+                            <person-input role="client" v-model="projectPrimitive.client_id"></person-input>
                         </div>
                     </div>
                     <div class="field-columns">
                         <div class="field-column single">
                             <label>Overview</label>
                             <div class="moca-input">
-                                <textarea v-model="overview" placeholder="Create an overview resource for the project..."></textarea>
+                                <textarea v-model="resourcePrimitive.body" placeholder="Create an overview resource for the project..."></textarea>
                             </div>
                         </div>
                     </div>
@@ -46,12 +46,12 @@
                         <div class="field-column">
                             <label>Manager</label>
                             <div class="moca-input">
-                                <person-input role="manager" v-model="manager_id"></person-input>
+                                <person-input role="manager" v-model="projectPrimitive.manager_id"></person-input>
                             </div>
                         </div>
                         <div class="field-column">
                             <label>Contractor</label>
-                            <person-input role="contractor" v-model="contractor_id"></person-input>
+                            <person-input role="contractor" v-model="projectPrimitive.contractor_id"></person-input>
                         </div>
                     </div>
                 </div>
@@ -65,25 +65,25 @@
                     <div class="field-columns">
                         <div class="field-column">
                             <label>Estimate</label>
-                            <hours-input v-model="estimate"></hours-input>
+                            <hours-input v-model="projectPrimitive.estimate"></hours-input>
                         </div>
                         <div class="field-column">
                             <label>Max</label>
-                            <hours-input v-model="max"></hours-input>
+                            <hours-input v-model="projectPrimitive.max"></hours-input>
                         </div>
                     </div>
                     <div class="field-columns">
                         <div class="field-column">
                             <label>Start</label>
-                            <date-input v-model="start"></date-input>
+                            <date-input v-model="projectPrimitive.start"></date-input>
                         </div>
                         <div class="field-column middle">
                             <label>Soft Due</label>
-                            <date-input v-model="target"></date-input>
+                            <date-input v-model="projectPrimitive.target"></date-input>
                         </div>
                         <div class="field-column">
                             <label>Hard Due</label>
-                            <date-input v-model="due"></date-input>
+                            <date-input v-model="projectPrimitive.due"></date-input>
                         </div>
                     </div>
 
@@ -98,13 +98,13 @@
                     <div class="field-columns">
                         <div class="field-column single">
                             <label>Autocycle</label>
-                            <autocycle-input v-model="autocycle"></autocycle-input>
+                            <autocycle-input v-model="projectPrimitive.autocycle"></autocycle-input>
                         </div>
                     </div>
                     <div class="field-columns">
                         <div class="field-column single">
                             <label>Priority</label>
-                            <flagged-input v-model="flagged"></flagged-input>
+                            <flagged-input v-model="projectPrimitive.flagged"></flagged-input>
                         </div>
                     </div>
                 </div>
@@ -112,7 +112,7 @@
         </section>
         <footer class="modal-card-foot">
             <button class="button inverted" tabindex="-1">Cancel</button>
-            <button class="button">Save</button>
+            <button class="button" @click="save" :disabled="!validates">Save</button>
         </footer>
     </div>
 
@@ -126,36 +126,55 @@
     import AutocycleInput from './inputs/AutocycleInput.vue';
     import FlaggedInput from './inputs/FlaggedInput.vue';
 
-    import vSelect from 'vue-select';
-
     export default {
         name: 'project-editor',
-        components: {HoursInput,vSelect,PersonInput,DateInput,AutocycleInput,FlaggedInput},
+        components: {HoursInput,PersonInput,DateInput,AutocycleInput,FlaggedInput},
         data () {
             return {
-                id: cuid(),
-                name: '',
-                start: new moment().format('YYYY-MM-DD'),
-                target: null,
-                due: null,
-                estimate: 0.25,
-                max: 0.25,
-                autocycle: null,
-                cycle: 0,
-                status: 'delegate',
-                flagged: false,
-                client_id: null,
-                contractor_id: null,
-                manager_id: null,
-                archived: false,
-                overview: '',
-                testVal: null
+                projectPrimitive: {
+                    id: cuid(),
+                    name: '',
+                    start: new moment().format('YYYY-MM-DD'),
+                    target: null,
+                    due: null,
+                    estimate: 0.25,
+                    max: 0.25,
+                    autocycle: null,
+                    cycle: 0,
+                    status: 'delegate',
+                    flagged: false,
+                    client_id: null,
+                    contractor_id: null,
+                    manager_id: null,
+                    archived: false,
+                },
+                resourcePrimitive: {
+                    name: 'Overview',
+                    body: ''
+                }
             }
         },
         computed: {
-            clients () { return this.$store.getters.clients.map(client => { return {label: client.name, value: client.id} }); },
-            managers () { return this.$store.getters.managers.map(manager => { return {label: manager.name, value: manager.id} }); },
-            contractors () { return this.$store.getters.contractors.map(contractor => { return {label: contractor.name, value: contractor.id} }); }
+            validates () {
+                return this.projectPrimitive.name &&
+                    this.projectPrimitive.manager_id &&
+                    this.projectPrimitive.max >= this.projectPrimitive.estimate;
+            }
+        },
+        methods: {
+            save () {
+                this.$store.dispatch('addObject',{
+                    type: 'project',
+                    primitive: this.projectPrimitive
+                });
+                if (this.resourcePrimitive.body) {
+                    this.$store.dispatch('addObject',{
+                        type: 'resource',
+                        primitive: this.resourcePrimitive
+                    });
+                }
+                router.push({ name: 'team' });
+            }
         }
     }
 

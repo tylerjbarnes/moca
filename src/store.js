@@ -51,29 +51,15 @@ const getters = {
     },
 
     // Projects
-    project: (state, getters) => (id) => {
-        return state.projects.find(project => project.id === id);
-    },
-    projectsByContractor: (state, getters) => (id) => {
-        return state.projects.filter(project => project.contractor_id === id);
-    },
-    projectsByManager: (state, getters) => (id) => {
-        return state.projects.filter(project => project.manager_id === id);
-    },
-    projectsByClient: (state, getters) => (id) => {
-        return state.projects.filter(project => project.client_id === id);
-    },
+    project: (state, getters) => (id) => { return state.projects.find(project => project.id === id); },
+    projectsByContractor: (state, getters) => (id) => { return state.projects.filter(project => project.contractor_id === id); },
+    projectsByManager: (state, getters) => (id) => { return state.projects.filter(project => project.manager_id === id); },
+    projectsByClient: (state, getters) => (id) => { return state.projects.filter(project => project.client_id === id); },
 
     // Times
-    timesByContractor: (state, getters) => (id) => {
-        return state.times.filter(time => time.worker_id === id);
-    },
-    timesByClient: (state, getters) => (id) => {
-        return state.times.filter(time => time.client_id === id);
-    },
-    purchaseForPackage: (state, getters) => (id) => {
-        return state.times.find(time => time.package_id === id);
-    }
+    timesByContractor: (state, getters) => (id) => { return state.times.filter(time => time.worker_id === id); },
+    timesByClient: (state, getters) => (id) => { return state.times.filter(time => time.client_id === id); },
+    purchaseForPackage: (state, getters) => (id) => { return state.times.find(time => time.package_id === id); }
 
 };
 
@@ -107,7 +93,7 @@ const actions = {
     },
     addObject (context, args) {
         let object = MocaFactory.constructObject(args.type, args.primitive);
-        context.commit('addObject', object);
+        context.commit('addObject', {setName: args.type + 's', object});
     },
     updateObject (context, args) { context.commit('updateObject', {setName: args.type + 's', primitive: args.primitive}) },
     removeObject (context, args) { context.commit('removeObject', {setName: args.type + 's', id: args.id}) },

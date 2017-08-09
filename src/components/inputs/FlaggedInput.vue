@@ -2,7 +2,7 @@
 
     <div class="flagged-input">
         <label class="switch">
-            <input type="checkbox">
+            <input type="checkbox" @change="updateValue($event.target.checked)">
             <span class="slider">
                 <span class="puck">
                     <ceri-icon name="fa-flag" hcenter></ceri-icon>
@@ -20,20 +20,10 @@
     export default {
         name: 'flagged-input',
         props: ['value'],
-        data () {
-            return {
-                // options: [
-                //     {name: 'off', value: null},
-                //     {name: 'daily', value: 'daily'},
-                //     {name: 'weekly', value: 'weekly'},
-                //     {name: 'monthly', value: 'monthly'},
-                // ]
-            }
-        },
         methods: {
-            // updateValue(value) {
-            //     this.$emit('input', value ? value : null);
-            // }
+            updateValue (value) {
+                this.$emit('input', value);
+            }
         }
     }
 
@@ -53,10 +43,7 @@
 
             input {opacity:0;}
 
-
-
         }
-
 
         .slider {
             border-radius: 34px;

@@ -36,8 +36,8 @@ function hpm_api_load_project( $id ) {
     }
 
     // Return
-    $project_data = $wpdb->get_row( "SELECT * FROM $project_table $where" );
-    return hpm_response( true, $project_data );
+    $row = $wpdb->get_row( "SELECT * FROM $project_table $where" );
+    return hpm_typify_project_data( $row );
 
 }
 
@@ -78,9 +78,21 @@ function hpm_api_load_projects($filters = []) {
         $where .= " AND $key = '$value'";
     }
 
-    // Return
-    return $wpdb->get_results( "SELECT * FROM $project_table $where" );
+    // Typify & Return
+    $results = $wpdb->get_results( "SELECT * FROM $project_table $where" );
+    return array_map(function($row){
+        return hpm_typify_project_data( $row );
+    }, $results);
 
+}
+
+function hpm_typify_project_data( $row ) {
+    $row->estimate = (float) $row->estimate;
+    $row->max = (float) $row->max;
+    $row->cycle = (int) $row->cycle;
+    $row->flagged = $row->flagged == 1;
+    $row->archived = $row->archived == 1;
+    return $row;
 }
 
 /**

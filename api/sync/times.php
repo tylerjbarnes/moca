@@ -36,7 +36,7 @@ function hpm_api_load_time( $id ) {
 
     // Return
     $time_data = $wpdb->get_row( "SELECT * FROM $time_table $where" );
-    return hpm_response( true, $time_data );
+    return hpm_typify_time_data( $time_data );
 
 }
 
@@ -103,13 +103,24 @@ function hpm_api_load_times($filters = []) {
     }
 
     // Return
-    return $wpdb->get_results( "
-    SELECT times.* FROM $time_table times
-    LEFT JOIN $project_table projects ON times.project_id = projects.id
-    LEFT JOIN $person_table clients ON times.client_id = clients.id
-    $where
+    $rows = $wpdb->get_results( "
+        SELECT times.* FROM $time_table times
+        LEFT JOIN $project_table projects ON times.project_id = projects.id
+        LEFT JOIN $person_table clients ON times.client_id = clients.id
+        $where
     " );
+    return array_map(function( $row ){
+        return hpm_typify_time_data( $row );
+    }, $rows );
 
+}
+
+function hpm_typify_time_data( $row ) {
+    $row->hours = (float) $row->hours;
+    $row->cycle = (int) $row->cycle;
+    $row->memo = stripslashes( $row->memo );
+    $row->pending = $row->pending == 1;
+    return $row;
 }
 
 

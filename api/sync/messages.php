@@ -36,11 +36,12 @@ function hpm_api_load_message( $id ) {
     }
 
     // Return
-    return $wpdb->get_row( "
-    SELECT messages.* FROM $message_table messages
-    LEFT JOIN $project_table projects ON messages.project_id = projects.id
-    $where
+    $row = $wpdb->get_row( "
+        SELECT messages.* FROM $message_table messages
+        LEFT JOIN $project_table projects ON messages.project_id = projects.id
+        $where
     " );
+    return hpm_typify_message_data( $row );
 
 }
 
@@ -98,19 +99,26 @@ function hpm_api_load_messages($filters = []) {
     }
 
     // Fetch
-    $messages = $wpdb->get_results( "
-    SELECT messages.* FROM $message_table messages
-    LEFT JOIN $project_table projects ON messages.project_id = projects.id
-    $where
+    $rows = $wpdb->get_results( "
+        SELECT messages.* FROM $message_table messages
+        LEFT JOIN $project_table projects ON messages.project_id = projects.id
+        $where
     " );
 
     // Prepare & Return
-    return array_map( function( $message ) {
-        $message->content = stripslashes( $message->content );
-        $message->meta = json_decode( $message->meta );
-        return $message;
-    }, $messages);
+    return array_map( function( $row ) {
+        return hpm_typify_message_data( $row );
+    }, $rows);
 
+}
+
+function hpm_typify_message_data( $row ) {
+    $row->content = stripslashes( $row->content );
+    $row->meta = json_decode( $row->meta );
+
+    $row->cycle = (int) $row->cycle;
+    $row->resolved = $row->resolved == 1;
+    return $row;
 }
 
 

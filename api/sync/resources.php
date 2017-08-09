@@ -58,12 +58,17 @@ function hpm_api_load_resources($filters = []) {
 
     // Prepare & Return
     return array_map( function( $resource ) {
-        $resource->content = json_decode( $resource->content );
-        $resource->name = stripslashes( $resource->name );
-        $resource->content->body = stripslashes( $resource->content->body );
-        return $resource;
+        return hpm_typify_resource_data( $resource );
     }, $flat_resources);
 
+}
+
+function hpm_typify_resource_data( $row ) {
+    $row->content = json_decode( $row->content );
+    $row->name = stripslashes( $row->name );
+    $row->content->body = stripslashes( $row->content->body );
+    $row->cycle = (int) $row->cycle;
+    return $row;
 }
 
 

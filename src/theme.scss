@@ -62,6 +62,10 @@ button.button {
         color: white;
     }
 
+    &:disabled {
+        color: darken($gray,25%);
+    }
+
 }
 
 // input, textarea {

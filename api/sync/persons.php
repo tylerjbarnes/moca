@@ -25,11 +25,11 @@ function hpm_api_load_person( $id ) {
     ";
     $person_data = $wpdb->get_row( $query );
 
-    // Avatar
-    $person_data->avatar = get_wp_user_avatar_src( $datum->wp_id, 'thumbnail');
+    // // Avatar
+    // $person_data->avatar = get_wp_user_avatar_src( $datum->wp_id, 'thumbnail');
 
     // Return
-    return hpm_response( true, $person_data );
+    return hpm_typify_person_data( $person_data );
 
 }
 
@@ -76,13 +76,20 @@ function hpm_api_load_persons($filters = []) {
 
     // Avatars
     $persons_data = array_map( function($datum) {
-        $datum->avatar = get_wp_user_avatar_src( $datum->wp_id, 'thumbnail');
-        return $datum;
+        return hpm_typify_person_data( $datum );
     }, $persons_data );
 
     // Return
     return $persons_data;
 
+}
+
+function hpm_typify_person_data( $row ) {
+    $row->avatar = get_wp_user_avatar_src( $row->wp_id, 'thumbnail');
+    $row->time_offset = (int) $row->time_offset;
+    $row->notification_time = (float) $row->notification_time;
+    $row->archived = $row->archived == 1;
+    return $row;
 }
 
 

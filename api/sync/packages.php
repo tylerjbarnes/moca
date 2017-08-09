@@ -13,10 +13,18 @@ function hpm_api_load_packages() {
     global $wpdb;
     $package_table = $wpdb->prefix . 'hpm_packages';
 
-    return  $wpdb->get_results( "
+    $rows = $wpdb->get_results( "
         SELECT * FROM $package_table
     " );
+    return array_map(function( $row ) {
+        return hpm_typify_package_data( $row );
+    }, $rows);
 
+}
+
+function hpm_typify_package_data( $row ) {
+    $row->hours = (float) $row->hours;
+    return $row;
 }
 
 
