@@ -106,6 +106,7 @@
         overflow: hidden;
 
         input {
+            padding: 0;
             text-align: center;
         }
 
@@ -114,8 +115,9 @@
             border: none;
             height: 30px;
             outline: none;
-            padding: 0 10px;
+            padding: 0;
             transition: all 0.15s ease;
+            width: 30px;
             &:hover {
                 background: $gray;
             }

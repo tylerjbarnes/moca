@@ -148,8 +148,9 @@
             .modal-card {
                 align-self: flex-start;
                 box-shadow: 0px 5px 50px 0px rgba(black, 0.25);
-                margin: 40px auto;
+                margin: 40px auto 120px auto;
                 max-height: none;
+                overflow: visible !important;
 
                 .modal-card-body {
                     overflow: visible;

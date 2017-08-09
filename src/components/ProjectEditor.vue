@@ -73,15 +73,18 @@
                         </div>
                     </div>
                     <div class="field-columns">
-                        <!-- <div class="field-column">
-                            <datepicker v-model="start"></datepicker>
+                        <div class="field-column">
+                            <label>Start</label>
+                            <date-input v-model="start"></date-input>
+                        </div>
+                        <div class="field-column middle">
+                            <label>Soft Due</label>
+                            <date-input v-model="target"></date-input>
                         </div>
                         <div class="field-column">
-                            <input type="date" v-model="target" clear-button>
+                            <label>Hard Due</label>
+                            <date-input v-model="due"></date-input>
                         </div>
-                        <div class="field-column">
-                            <input type="date" v-model="due" clear-button>
-                        </div> -->
                     </div>
 
                 </div>
@@ -92,8 +95,18 @@
                     <span class="title">Settings</span>
                 </header>
                 <div class="fields">
-                    <input type="text" v-model="autocycle" placeholder="Autocycle">
-                    <input type="checkbox" v-model="flagged"> Priority
+                    <div class="field-columns">
+                        <div class="field-column single">
+                            <label>Autocycle</label>
+                            <autocycle-input v-model="autocycle"></autocycle-input>
+                        </div>
+                    </div>
+                    <div class="field-columns">
+                        <div class="field-column single">
+                            <label>Priority</label>
+                            <flagged-input v-model="flagged"></flagged-input>
+                        </div>
+                    </div>
                 </div>
             </section>
         </section>
@@ -109,12 +122,15 @@
 <script>
     import HoursInput from './inputs/HoursInput.vue';
     import PersonInput from './inputs/PersonInput.vue';
-    import Datepicker from 'vuejs-datepicker';
+    import DateInput from './inputs/DateInput.vue';
+    import AutocycleInput from './inputs/AutocycleInput.vue';
+    import FlaggedInput from './inputs/FlaggedInput.vue';
+
     import vSelect from 'vue-select';
 
     export default {
         name: 'project-editor',
-        components: {HoursInput,Datepicker,vSelect,PersonInput},
+        components: {HoursInput,vSelect,PersonInput,DateInput,AutocycleInput,FlaggedInput},
         data () {
             return {
                 id: cuid(),
@@ -204,19 +220,21 @@
 
                     .field-columns {
                         display: flex;
-                        margin-bottom: 26px;
+                        margin-bottom: 30px;
                         &:last-of-type { margin-bottom: 0; }
 
                         .field-column {
                             display: flex;
-                            flex: 1 1 50%;
+                            flex: 1 1;
                             flex-flow: column;
                             position: relative;
+
                             &:first-of-type { margin-right: 5px; }
                             &:last-of-type { margin-left: 5px; }
                             &.single { margin: 0; }
+                            &.middle { margin-right: 5px; margin-left: 5px; }
 
-                            label {
+                            > label {
                                 color: darken($gray,50%);
                                 font-size: 0.75em;
                                 font-weight: 700;

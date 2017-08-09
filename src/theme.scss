@@ -6,6 +6,7 @@ $gray: #ededee;
 $green: #2ecc6e;
 $max-width: 1000px;
 $headerWidth: 80px;
+$orange: #f46f3f;
 
 @mixin no-select {
   -webkit-touch-callout: none;
@@ -17,11 +18,13 @@ $headerWidth: 80px;
 
   cursor: default;
 }
-
+@mixin shadow( $color: $shadow) {
+    box-shadow: 0px 2px 10px 0px $color;
+}
 @mixin lifts {
     transition: all 0.15s ease;
     &:hover {
-        box-shadow: 0px 2px 10px 0px $shadow;
+        @include shadow;
         transform: scale(1.03);
     }
 }
