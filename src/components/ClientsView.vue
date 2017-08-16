@@ -22,7 +22,11 @@
         components: {
             PersonPanel
         },
-        mixins: [CanSearchPersons]
+        mixins: [CanSearchPersons],
+        mounted () {
+            let savedScroll = localStorage['clientsScroll'];
+            document.body.scrollTop = savedScroll;
+        }
     }
 
 </script>

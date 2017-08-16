@@ -74,7 +74,7 @@ function hpm_api_create_object( $type, $data, $socket_id ) {
     $function_name( $data, $socket_id );
 }
 
-function hpm_api_update_object( $type, $id, $data, $socket_id ) {
+function hpm_api_modify_object( $type, $id, $data, $socket_id ) {
     foreach ($data as $key => $value) {
         $data[$key] = $value !== '' ? $value : NULL;
     }

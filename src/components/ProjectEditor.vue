@@ -1,119 +1,121 @@
 <template>
 
     <div id="project-editor">
-        <header class="modal-card-head">
-            <div class="inner">
-                <p class="modal-card-title">New Project</p>
-                <router-link tag="button" :to="{name: $store.state.route.view}" class="delete"></router-link>
-            </div>
-        </header>
-        <section class="modal-card-body">
-            <!-- Basics -->
-            <section>
-                <header>
-                    <span class="title">Basics</span>
-                </header>
-                <div class="fields">
-                    <div class="field-columns">
-                        <div class="field-column">
-                            <label>Project Name</label>
-                            <div class="moca-input">
-                                <input type="text" v-model="projectPrimitive.name" autofocus>
-                            </div>
-                        </div>
-                        <div class="field-column">
-                            <label>Client</label>
-                            <person-input roles="['client']" v-model="projectPrimitive.client_id"></person-input>
-                        </div>
-                    </div>
-                    <div class="field-columns">
-                        <div class="field-column single">
-                            <label>Overview</label>
-                            <div class="moca-input">
-                                <textarea v-model="resourcePrimitive.content.body" placeholder="Create an overview resource for the project..."></textarea>
-                            </div>
-                        </div>
-                    </div>
+        <div class="modal-card">
+            <header class="modal-card-head">
+                <div class="inner">
+                    <p class="modal-card-title">New Project</p>
+                    <router-link tag="button" :to="{name: $store.state.route.view}" class="delete"></router-link>
                 </div>
-            </section>
-            <!-- Team -->
-            <section>
-                <header>
-                    <span class="title">Team</span>
-                </header>
-                <div class="fields">
-                    <div class="field-columns">
-                        <div class="field-column">
-                            <label>Manager</label>
-                            <div class="moca-input">
-                                <person-input roles="['administrator','manager']" v-model="projectPrimitive.manager_id"></person-input>
+            </header>
+            <section class="modal-card-body">
+                <!-- Basics -->
+                <section>
+                    <header>
+                        <span class="title">Basics</span>
+                    </header>
+                    <div class="fields">
+                        <div class="field-columns">
+                            <div class="field-column">
+                                <label>Project Name</label>
+                                <div class="moca-input">
+                                    <input type="text" v-model="projectPrimitive.name" autofocus>
+                                </div>
+                            </div>
+                            <div class="field-column">
+                                <label>Client</label>
+                                <person-input roles="['client']" v-model="projectPrimitive.client_id"></person-input>
                             </div>
                         </div>
-                        <div class="field-column">
-                            <label>Contractor</label>
-                            <person-input roles="['contractor']" v-model="projectPrimitive.contractor_id"></person-input>
+                        <div class="field-columns">
+                            <div class="field-column single">
+                                <label>Overview</label>
+                                <div class="moca-input">
+                                    <textarea v-model="resourcePrimitive.content.body" placeholder="Create an overview resource for the project..."></textarea>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </section>
-            <!-- Timeline -->
-            <section>
-                <header>
-                    <span class="title">Timeline</span>
-                </header>
-                <div class="fields">
-                    <div class="field-columns">
-                        <div class="field-column">
-                            <label>Estimate</label>
-                            <hours-input v-model="projectPrimitive.estimate"></hours-input>
-                        </div>
-                        <div class="field-column">
-                            <label>Max</label>
-                            <hours-input v-model="projectPrimitive.max"></hours-input>
-                        </div>
-                    </div>
-                    <div class="field-columns">
-                        <div class="field-column">
-                            <label>Start</label>
-                            <date-input v-model="projectPrimitive.start"></date-input>
-                        </div>
-                        <div class="field-column middle">
-                            <label>Soft Due</label>
-                            <date-input v-model="projectPrimitive.target"></date-input>
-                        </div>
-                        <div class="field-column">
-                            <label>Hard Due</label>
-                            <date-input v-model="projectPrimitive.due"></date-input>
+                </section>
+                <!-- Team -->
+                <section>
+                    <header>
+                        <span class="title">Team</span>
+                    </header>
+                    <div class="fields">
+                        <div class="field-columns">
+                            <div class="field-column">
+                                <label>Manager</label>
+                                <div class="moca-input">
+                                    <person-input roles="['administrator','manager']" v-model="projectPrimitive.manager_id"></person-input>
+                                </div>
+                            </div>
+                            <div class="field-column">
+                                <label>Contractor</label>
+                                <person-input roles="['contractor']" v-model="projectPrimitive.contractor_id"></person-input>
+                            </div>
                         </div>
                     </div>
+                </section>
+                <!-- Timeline -->
+                <section>
+                    <header>
+                        <span class="title">Timeline</span>
+                    </header>
+                    <div class="fields">
+                        <div class="field-columns">
+                            <div class="field-column">
+                                <label>Estimate</label>
+                                <hours-input v-model="projectPrimitive.estimate"></hours-input>
+                            </div>
+                            <div class="field-column">
+                                <label>Max</label>
+                                <hours-input v-model="projectPrimitive.max"></hours-input>
+                            </div>
+                        </div>
+                        <div class="field-columns">
+                            <div class="field-column">
+                                <label>Start</label>
+                                <date-input v-model="projectPrimitive.start"></date-input>
+                            </div>
+                            <div class="field-column middle">
+                                <label>Soft Due</label>
+                                <date-input v-model="projectPrimitive.target"></date-input>
+                            </div>
+                            <div class="field-column">
+                                <label>Hard Due</label>
+                                <date-input v-model="projectPrimitive.due"></date-input>
+                            </div>
+                        </div>
 
-                </div>
-            </section>
-            <!-- Settings -->
-            <section>
-                <header>
-                    <span class="title">Settings</span>
-                </header>
-                <div class="fields">
-                    <div class="field-columns">
-                        <div class="field-column single">
-                            <label>Autocycle</label>
-                            <autocycle-input v-model="projectPrimitive.autocycle"></autocycle-input>
+                    </div>
+                </section>
+                <!-- Settings -->
+                <section>
+                    <header>
+                        <span class="title">Settings</span>
+                    </header>
+                    <div class="fields">
+                        <div class="field-columns">
+                            <div class="field-column single">
+                                <label>Autocycle</label>
+                                <autocycle-input v-model="projectPrimitive.autocycle"></autocycle-input>
+                            </div>
+                        </div>
+                        <div class="field-columns">
+                            <div class="field-column single">
+                                <label>Priority</label>
+                                <flagged-input v-model="projectPrimitive.flagged"></flagged-input>
+                            </div>
                         </div>
                     </div>
-                    <div class="field-columns">
-                        <div class="field-column single">
-                            <label>Priority</label>
-                            <flagged-input v-model="projectPrimitive.flagged"></flagged-input>
-                        </div>
-                    </div>
-                </div>
+                </section>
             </section>
-        </section>
-        <footer class="modal-card-foot">
-            <button class="button inverted" tabindex="-1">Cancel</button>
-            <button class="button" @click="save" :disabled="!validates">Save</button>
-        </footer>
+            <footer class="modal-card-foot">
+                <button class="button inverted" tabindex="-1">Cancel</button>
+                <button class="button" @click="save" :disabled="!validates">Save</button>
+            </footer>
+        </div>
     </div>
 
 </template>

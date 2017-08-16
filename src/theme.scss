@@ -29,8 +29,18 @@ $orange: #f46f3f;
     }
 }
 
+.noScroll {
+    overflow: hidden;
+
+}
+
+body, html {
+    height: 100%;
+}
+
 body { // @todo remove actual styles from this file - it gets repeated
     font-family: Lato;
+    overflow: auto;
 }
 
 button.button {

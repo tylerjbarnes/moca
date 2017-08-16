@@ -8,16 +8,16 @@
                 <router-link :to="{name:'time'}" class="navbar-item">Time</router-link>
             </nav>
         </header>
-        <div class="main" :style="{position: $store.state.route.itemId ? 'fixed' : 'static'}">
-            <toolbar></toolbar>
-            <router-view></router-view>
+        <div class="main-container">
+            <div class="main">
+                <toolbar></toolbar>
+                <router-view></router-view>
+            </div>
         </div>
         <transition name="modal-fade">
             <div class="modal is-active" v-if="$store.state.route.itemId">
                 <router-link tag="div" class="modal-background" :to="{name: $store.state.route.view}"></router-link>
-                <div class="modal-card">
-                    <router-view name="modal"></router-view>
-                </div>
+                <router-view name="modal"></router-view>
             </div>
         </transition>
     </div>
@@ -25,38 +25,22 @@
 
 
 <script>
-    import axios from 'axios';
-    import qs from 'qs';
-
-    import store from './store.js';
-    window.store = store;
-    import MocaPusher from './pusher.js';
-
     import Toolbar from './components/Toolbar.vue';
 
     export default {
         name: 'app',
-        store,
         components: {Toolbar},
-        mounted() {
-            axios.post(ajaxurl, qs.stringify({
-                action: 'hpm_api',
-                function: 'load'
-            }))
-            .then(({data}) => {
-                window.pusher = new MocaPusher();
-                for (let type of [
-                    'person',
-                    'message',
-                    'package',
-                    'project',
-                    'resource',
-                    'time'
-                ]) {
-                    this.$store.dispatch('addObjects', {type, primitives: data[type + 's']});
-                }
-                this.$store.dispatch('setUser', currentUserWpId);
-            });
+        computed: {
+            modalOpen () {
+                return this.$store.state.route.itemId !== null;
+            }
+        },
+        watch: {
+            modalOpen: (newVal) => {
+                newVal ?
+                    document.body.classList.add('noScroll') :
+                    document.body.classList.remove('noScroll');
+            }
         }
     }
 </script>
@@ -105,17 +89,23 @@
 
         }
 
-        > .main {
-            flex-grow: 1;
-            margin-left: $headerWidth;
-            margin-bottom: 20px;
-            padding-top: $headerWidth;
+        .main-container {
+            flex: 1 1;
+
+            > .main {
+                margin-left: $headerWidth;
+                margin-bottom: 20px;
+                padding-top: $headerWidth;
+                right: 0; left: 0;
+
+            }
 
         }
 
         .modal {
-            overflow: visible;
-            position: absolute;
+            height: 100%;
+            overflow: scroll;
+            position: fixed;
 
             .modal-background {
                 background: rgba(black, 0.25);
@@ -136,13 +126,22 @@
 
             }
         }
-        .modal-fade-enter-active, .modal-fade-leave-active {
-            transition: all 0.5s ease;
-            .modal-background, .modal-card {
-                transition: all 0.4s ease;
+        .modal-fade-enter-active {
+            transition: all 0.25s ease;
+            .modal-background {
+                transition: all 0.15s;
             }
             .modal-card {
                 transition: all 0.25s ease;
+            }
+        }
+        .modal-fade-leave-active {
+            transition: all 0.15s ease;
+            .modal-background {
+                transition: all 0.15s;
+            }
+            .modal-card {
+                transition: all 0.15s ease;
             }
         }
         .modal-fade-enter, .modal-fade-leave-to {

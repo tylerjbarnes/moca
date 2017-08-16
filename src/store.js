@@ -51,15 +51,18 @@ const getters = {
     },
 
     // Projects
-    project: (state, getters) => (id) => { return state.projects.find(project => project.id === id); },
-    projectsByContractor: (state, getters) => (id) => { return state.projects.filter(project => project.contractor_id === id); },
-    projectsByManager: (state, getters) => (id) => { return state.projects.filter(project => project.manager_id === id); },
-    projectsByClient: (state, getters) => (id) => { return state.projects.filter(project => project.client_id === id); },
+    project: (state, getters) => (id) => state.projects.find(project => project.id === id),
+    projectsByContractor: (state, getters) => (id) => state.projects.filter(project => project.contractor_id === id),
+    projectsByManager: (state, getters) => (id) => state.projects.filter(project => project.manager_id === id),
+    projectsByClient: (state, getters) => (id) => state.projects.filter(project => project.client_id === id),
+
+    // Resources
+    resourcesByProject: (state, getters) => (id) => state.resources.filter(resource => resource.project_id === id),
 
     // Times
-    timesByContractor: (state, getters) => (id) => { return state.times.filter(time => time.worker_id === id); },
-    timesByClient: (state, getters) => (id) => { return state.times.filter(time => time.client_id === id); },
-    purchaseForPackage: (state, getters) => (id) => { return state.times.find(time => time.package_id === id); }
+    timesByContractor: (state, getters) => (id) => state.times.filter(time => time.worker_id === id),
+    timesByClient: (state, getters) => (id) => state.times.filter(time => time.client_id === id),
+    purchaseForPackage: (state, getters) => (id) => state.times.find(time => time.package_id === id)
 
 };
 
@@ -106,7 +109,23 @@ const actions = {
             type: args.type,
             object_data: args.primitive,
             socket_id: pusher.socketId
-        })).then((response) => { console.log(response); });
+        })).then((response) => {});
+    },
+    modifyObject (context, args) {
+        store.dispatch('updateObject', args);
+        axios.post(ajaxurl, qs.stringify({ action: 'hpm_api', function: 'modify_object',
+            type: args.type,
+            object_data: args.primitive,
+            socket_id: pusher.socketId
+        })).then((response) => {});
+    },
+    deleteObject (context, args) {
+        store.dispatch('removeObject', args);
+        axios.post(ajaxurl, qs.stringify({ action: 'hpm_api', function: 'delete_object',
+            type: args.type,
+            object_id: args.id,
+            socket_id: pusher.socketId
+        })).then((response) => {});
     },
 
     // Interface

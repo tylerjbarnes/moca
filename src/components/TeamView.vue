@@ -23,7 +23,11 @@
         components: {
             PersonPanel
         },
-        mixins: [CanSearchPersons]
+        mixins: [CanSearchPersons],
+        mounted () {
+            let savedScroll = localStorage['teamScroll'];
+            document.body.scrollTop = savedScroll;
+        }
     }
 </script>
 
@@ -31,7 +35,6 @@
 <style lang="scss">
 
     #team-view {
-        overflow-y: auto;
 
         h1 {
             font-weight: 700;

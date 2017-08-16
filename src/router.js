@@ -1,10 +1,11 @@
 import VueRouter from 'vue-router';
+import TeamView from './components/TeamView.vue';
 
 const routes = [
         {
             path: '/team',
             name: 'team',
-            component: require('./components/TeamView.vue')
+            component: TeamView
         },
         {
             path: '/clients',
@@ -20,7 +21,7 @@ const routes = [
             path: '/team/new-project',
             name: 'team-new-project',
             components: {
-                default: require('./components/TeamView.vue'),
+                default: TeamView,
                 modal: require('./components/ProjectEditor.vue')
             },
         },
@@ -36,7 +37,7 @@ const routes = [
             path: '/team/:id',
             name: 'team-project',
             components: {
-                default: require('./components/TeamView.vue'),
+                default: TeamView,
                 modal: require('./components/ProjectView.vue')
             },
             props: {
@@ -71,6 +72,12 @@ router.afterEach((hook) => {
         view: components[0],
         itemId: components.length > 1 ? components[1] : null
     });
+});
+
+router.beforeEach((to, from, next) => {
+    let view = store.state.route.view;
+    if (view) { localStorage[view + "Scroll"] = document.body.scrollTop; }
+    next();
 });
 
 window.router = router;

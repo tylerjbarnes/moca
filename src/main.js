@@ -28,8 +28,44 @@ import router from './router.js';
 import Store from './store.js';
 import App from './App.vue';
 
+
+import axios from 'axios';
+import qs from 'qs';
+
+import store from './store.js';
+window.store = store;
+import MocaPusher from './pusher.js';
+
+axios.post(ajaxurl, qs.stringify({
+    action: 'hpm_api',
+    function: 'load'
+}))
+.then(({data}) => {
+    window.pusher = new MocaPusher();
+    for (let type of [
+        'person',
+        'message',
+        'package',
+        'project',
+        'resource',
+        'time'
+    ]) {
+        store.dispatch('addObjects', {type, primitives: data[type + 's']});
+    }
+    store.dispatch('setUser', currentUserWpId);
+
+    // new Vue({
+    //   el: '#app',
+    //   render: h => h(App),
+    //   router,
+    //   store
+    // })
+});
+
+// debug version
 new Vue({
   el: '#app',
   render: h => h(App),
-  router
+  router,
+  store
 })

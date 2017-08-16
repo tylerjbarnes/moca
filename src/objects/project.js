@@ -46,9 +46,18 @@ class Project extends MocaObject {
 
     // Messages
 
+    get messages () {
+        return store.getters.messagesByProject(this.id);
+    }
+
     get unresolvedMessages () {
-        let messages = store.getters.messagesByProject(this.id);
-        return messages.filter( message => { return !message.resolved });
+        return this.messages.filter( message => { return !message.resolved });
+    }
+
+    // Resources
+
+    get resources () {
+        return store.getters.resourcesByProject(this.id);
     }
 
 }

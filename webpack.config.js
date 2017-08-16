@@ -47,7 +47,8 @@ module.exports = {
             "fa-search",
             "fa-times",
             "fa-plus",
-            "fa-minus"
+            "fa-minus",
+            "fa-paper-plane"
           ]
       }
       }
