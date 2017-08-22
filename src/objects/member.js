@@ -10,6 +10,14 @@ class Member extends Person {
         ].includes(this.role);
     }
 
+    get lightColor () {
+        return tinycolor(this.color).lighten(30).toString();
+    }
+
+    get darkColor () {
+        return tinycolor(this.color).darken(20).toString();
+    }
+
     // Projects
 
     get projectsAssigned () {

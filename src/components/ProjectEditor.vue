@@ -195,6 +195,8 @@
     @import '../theme.scss';
 
     #project-editor {
+        align-self: flex-start;
+        margin: 40px;
 
         .modal-card-head {
             background: white;

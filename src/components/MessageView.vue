@@ -4,9 +4,15 @@
         <header>
             <img :src="message.author.avatar">
             {{ message.author.name }}
+            <button class="reply" v-if="!isReply" @click="toggleReplying" :class="{active:replying}">
+                <ceri-icon name="ma-reply" size="15" hcenter></ceri-icon>
+            </button>
         </header>
         <div class="main">
             <div class="markup" v-html="markup"></div>
+        </div>
+        <div class="replies">
+            <message-view v-for="message in replies" :message="message" :key="message.id" :isReply="true">Hey!</message-view>
         </div>
     </div>
 
@@ -17,10 +23,18 @@
 
     export default {
         name: 'message-view',
-        props: ['message'],
+        props: ['message','isReply','replying'],
         computed: {
             markup () {
                 return markdown(this.message.content);
+            },
+            replies () {
+                return this.$store.getters.messagesByParent(this.message.id);
+            }
+        },
+        methods: {
+            toggleReplying () {
+                this.$emit('toggleReplying');
             }
         }
     }
@@ -49,6 +63,18 @@
                 margin-right: 10px;
                 width: 30px; height: 30px;
             }
+
+            button.reply {
+                background: none;
+                border: none;
+                color: darken($gray,50%);
+                outline: none;
+
+                &.active {
+                    color: $green;
+                }
+            }
+
         }
 
         .main {

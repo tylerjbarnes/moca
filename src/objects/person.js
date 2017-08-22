@@ -9,7 +9,7 @@ class Person extends MocaObject {
     get firstName () {
         return this.name.split(' ')[0];
     }
-    
+
 }
 
 export default Person;

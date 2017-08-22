@@ -115,7 +115,7 @@
             .modal-card {
                 align-self: flex-start;
                 box-shadow: 0px 5px 50px 0px rgba(black, 0.25);
-                margin: 40px auto 120px auto;
+                // margin: 40px auto 120px auto;
                 max-height: none;
                 overflow: visible !important;
 
@@ -131,7 +131,7 @@
             .modal-background {
                 transition: all 0.15s;
             }
-            .modal-card {
+            .modal-card, .project-modal {
                 transition: all 0.25s ease;
             }
         }
@@ -140,7 +140,7 @@
             .modal-background {
                 transition: all 0.15s;
             }
-            .modal-card {
+            .modal-card, .project-modal {
                 transition: all 0.15s ease;
             }
         }
@@ -148,7 +148,7 @@
             .modal-background {
                 opacity: 0;
             }
-            .modal-card {
+            .modal-card, .project-modal {
                 opacity: 0;
                 transform: scale(0.925);
             }

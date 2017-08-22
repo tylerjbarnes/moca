@@ -51,6 +51,7 @@ axios.post(ajaxurl, qs.stringify({
         'time'
     ]) {
         store.dispatch('addObjects', {type, primitives: data[type + 's']});
+        store.dispatch('ready');
     }
     store.dispatch('setUser', currentUserWpId);
 

@@ -31,8 +31,12 @@ const state = {
 const getters = {
 
     // Messages
+    message: (state, getters) => (id) => state.messages.find(message => message.id === id),
     messagesByProject: (state, getters) => (id) => {
         return state.messages.filter(message => message.project_id === id);
+    },
+    messagesByParent: (state, getters) => (id) => {
+        return state.messages.filter(message => message.parent_id === id);
     },
 
     // Packages
@@ -82,7 +86,8 @@ const mutations = {
 
     setSearchTerm(state, searchTerm) { state.searchTerm = searchTerm; },
     setUser(state, wpId) { state.user = state.persons.find(person => person.wp_id == wpId); },
-    updateRoute(state, route) { state.route = route; }
+    updateRoute(state, route) { state.route = route; },
+    ready(state) { state.ready = true; }
 
 };
 
@@ -132,7 +137,8 @@ const actions = {
 
     setSearchTerm (context, searchTerm) { context.commit('setSearchTerm', searchTerm); },
     setUser (context, wpId) { context.commit('setUser', wpId); },
-    updateRoute (context, route) { context.commit('updateRoute', route); }
+    updateRoute (context, route) { context.commit('updateRoute', route); },
+    ready (context) { context.commit('ready'); }
 
 };
 

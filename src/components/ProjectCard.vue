@@ -14,8 +14,8 @@
             </div>
         </div>
         <footer>
-            <span v-if="show.manager" class="manager-tag" :style="{borderColor: managerColor(), color: managerColor('darker')}">{{ project.manager.firstName }}</span>
-            <span v-if="show.contractor && project.contractor" class="contractor-tag" :style="{backgroundColor: contractorColor('faded'), borderColor: contractorColor('faded'), color: contractorColor('darker')}">{{ project.contractor.firstName }}</span>
+            <person-tag v-if="show.manager" :person="project.manager"></person-tag>
+            <person-tag v-if="show.contractor && project.contractor" :person="project.contractor"></person-tag>
             <div class="meta">
                 <span class="estimate">{{ project.estimate | formatHours }}</span>
                 <span class="due" v-if="project.dueString">{{ project.dueString }}</span>
@@ -27,6 +27,7 @@
 
 
 <script>
+    import PersonTag from './PersonTag.vue';
 
     export default {
         name: 'project-card',
@@ -41,33 +42,7 @@
                 }
             }
         },
-        methods: {
-            contractorColor (modifier) {
-                var baseColor = this.project.contractor ?
-                    this.project.contractor.color :
-                    this.project.manager.color;
-                switch (modifier) {
-                    case 'faded':
-                        return tinycolor(baseColor).lighten(30).toString();
-                    case 'darker':
-                        return tinycolor(baseColor).darken(20).toString();
-                    default:
-                        return baseColor;
-                }
-
-            },
-            managerColor (modifier) {
-                switch (modifier) {
-                    case 'faded':
-                        return tinycolor(this.project.manager.color).lighten(30).toString();
-                    case 'darker':
-                        return tinycolor(this.project.manager.color).darken(20).toString();
-                    default:
-                        return this.project.manager.color;
-                }
-
-            }
-        }
+        components: {PersonTag}
     }
 
 </script>
@@ -163,25 +138,6 @@
             display: flex;
             justify-content: space-between;
             width: 100%;
-
-
-
-            .contractor-tag, .manager-tag {
-                border: 1px solid white;
-                border-radius: 2px;
-                box-sizing: border-box;
-                display: inline-block;
-                font-size: 0.9em;
-                font-weight: 700;
-                margin-right: 2px;
-                padding: 4px 6px;
-
-            }
-
-            .manager-tag {
-                font-weight: 500;
-
-            }
 
             .meta {
                 display: flex;
