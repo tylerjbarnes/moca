@@ -1,5 +1,20 @@
+// Shadow
+@mixin shadow( $color: rgba(black,0.1)) {
+    box-shadow: 0px 2px 10px 0px $color;
+}
+
+// 3D Lift on Hover
+@mixin lifts {
+    transition: all 0.15s ease;
+    &:hover {
+        @include shadow;
+        transform: scale(1.03);
+    }
+}
+
+// Form Input Style
 @mixin moca-input {
-    background: $white-ter;
+    background: $light;
     border-radius: 5px;
     min-height: 30px;
     padding: 0;
@@ -12,7 +27,7 @@
         font-weight: 700;
         height: 30px;
         outline: none;
-        padding: 0 10px;
+        padding: 5px 10px;
 
     }
 

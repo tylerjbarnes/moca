@@ -88,7 +88,7 @@
 
 
 <style lang="scss">
-    @import '../../theme.scss';
+    @import '~styles/settings.scss';
 
     .date-input {
         @include moca-input;
@@ -111,14 +111,14 @@
 
                     .cell {
                         &.highlighted {
-                            background: rgba($green,0.25);
+                            background: rgba($primary,0.25);
                         }
                         &.selected {
-                            background: $green;
+                            background: $primary;
                         }
                         &:not(.blank):not(.disabled):hover {
                             &.day, &.month, &.year {
-                                border-color: $green;
+                                border-color: $primary;
                             }
 
                         }

@@ -31,7 +31,7 @@
 
 
 <style lang="scss">
-    @import '../../theme.scss';
+    @import '~styles/settings.scss';
 
     .flagged-input {
 
@@ -52,7 +52,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: $white-ter;
+            background-color: $light;
             -webkit-transition: .4s;
             transition: .4s;
 
@@ -68,7 +68,7 @@
                 background-color: white;
                 transition: .3s;
                 text-align: center;
-                color: $gray;
+                color: $light;
             }
         }
 

@@ -22,16 +22,22 @@
 
 
 <style lang="scss">
-    @import '../theme.scss';
+    @import '~styles/settings.scss';
 
     .person-tag {
-        border: 1px solid;
+        border: 1px solid white;
         border-radius: 2px;
-        display: block;
+        box-sizing: border-box;
+        display: inline-block;
         font-size: 0.9em;
         font-weight: 700;
-        opacity: 0.75;
-        padding: 2.5px 5px;
+        margin-right: 2px;
+        padding: 4px 6px;
+
+        &.solid {
+            font-weight: 700;
+
+        }
 
     }
 

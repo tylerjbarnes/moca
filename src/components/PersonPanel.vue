@@ -59,18 +59,18 @@
 
 
 <style lang="scss">
-    @import '../theme.scss';
+    @import '~styles/settings.scss';
 
     .person-panel {
         border-radius: 5px;
-        box-shadow: 0px 0px 15px 0px $shadow;
+        box-shadow: 0px 0px 15px 0px $gray;
         margin: 40px;
 
         .card-content {
 
             & > header {
                 align-items: center;
-                border-bottom: 1px solid $white-ter;
+                border-bottom: 1px solid $light;
                 display: flex;
                 margin-bottom: 20px;
                 padding-bottom: 20px;

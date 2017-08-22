@@ -39,13 +39,13 @@
 
 
 <style lang="scss">
-    @import '../../theme.scss';
+    @import '~styles/settings.scss';
 
     .autocycle-input {
         display: inline-block;
 
         .container {
-            background: $white-ter;
+            background: $light;
             border-radius: 5px;
             display: flex;
             padding: 7.5px;

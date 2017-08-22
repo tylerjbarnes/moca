@@ -59,7 +59,7 @@
 
 
 <style lang="scss">
-    @import '../theme.scss';
+    @import '~styles/settings.scss';
 
     .kanban {
         display: flex;

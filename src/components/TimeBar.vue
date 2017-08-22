@@ -33,7 +33,7 @@
 
 
 <style lang="scss">
-    @import '../theme.scss';
+    @import '~styles/settings.scss';
 
     .time-bar {
         display: flex;
@@ -41,7 +41,7 @@
         flex-grow: 1;
 
         .bar {
-            background-color: $white-ter;
+            background-color: $light;
             border-radius: 0.6em;
             display: flex;
             overflow: hidden;
@@ -49,7 +49,7 @@
             width: 100%; height: 1.2em;
 
             .segment {
-                background: $white-ter;
+                background: $light;
                 height: 100%;
 
             }

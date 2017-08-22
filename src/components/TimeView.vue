@@ -1,7 +1,7 @@
 <template>
 
     <div id="time-view">
-        
+
     </div>
 
 </template>
@@ -17,7 +17,7 @@
 
 
 <style lang="scss">
-    @import '../theme.scss';
+    @import '~styles/settings.scss';
 
     #time-view {
 

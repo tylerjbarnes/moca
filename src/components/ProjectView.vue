@@ -54,7 +54,7 @@
 
 
 <style lang="scss">
-    @import '../theme.scss';
+    @import '~styles/settings.scss';
 
     .project-view {
         align-self: flex-start;
@@ -64,7 +64,7 @@
         z-index: 2;
 
         .project-modal {
-            background: desaturate($white-ter, 100%);
+            background: desaturate($light, 100%);
             box-shadow: 0px 5px 50px 0px rgba(black, 0.25);
             display: flex;
             flex-flow: column;
@@ -82,7 +82,7 @@
 
                 .side-panel {
                     background: white;
-                    // background: darken($green,0%);
+                    // background: darken($primary,0%);
                     // color: white;
                     padding: 20px;
                     width: 300px;

@@ -31,16 +31,16 @@
 
 
 <style lang="scss">
-    @import '../theme.scss';
+    @import '~styles/settings.scss';
 
     #toolbar {
         background: white;
-        border-bottom: 1px solid $shadow;
+        border-bottom: 1px solid $gray;
         display: flex;
-        height: $headerWidth;
+        height: $header-size;
         padding: 0 40px;
         position: fixed;
-            top: 0; right: 0; left: $headerWidth;
+            top: 0; right: 0; left: $header-size;
         z-index: 1;
 
         ceri-icon {
@@ -50,10 +50,10 @@
         }
 
         .clear {
-            width: $headerWidth; height: $headerWidth;
+            width: $header-size; height: $header-size;
             display: flex;
             justify-content: center;
-            // margin-right: $headerWidth * -0.5;
+            // margin-right: $header-size * -0.5;
 
             &:hover {
 

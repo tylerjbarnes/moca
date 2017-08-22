@@ -92,7 +92,7 @@
 
 
 <style lang="scss">
-    @import '../../theme.scss';
+    @import '~styles/settings.scss';
 
     .person-input {
         @include moca-input;
@@ -100,7 +100,7 @@
 
         .panel {
             background: white;
-            box-shadow: 0px 0px 15px 0px darken($shadow,5%);
+            box-shadow: 0px 0px 15px 0px darken($gray,5%);
             max-height: 200px;
             position: absolute;
             width: 100%;
@@ -109,11 +109,11 @@
             .items {
 
                 .item {
-                    @include no-select;
+                    @include unselectable;
                     font-size: 0.75em;
                     padding: 5px 10px;
                     &.selected {
-                        background: $green;
+                        background: $primary;
                         color: white;
                         font-weight: 900;
                     }

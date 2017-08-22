@@ -43,7 +43,7 @@
 
 
 <style lang="scss">
-    @import '../theme.scss';
+    @import '~styles/settings.scss';
 
     .message-view {
         background: white;
@@ -53,7 +53,7 @@
 
         header {
             align-items: center;
-            border-bottom: 1px solid darken($white-ter, 3%);
+            border-bottom: 1px solid darken($light, 3%);
             display: flex;
             font-weight: 700;
             padding: 10px;
@@ -67,11 +67,11 @@
             button.reply {
                 background: none;
                 border: none;
-                color: darken($gray,50%);
+                color: $dark;
                 outline: none;
 
                 &.active {
-                    color: $green;
+                    color: $primary;
                 }
             }
 

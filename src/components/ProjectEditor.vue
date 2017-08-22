@@ -192,7 +192,7 @@
 
 
 <style lang="scss">
-    @import '../theme.scss';
+    @import '~styles/settings.scss';
 
     #project-editor {
         align-self: flex-start;
@@ -206,7 +206,7 @@
             position: relative;
 
             .inner {
-                border-bottom: 1px solid $shadow;
+                border-bottom: 1px solid $gray;
                 padding: 40px 0;
                 width: 100%;
 
@@ -216,7 +216,7 @@
                 }
 
                 .delete {
-                    background-color: $shadow;
+                    background-color: $gray;
                     position: absolute;
                         top: 20px; right: 20px;
                 }
@@ -266,7 +266,7 @@
                             &.middle { margin-right: 5px; margin-left: 5px; }
 
                             > label {
-                                color: darken($gray,50%);
+                                color: $dark;
                                 font-size: 0.75em;
                                 font-weight: 700;
                                 position: absolute;
@@ -286,7 +286,7 @@
         }
 
         .modal-card-foot {
-            background: $white-ter;
+            background: $light;
             border: none;
             border-radius: 0 0 3px 3px;
             justify-content: flex-end;

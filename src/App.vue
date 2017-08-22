@@ -47,39 +47,35 @@
 
 
 <style lang="scss">
-    @import url('https://fonts.googleapis.com/css?family=Lato:400,700,900');
-    @import './node_modules/bulma/bulma.sass';
-    @import './theme.scss';
-    @import './theme/inputs.scss';
-
-    .moca-input { @include moca-input; }
+    @import './style/settings.scss';
+    @import './style/global.scss';
 
     #app {
-        background-color: $white-ter;
+        background-color: $light;
         display: flex;
         font-size: 14px;
         min-height: 100vh;
 
         > header {
             background-color: white;
-            border-right: 1px solid $shadow;
+            border-right: 1px solid $gray;
             position: fixed;
-            width: $headerWidth; height: 100vh;
+            width: $header-size; height: 100vh;
             z-index: 2;
 
             nav {
-                padding-top: $headerWidth;
+                padding-top: $header-size;
 
                 .navbar-item {
                     text-align: center;
 
                     &:hover {
-                        background: $white-ter;
+                        background: $light;
                     }
 
                     &.is-active {
                         background: white;
-                        color: $green;
+                        color: $primary;
                         font-weight: 900;
                     }
 
@@ -93,9 +89,9 @@
             flex: 1 1;
 
             > .main {
-                margin-left: $headerWidth;
+                margin-left: $header-size;
                 margin-bottom: 20px;
-                padding-top: $headerWidth;
+                padding-top: $header-size;
                 right: 0; left: 0;
 
             }

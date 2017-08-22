@@ -99,7 +99,7 @@
 
 
 <style lang="scss">
-    @import '../theme.scss';
+    @import '~styles/settings.scss';
 
     .conversation-view {
         display: flex;
@@ -114,14 +114,14 @@
         }
 
         .message-tools {
-            background: $shadow;
+            background: $gray;
             display: flex;
             height: 20px;
 
         }
 
         .create {
-            border-top: 1px solid $shadow;
+            border-top: 1px solid $gray;
             position: relative;
             width: 100%; height: 40px;
 
@@ -159,7 +159,7 @@
             .send {
                 background: white;
                 border: none;
-                color: $green;
+                color: $primary;
                 outline: none;
                 padding: 0;
                 position: absolute;
@@ -170,7 +170,7 @@
                 transition: 0.3s ease;
 
                 &:disabled {
-                    color: $gray;
+                    color: $light;
 
                 }
 

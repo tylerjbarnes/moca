@@ -49,11 +49,11 @@
 
 
 <style lang="scss">
-    @import '../theme.scss';
+    @import '~styles/settings.scss';
 
     .project-card {
         background: white;
-        border: 1px solid $shadow;
+        border: 1px solid $gray;
         border-radius: 5px;
         margin: 20px 0;
         padding: 10px;
@@ -67,14 +67,14 @@
             }
         }
 
-        @include no-select;
+        @include unselectable;
 
         // Badges
         .flag, .unresolved {
             background: white;
-            border: 1px solid $shadow;
+            border: 1px solid $gray;
             border-radius: 0 0 3px 3px;
-            color: $shadow;
+            color: $gray;
             position: absolute;
                 top: -1px;
             text-align: center;

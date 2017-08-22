@@ -1,0 +1,53 @@
+@import './node_modules/bulma/bulma.sass';
+@import url('https://fonts.googleapis.com/css?family=Lato:400,700,900');
+
+// Document
+body, html {
+    height: 100%;
+}
+body {
+    overflow: auto;
+}
+.noScroll {
+    overflow: hidden;
+
+}
+
+// Inputs
+.moca-input { @include moca-input; }
+
+// Buttons
+button.button {
+    align-self: center;
+    background-color: $primary;
+    border: none;
+    color: white;
+    font-size: 0.85em;
+    font-weight: 900;
+    height: 35px;
+    min-width: 120px;
+    padding: 0 15px;
+    text-transform: uppercase;
+    @include lifts;
+
+    &:not(:last-child) {
+        margin-right: 20px !important;
+    }
+
+    &.inverted {
+        background-color: white;
+        color: $primary;
+        &:hover, &.is-active, &:active, &:focus {
+            color: $primary;
+        }
+    }
+
+    &:hover, &.is-active, &:active, &:focus {
+        color: white;
+    }
+
+    &:disabled {
+        color: $dark;
+    }
+
+}

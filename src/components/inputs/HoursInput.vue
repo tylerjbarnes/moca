@@ -97,7 +97,7 @@
 
 
 <style lang="scss">
-    @import '../../theme.scss';
+    @import '~styles/settings.scss';
 
     .hours-input {
         @include moca-input;
