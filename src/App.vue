@@ -104,7 +104,7 @@
             position: fixed;
 
             .modal-background {
-                background: rgba(black, 0.25);
+                background: rgba(black, 0.5);
                 position: fixed;
 
             }
@@ -125,7 +125,7 @@
         .modal-fade-enter-active {
             transition: all 0.25s ease;
             .modal-background {
-                transition: all 0.15s;
+                transition: all 0.25s;
             }
             .modal-card, .project-modal {
                 transition: all 0.25s ease;

@@ -17,6 +17,18 @@ class Project extends MocaObject {
 
     // Times
 
+    get budgetString () {
+        return this.estimate == this.max ?
+            this.estimate.toFixed(2) :
+            this.estimate.toFixed(2) + ' - ' + this.max.toFixed(2);
+    }
+
+    get hoursLogged () {
+        return store.getters.logsByProject(this.id).reduce((a,b) => a + b, 0);
+    }
+
+    // Dates
+
     get dueString () {
         var hasNone = !this.target && !this.due;
         var hasBoth = this.target && this.due;
@@ -42,6 +54,10 @@ class Project extends MocaObject {
     get isCurrent () {
         return (this.status === 'do' && this.start < currentPeriod.start ) ||
             this.startsInCurrentPeriod;
+    }
+
+    get autocycleString () {
+        return this.autocycle ? this.autocycle : 'never';
     }
 
     // Messages

@@ -106,14 +106,17 @@
         overflow: hidden;
 
         input {
+            width: calc(100% - 60px);
+            height: 100%;
             padding: 0;
             text-align: center;
+
         }
 
         button {
             background: none;
             border: none;
-            height: 30px;
+            height: 100%;
             outline: none;
             padding: 0;
             transition: all 0.15s ease;

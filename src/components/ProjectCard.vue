@@ -15,9 +15,9 @@
         </div>
         <footer>
             <person-tag v-if="show.manager" :person="project.manager"></person-tag>
-            <person-tag v-if="show.contractor && project.contractor" :person="project.contractor"></person-tag>
+            <person-tag v-if="show.contractor && project.contractor" :person="project.contractor" :solid="true"></person-tag>
             <div class="meta">
-                <span class="estimate">{{ project.estimate | formatHours }}</span>
+                <span class="estimate">{{ project.estimate | hours }}</span>
                 <span class="due" v-if="project.dueString">{{ project.dueString }}</span>
             </div>
         </footer>
@@ -60,14 +60,13 @@
         position: relative;
         width: 100%;
         @include lifts;
+        @include unselectable;
         &:hover {
             border-color: white;
             .flag, .unresolved {
                 border-top: 1px solid white;
             }
         }
-
-        @include unselectable;
 
         // Badges
         .flag, .unresolved {

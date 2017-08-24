@@ -26,6 +26,48 @@ class MocaFactory {
         return primitives.map(primitive => MocaFactory.constructObject(type, primitive));
     }
 
+    static constructPrimitive(type, defaults) {
+        let primitive = {};
+        switch (type) {
+            case 'project':
+                primitive = {
+                    id: cuid(),
+                    name: '',
+                    start: new moment().format('YYYY-MM-DD'),
+                    target: null,
+                    due: null,
+                    estimate: 0.25,
+                    max: 0.25,
+                    autocycle: null,
+                    cycle: 0,
+                    status: 'delegate',
+                    flagged: false,
+                    client_id: null,
+                    contractor_id: null,
+                    manager_id: null,
+                    archived: false,
+                }; break;
+            case 'resource':
+                primitive = {
+                    id: cuid(),
+                    name: '',
+                    client_id: null,
+                    project_id: null,
+                    cycle: 0,
+                    type: null,
+                    content: {
+                        body: ''
+                    }
+                }; break;
+            default: break;
+        }
+        if (defaults !== undefined) {
+            Object.assign(primitive, defaults);
+            console.log(primitive);
+        }
+        return primitive;
+    }
+
 }
 
 export default MocaFactory;

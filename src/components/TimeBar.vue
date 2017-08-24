@@ -7,7 +7,7 @@
             </div>
         </div>
         <div class="labels">
-            <span v-for="segment in segments"><strong>{{ segment.number | formatHours }}</strong> {{ segment.label }}</span>
+            <span v-for="segment in segments"><strong>{{ segment.number | hours }}</strong> {{ segment.label }}</span>
         </div>
     </div>
 </template>

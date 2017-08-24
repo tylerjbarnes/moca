@@ -1,8 +1,8 @@
 <template>
 
-    <div class="person-tag" :style="{
-        backgroundColor: person.canManage ? '' : person.lightColor,
-        borderColor: !person.canManage ? 'transparent' : person.color,
+    <div class="person-tag" :class="{solid:solid}" :style="{
+        backgroundColor: !solid ? '' : person.lightColor,
+        borderColor: solid ? 'transparent' : person.color,
         color: person.darkColor
     }">
         {{ person.firstName }}
@@ -15,7 +15,7 @@
 
     export default {
         name: 'person-tag',
-        props: ['person']
+        props: ['person','solid']
     }
 
 </script>
@@ -32,7 +32,7 @@
         font-size: 0.9em;
         font-weight: 700;
         margin-right: 2px;
-        padding: 4px 6px;
+        padding: 4px 8px;
 
         &.solid {
             font-weight: 700;

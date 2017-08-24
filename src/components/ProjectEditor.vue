@@ -128,35 +128,15 @@
     import AutocycleInput from './inputs/AutocycleInput.vue';
     import FlaggedInput from './inputs/FlaggedInput.vue';
 
+    import MocaFactory from '../objects/mocaFactory.js';
+
     export default {
         name: 'project-editor',
         components: {HoursInput,PersonInput,DateInput,AutocycleInput,FlaggedInput},
         data () {
             return {
-                projectPrimitive: {
-                    id: cuid(),
-                    name: '',
-                    start: new moment().format('YYYY-MM-DD'),
-                    target: null,
-                    due: null,
-                    estimate: 0.25,
-                    max: 0.25,
-                    autocycle: null,
-                    cycle: 0,
-                    status: 'delegate',
-                    flagged: false,
-                    client_id: null,
-                    contractor_id: null,
-                    manager_id: null,
-                    archived: false,
-                },
-                resourcePrimitive: {
-                    id: cuid(),
-                    name: 'Overview',
-                    content: {
-                        body: ''
-                    }
-                }
+                projectPrimitive: MocaFactory.constructPrimitive('project'),
+                resourcePrimitive: MocaFactory.constructPrimitive('resource',{name:'Overview'})
             }
         },
         computed: {

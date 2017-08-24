@@ -64,6 +64,7 @@ const getters = {
     resourcesByProject: (state, getters) => (id) => state.resources.filter(resource => resource.project_id === id),
 
     // Times
+    logsByProject: (state, getters) => (id) => state.times.filter(time => time.project_id === id && time.cycle === time.project.cycle),
     timesByContractor: (state, getters) => (id) => state.times.filter(time => time.worker_id === id),
     timesByClient: (state, getters) => (id) => state.times.filter(time => time.client_id === id),
     purchaseForPackage: (state, getters) => (id) => state.times.find(time => time.package_id === id)
