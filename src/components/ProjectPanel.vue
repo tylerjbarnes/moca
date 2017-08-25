@@ -48,7 +48,7 @@
     import ProjectActions from './ProjectActions.vue';
 
     export default {
-        name: 'project-view',
+        name: 'project-panel',
         props: ['project'],
         components: {PersonTag,ProjectActions}
     }

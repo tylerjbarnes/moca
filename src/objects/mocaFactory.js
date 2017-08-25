@@ -59,11 +59,24 @@ class MocaFactory {
                         body: ''
                     }
                 }; break;
+            case 'time':
+                primitive = {
+                    id: cuid(),
+                    type: 'log',
+                    hours: 0.25,
+                    worker_id: null,
+                    client_id: null,
+                    project_id: null,
+                    cycle: 0,
+                    memo: '',
+                    package_id: null,
+                    date: new moment().format('YYYY-MM-DD'),
+                    pending: false
+                }; break;
             default: break;
         }
         if (defaults !== undefined) {
             Object.assign(primitive, defaults);
-            console.log(primitive);
         }
         return primitive;
     }

@@ -135,8 +135,8 @@
         components: {HoursInput,PersonInput,DateInput,AutocycleInput,FlaggedInput},
         data () {
             return {
-                projectPrimitive: MocaFactory.constructPrimitive('project'),
-                resourcePrimitive: MocaFactory.constructPrimitive('resource',{name:'Overview'})
+                projectPrimitive: this.newProjectPrimitive(),
+                resourcePrimitive: this.newResourcePrimitive()
             }
         },
         computed: {
@@ -147,6 +147,12 @@
             }
         },
         methods: {
+            newProjectPrimitive () {
+                return MocaFactory.constructPrimitive('project');
+            },
+            newResourcePrimitive () {
+                return MocaFactory.constructPrimitive('resource',{name:'Overview'});
+            },
             save () {
                 if (this.projectPrimitive.contractor_id) {
                     this.projectPrimitive.status = 'do';

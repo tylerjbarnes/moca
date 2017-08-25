@@ -1,10 +1,8 @@
 <template>
 
     <div class="project-actions">
-        <template v-if="project.hoursLogged < project.max">
-            <quick-log :project="project"></quick-log>
-            <button class="button primary">Submit</button>
-        </template>
+        <quick-log :project="project" :disabled="project.hoursLogged >= project.max"></quick-log>
+        <button class="button primary">Submit</button>
     </div>
 
 </template>

@@ -75,14 +75,14 @@
             border-radius: 0 0 3px 3px;
             color: $gray;
             position: absolute;
-                top: -1px;
+                top: -6px;
             text-align: center;
             transition: all 0.15s ease;
             width: 25px; height: 17px;
 
             &.active {
-                border: none;
-                top: -2px;
+                // border: none;
+                // top: -6px;
 
             }
         }
@@ -139,12 +139,15 @@
             width: 100%;
 
             .meta {
+                justify-content: flex-end;
                 display: flex;
+                flex-wrap: wrap;
 
                 span {
                     display: block;
                     font-size: 0.9em;
                     opacity: 0.75;
+                    text-align: right;
 
                     &.due {
                         font-weight: 900;

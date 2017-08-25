@@ -24,7 +24,7 @@ class Project extends MocaObject {
     }
 
     get hoursLogged () {
-        return store.getters.logsByProject(this.id).reduce((a,b) => a + b, 0);
+        return store.getters.logsByProject(this.id).map(log => log.hours).reduce((a,b) => a + b, 0);
     }
 
     // Dates
