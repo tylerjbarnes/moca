@@ -39,7 +39,7 @@
                 cycle: this.project.cycle,
                 content: '',
                 meta: null,
-                resolved: 0
+                resolved: false
             },
             previousScrollHeight: 0
         }},

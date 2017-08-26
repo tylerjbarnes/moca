@@ -78,8 +78,8 @@ const mutations = {
     addObjects (state, args) { state[args.setName] = [...state[args.setName], ...args.objects]; },
     addObject (state, args) { state[args.setName].push(args.object); },
     updateObject (state, args) {
-        let object = store.state[args.setName].find(object => object.id === args.primitive.id);
-        object.update(args.primitive);
+        let object = store.state[args.setName].find(object => object.id === args.id);
+        object.update(args.delta);
     },
     removeObject (state, args) { state[args.setName] = state[args.setName].filter(object => object.id !== args.id) },
 
@@ -104,7 +104,7 @@ const actions = {
         let object = MocaFactory.constructObject(args.type, args.primitive);
         context.commit('addObject', {setName: args.type + 's', object});
     },
-    updateObject (context, args) { context.commit('updateObject', {setName: args.type + 's', primitive: args.primitive}) },
+    updateObject (context, args) { context.commit('updateObject', {setName: args.type + 's', id: args.id, delta: args.delta}) },
     removeObject(context, args) { context.commit('removeObject', {setName: args.type + 's', id: args.id}) },
 
     // Object Pushing
@@ -121,7 +121,8 @@ const actions = {
         store.dispatch('updateObject', args);
         axios.post(ajaxurl, qs.stringify({ action: 'hpm_api', function: 'modify_object',
             type: args.type,
-            object_data: args.primitive,
+            id: args.id,
+            delta: args.delta,
             socket_id: pusher.socketId
         })).then((response) => {});
     },

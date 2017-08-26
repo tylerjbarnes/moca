@@ -40,10 +40,15 @@
                 this.pendingProjects = [];
             },
             drop ({detail:project}) {
-                console.log('set ' + project.name + ' to ' + this.title);
                 this.inviteDrop = false;
                 this.pendingProjects = [];
-                project.status = this.title; // TEMP
+                this.$store.dispatch('modifyObject', {
+                    type: 'project',
+                    id: project.id,
+                    delta: {
+                        status: this.title
+                    }
+                });
             }
         }
     }

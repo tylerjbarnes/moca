@@ -8,8 +8,8 @@ class MocaObject {
 
     // Update
 
-    update (data) {
-        Object.assign(this, this.typify(data));
+    update (delta) {
+        Object.assign(this, delta);
     }
 
 }

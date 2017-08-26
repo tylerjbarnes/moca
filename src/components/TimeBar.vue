@@ -1,9 +1,9 @@
 <template>
     <div class="time-bar">
         <div class="bar">
-            <div v-for="segment in segments" class="segment" :style="{backgroundColor: segment.color, width: (segmentTotal ? (segment.number / segmentTotal * 100) : 0) + '%'}"></div>
+            <div v-for="segment in segments" class="segment" :style="{backgroundColor: segment.color, width: segmentWidth(segment.number)}"></div>
             <div class="gridlines" v-if="segmentTotal <= 20">
-                <div class="gridbox" v-for="n in Math.ceil(segmentTotal)" :style="{flexBasis: segmentWidth}"></div>
+                <div class="gridbox" v-for="n in Math.ceil(segmentTotal)" :style="{flexBasis: gridWidth}"></div>
             </div>
         </div>
         <div class="labels">
@@ -19,13 +19,20 @@
         props: ['person'],
         computed: {
             segments () {
-                return this.person.timeBarData
+                return this.person.timeBarData;
             },
             segmentTotal () {
-                return this.segments.map(segment => segment.number).reduce((a,b) => a + b, 0);
+                return this.segments.map(segment => segment.number > 0 ? segment.number : 0).reduce((a,b) => a + b, 0);
             },
-            segmentWidth () {
-                return (this.segmentTotal ? (100 / this.segmentTotal) : 0) + '%';
+            gridWidth () {
+                return 100 / this.segmentTotal + '%';
+            }
+        },
+        methods: {
+            segmentWidth (number) {
+                return number > 0 ?
+                    (this.segmentTotal ? (number / this.segmentTotal) : 0) * 100 + '%' :
+                    '0';
             }
         }
     }
@@ -41,16 +48,16 @@
         flex-grow: 1;
 
         .bar {
-            background-color: $light;
-            border-radius: 0.6em;
+            align-items: center;
+            background-color: none;
+            border-radius: 7.5px;
             display: flex;
             overflow: hidden;
             position: relative;
-            width: 100%; height: 1.2em;
+            width: 100%;
 
             .segment {
-                background: $light;
-                height: 100%;
+                height: 15px;
 
             }
 

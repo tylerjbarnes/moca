@@ -29,6 +29,7 @@ class Client extends Person {
         return store.getters.timesByClient(this.id).filter(time => time.type === 'log');
     }
     get timesLoggedSinceLastPurchase () {
+        if ( !this.lastPackage ) { return []; }
         return this.timesLogged.filter(time => time.date >= this.lastPackage.time.date);
     }
     get hoursSpentSinceLastPurchase () {

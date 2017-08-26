@@ -121,6 +121,13 @@ function hpm_typify_message_data( $row ) {
     return $row;
 }
 
+function hpm_typify_message_data_from_js( $data ) {
+    $data['content'] = stripslashes( $data['content'] );
+    $data['cycle'] = (int) $data['cycle'];
+    $data['resolved'] = $data['resolved'] == 'true';
+    return $data;
+}
+
 
 //////////
 // Sync //
@@ -160,7 +167,9 @@ function hpm_api_create_message( $message_data, $socket_id ) {
     //////////
 
     // Strip Slashes
-    $message_data["content"] = stripslashes( $message_data["content"] );
+    // error_log( $message_data["resolved"] );
+    // $message_data["content"] = stripslashes( $message_data["content"] );
+    $message_data = hpm_typify_message_data_from_js( $message_data );
 
     $pusher = hpm_get_pusher();
 

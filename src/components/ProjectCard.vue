@@ -50,7 +50,7 @@
         components: {PersonTag},
         methods: {
             open () {
-                if (this.dragging) { return; }
+                // if (this.dragging) { return; }
                 this.$router.push({ name: this.$store.state.route.view + '-project', params: { id: this.project.id }});
             },
             becomeDragDelegate (event) {
