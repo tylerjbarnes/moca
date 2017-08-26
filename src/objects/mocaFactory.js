@@ -55,9 +55,7 @@ class MocaFactory {
                     project_id: null,
                     cycle: 0,
                     type: null,
-                    content: {
-                        body: ''
-                    }
+                    content: ''
                 }; break;
             case 'time':
                 primitive = {

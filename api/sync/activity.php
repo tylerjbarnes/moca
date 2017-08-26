@@ -86,3 +86,79 @@ function hpm_api_delete_object( $id, $socket_id ) {
     $function_name = 'hpm_api_delete_' . $type;
     $function_name( $id, $socket_id );
 }
+
+
+
+function hpm_typify_data_from_db( $data ) {
+    $typified = new stdClass();
+
+    foreach ($data as $key => $value) {
+        switch ($key) {
+            case 'archived':
+            case 'flagged':
+            case 'pending':
+            case 'resolved':
+                $typified->$key = $value == 1;
+                break;
+            case 'avatar':
+                $typified->$key = get_wp_user_avatar_src( $data->wp_id, 'thumbnail');
+                break;
+            case 'content':
+            case 'memo':
+            case 'name':
+                $typified->$key = stripslashes( $value );
+                break;
+            case 'cycle':
+            case 'time_offset':
+                $typified->$key = (int) $value;
+                break;
+            case 'estimate':
+            case 'hours':
+            case 'max':
+            case 'notification_time':
+                $typified->$key = abs((float) $value);
+                break;
+            case 'meta':
+                $typified->$key = json_decode( $value );
+                break;
+            default:
+                $typified->$key = $value;
+                break;
+        }
+    }
+
+    return $typified;
+}
+
+function hpm_typify_data_from_js( $data ) {
+    $typified = [];
+
+    foreach ($data as $key => $value) {
+        switch ($key) {
+            case 'archived':
+            case 'flagged':
+            case 'pending':
+            case 'resolved':
+                $typified[$key] = $value == 'true';
+                break;
+            case 'cycle':
+            case 'time_offset':
+                $typified[$key] = (int) $value;
+                break;
+            case 'estimate':
+            case 'hours':
+            case 'max':
+            case 'notification_time':
+                $typified[$key] = abs((float) $value);
+                if (array_key_exists('type', $data) && $data['type'] !== 'purchase') {
+                    $typified[$key] = $typified[$key] * -1;
+                }
+                break;
+            default:
+                $typified[$key] = $value;
+                break;
+        }
+    }
+
+    return $typified;
+}

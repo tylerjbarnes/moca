@@ -37,7 +37,7 @@ function hpm_api_load_project( $id ) {
 
     // Return
     $row = $wpdb->get_row( "SELECT * FROM $project_table $where" );
-    return hpm_typify_project_data( $row );
+    return hpm_typify_data_from_db( $row );
 
 }
 
@@ -81,19 +81,11 @@ function hpm_api_load_projects($filters = []) {
     // Typify & Return
     $results = $wpdb->get_results( "SELECT * FROM $project_table $where" );
     return array_map(function($row){
-        return hpm_typify_project_data( $row );
+        return hpm_typify_data_from_db( $row );
     }, $results);
 
 }
 
-function hpm_typify_project_data( $row ) {
-    $row->estimate = (float) $row->estimate;
-    $row->max = (float) $row->max;
-    $row->cycle = (int) $row->cycle;
-    $row->flagged = $row->flagged == 1;
-    $row->archived = $row->archived == 1;
-    return $row;
-}
 
 /**
  * Load Project Dependents
@@ -152,6 +144,8 @@ function hpm_api_load_project_dependents( $project_id ) {
  */
 function hpm_api_create_project( $project_data, $socket_id ) {
 
+    $project_data = hpm_typify_data_from_js( $project_data );
+
     // Secure
     $role = hpm_user_role();
     if (!in_array($role, ["administrator", "manager"])) {
@@ -196,6 +190,8 @@ function hpm_api_create_project( $project_data, $socket_id ) {
  * @param  String $socket_id
  */
 function hpm_api_update_project( $project_id, $project_data, $socket_id ) {
+
+    $project_data = hpm_typify_data_from_js( $project_data );
 
     // Secure
     $user_id = hpm_user_id();

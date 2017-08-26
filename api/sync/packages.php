@@ -17,14 +17,9 @@ function hpm_api_load_packages() {
         SELECT * FROM $package_table
     " );
     return array_map(function( $row ) {
-        return hpm_typify_package_data( $row );
+        return hpm_typify_data_from_db( $row );
     }, $rows);
 
-}
-
-function hpm_typify_package_data( $row ) {
-    $row->hours = (float) $row->hours;
-    return $row;
 }
 
 
@@ -38,6 +33,8 @@ function hpm_typify_package_data( $row ) {
  * @param  String $socket_id
  */
 function hpm_api_create_package( $package_data, $socket_id ) {
+
+    $package_data = hpm_typify_data_from_js( $package_data );
 
     // Secure
     $role = hpm_user_role();
@@ -74,6 +71,8 @@ function hpm_api_create_package( $package_data, $socket_id ) {
  * @param  String $socket_id
  */
 function hpm_api_update_package( $package_id, $package_data, $socket_id ) {
+
+    $package_data = hpm_typify_data_from_js( $package_data );
 
     // Secure
     $role = hpm_user_role();

@@ -58,17 +58,9 @@ function hpm_api_load_resources($filters = []) {
 
     // Prepare & Return
     return array_map( function( $resource ) {
-        return hpm_typify_resource_data( $resource );
+        return hpm_typify_data_from_db( $resource );
     }, $flat_resources);
 
-}
-
-function hpm_typify_resource_data( $row ) {
-    $row->content = json_decode( $row->content );
-    $row->name = stripslashes( $row->name );
-    $row->content->body = stripslashes( $row->content->body );
-    $row->cycle = (int) $row->cycle;
-    return $row;
 }
 
 
@@ -82,6 +74,8 @@ function hpm_typify_resource_data( $row ) {
  * @param  String $socket_id
  */
 function hpm_api_create_resource( $resource_data, $socket_id ) {
+
+    $resource_data = hpm_typify_data_from_js( $resource_data );
 
     // Fetch & Cache Resource's Project's Contractor
     $contractor_id = null;
@@ -143,6 +137,8 @@ function hpm_api_create_resource( $resource_data, $socket_id ) {
  * @param  String $socket_id
  */
 function hpm_api_update_resource( $resource_id, $resource_data, $socket_id ) {
+
+    $resource_data = hpm_typify_data_from_js( $resource_data );
 
     // Fetch & Cache Resource's Project's Contractor
     $contractor_id = null;

@@ -41,7 +41,7 @@ function hpm_api_load_message( $id ) {
         LEFT JOIN $project_table projects ON messages.project_id = projects.id
         $where
     " );
-    return hpm_typify_message_data( $row );
+    return hpm_typify_data_from_db( $row );
 
 }
 
@@ -107,19 +107,19 @@ function hpm_api_load_messages($filters = []) {
 
     // Prepare & Return
     return array_map( function( $row ) {
-        return hpm_typify_message_data( $row );
+        return hpm_typify_data_from_db( $row );
     }, $rows);
 
 }
 
-function hpm_typify_message_data( $row ) {
-    $row->content = stripslashes( $row->content );
-    $row->meta = json_decode( $row->meta );
-
-    $row->cycle = (int) $row->cycle;
-    $row->resolved = $row->resolved == 1;
-    return $row;
-}
+// function hpm_typify_message_data( $row ) {
+//     $row->content = stripslashes( $row->content );
+//     $row->meta = json_decode( $row->meta );
+//
+//     $row->cycle = (int) $row->cycle;
+//     $row->resolved = $row->resolved == 1;
+//     return $row;
+// }
 
 function hpm_typify_message_data_from_js( $data ) {
     $data['content'] = stripslashes( $data['content'] );
@@ -139,6 +139,8 @@ function hpm_typify_message_data_from_js( $data ) {
  * @param  String $socket_id
  */
 function hpm_api_create_message( $message_data, $socket_id ) {
+
+    $message_data = hpm_typify_data_from_js( $message_data );
 
     // Secure
     $user_id = hpm_user_id();
@@ -192,6 +194,8 @@ function hpm_api_create_message( $message_data, $socket_id ) {
  * @param  String $socket_id
  */
 function hpm_api_update_message( $message_id, $message_data, $socket_id ) {
+
+    $message_data = hpm_typify_data_from_js( $message_data );
 
     // Secure
     $user_id = hpm_user_id();

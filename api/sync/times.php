@@ -36,7 +36,7 @@ function hpm_api_load_time( $id ) {
 
     // Return
     $time_data = $wpdb->get_row( "SELECT * FROM $time_table $where" );
-    return hpm_typify_time_data( $time_data );
+    return hpm_typify_data_from_db( $time_data );
 
 }
 
@@ -110,17 +110,9 @@ function hpm_api_load_times($filters = []) {
         $where
     " );
     return array_map(function( $row ){
-        return hpm_typify_time_data( $row );
+        return hpm_typify_data_from_db( $row );
     }, $rows );
 
-}
-
-function hpm_typify_time_data( $row ) {
-    $row->hours = abs((float) $row->hours);
-    $row->cycle = (int) $row->cycle;
-    $row->memo = stripslashes( $row->memo );
-    $row->pending = $row->pending == 1;
-    return $row;
 }
 
 
@@ -134,6 +126,8 @@ function hpm_typify_time_data( $row ) {
  * @param  String $socket_id
  */
 function hpm_api_create_time( $time_data, $socket_id ) {
+
+    $time_data = hpm_typify_data_from_js( $time_data );
 
     // Secure
     $user_id = hpm_user_id();
@@ -189,6 +183,8 @@ function hpm_api_create_time( $time_data, $socket_id ) {
  * @param  String $socket_id
  */
 function hpm_api_update_time( $time_id, $time_data, $socket_id ) {
+
+    $time_data = hpm_typify_data_from_js( $time_data );
 
     // Secure
     $user_id = hpm_user_id();

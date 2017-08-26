@@ -29,7 +29,7 @@ function hpm_api_load_person( $id ) {
     // $person_data->avatar = get_wp_user_avatar_src( $datum->wp_id, 'thumbnail');
 
     // Return
-    return hpm_typify_person_data( $person_data );
+    return hpm_typify_data_from_db( hpm_attach_avatar( $person_data ) );
 
 }
 
@@ -76,7 +76,7 @@ function hpm_api_load_persons($filters = []) {
 
     // Avatars
     $persons_data = array_map( function($datum) {
-        return hpm_typify_person_data( $datum );
+        return hpm_typify_data_from_db( hpm_attach_avatar( $datum ) );
     }, $persons_data );
 
     // Return
@@ -84,11 +84,8 @@ function hpm_api_load_persons($filters = []) {
 
 }
 
-function hpm_typify_person_data( $row ) {
+function hpm_attach_avatar( $row ) {
     $row->avatar = get_wp_user_avatar_src( $row->wp_id, 'thumbnail');
-    $row->time_offset = (int) $row->time_offset;
-    $row->notification_time = (float) $row->notification_time;
-    $row->archived = $row->archived == 1;
     return $row;
 }
 
@@ -103,6 +100,8 @@ function hpm_typify_person_data( $row ) {
  * @param  String $socket_id
  */
 function hpm_api_create_person( $person_data, $socket_id ) {
+
+    $person_data = hpm_typify_data_from_js( $person_data );
 
     // Secure
     $role = hpm_user_role();
@@ -147,6 +146,8 @@ function hpm_api_create_person( $person_data, $socket_id ) {
  * @param  String $socket_id
  */
 function hpm_api_update_person( $person_id, $person_data, $socket_id ) {
+
+    $person_data = hpm_typify_data_from_js( $person_data );
 
     // Secure
     $role = hpm_user_role();
