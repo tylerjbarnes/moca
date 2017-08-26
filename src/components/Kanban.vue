@@ -2,30 +2,10 @@
 
     <div class="kanban">
         <div class="columns">
-            <div class="column">
-                <header><span>Delegate</span></header>
-                <div class="items">
-                    <project-card v-for="project in projectsToDelegate" :project="project" :key="project.id"></project-card>
-                </div>
-            </div>
-            <div class="column">
-                <header><span>Do</span></header>
-                <div class="items">
-                    <project-card v-for="project in projectsToDo" :project="project" :key="project.id" :show="{contractor: true, manager: false}"></project-card>
-                </div>
-            </div>
-            <div class="column">
-                <header><span>Approve</span></header>
-                <div class="items">
-                    <project-card v-for="project in projectsToApprove" :project="project" :key="project.id"></project-card>
-                </div>
-            </div>
-            <div class="column">
-                <header><span>Send</span></header>
-                <div class="items">
-                    <project-card v-for="project in projectsToSend" :project="project" :key="project.id"></project-card>
-                </div>
-            </div>
+            <kanban-column :title="'delegate'" :projects="projectsToDelegate"></kanban-column>
+            <kanban-column :title="'do'" :projects="projectsToDo"></kanban-column>
+            <kanban-column :title="'approve'" :projects="projectsToApprove"></kanban-column>
+            <kanban-column :title="'send'" :projects="projectsToSend"></kanban-column>
         </div>
     </div>
 
@@ -33,12 +13,12 @@
 
 
 <script>
-    import ProjectCard from './ProjectCard.vue';
+    import KanbanColumn from './KanbanColumn.vue';
 
     export default {
         name: 'kanban',
         props: ['projects'],
-        components: {ProjectCard},
+        components: {KanbanColumn},
         computed: {
             projectsToDelegate () {
                 return this.projects.filter(project => project.status === 'delegate');
@@ -52,6 +32,11 @@
             projectsToSend () {
                 return this.projects.filter(project => project.status === 'send');
             }
+        },
+        methods: {
+            becomeDropDelegate () {
+                console.log('Yay!');
+            }
         }
     }
 
@@ -64,32 +49,11 @@
     .kanban {
         display: flex;
         flex-flow: column;
+        margin-top: 10px;
 
         .columns {
             display: flex;
 
-            .column {
-                flex: 0 0 25%;
-                padding-top: 5px; padding-bottom: 5px;
-
-                header {
-                    margin-bottom: 4px;
-
-                    span {
-                        display: block;
-                        font-size: 0.9em;
-                        font-weight: 700;
-                        opacity: 0.5;
-                    }
-                }
-
-                .items {
-                    margin-top: -10px;
-                    min-height: 100px;
-
-                }
-
-            }
         }
 
     }

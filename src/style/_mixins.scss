@@ -8,9 +8,7 @@
     transition: all 0.15s ease;
     &:hover {
         @include shadow;
-        &.big {
-            transform: scale(1.03);
-        }
+        transform: scale(1.03);
     }
 }
 

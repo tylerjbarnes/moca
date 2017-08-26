@@ -63,6 +63,8 @@ axios.post(ajaxurl, qs.stringify({
     // })
 });
 
+window.bus = new Vue();
+
 // debug version
 new Vue({
   el: '#app',

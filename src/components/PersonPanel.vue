@@ -27,7 +27,7 @@
             </template>
             <template v-if="person.projectsManaged && person.projectsManaged.length">
                 <h2 class="collection-title">Managing</h2>
-                <project-collection :projects="person.projectsManaged"></project-collection>
+                <project-collection :projects="person.projectsManaged" :kanban="true"></project-collection>
             </template>
             <template v-if="person.projectsOwned">
                 <project-collection :projects="person.projectsOwned"></project-collection>
@@ -138,7 +138,7 @@
 
             .collection-title {
                 font-weight: 700;
-                margin-bottom: 10px;
+
             }
 
         }

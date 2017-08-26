@@ -1,11 +1,11 @@
 <template>
 
-    <router-link tag="div" class="project-card" :to="{ name: this.$store.state.route.view + '-project', params: { id: project.id }}">
+    <div @mousedown="becomeDragDelegate" @click="open" tag="div" class="project-card" :class="{dragging}" :style="{transform:'translate(' + dragDelta.x + 'px,' + dragDelta.y + 'px)'}">
         <div class="flag" :class="{ active: project.flagged }">
             <ceri-icon name="fa-flag" size="10" hcenter></ceri-icon>
         </div>
         <div class="unresolved" :class="{ active: project.unresolvedMessages.length }">
-            <ceri-icon name="fa-comment" size="10" hcenter></ceri-icon>
+            <ceri-icon name="fa-comment" size="9" hcenter></ceri-icon>
         </div>
         <div class="content">
             <div class="names">
@@ -21,7 +21,7 @@
                 <span class="due" v-if="project.dueString">{{ project.dueString }}</span>
             </div>
         </footer>
-    </router-link>
+    </div>
 
 </template>
 
@@ -42,7 +42,36 @@
                 }
             }
         },
-        components: {PersonTag}
+        data () { return {
+            dragging: false,
+            dragDelta: {x:0, y:0},
+            visible: true
+        }},
+        components: {PersonTag},
+        methods: {
+            open () {
+                if (this.dragging) { return; }
+                this.$router.push({ name: this.$store.state.route.view + '-project', params: { id: this.project.id }});
+            },
+            becomeDragDelegate (event) {
+                this.dragging = true;
+                bus.$emit('setDragStart', event.clientX, event.clientY, this.project)
+                let me = this;
+                bus.$on('updateDragDelta', (dragDelta) => {
+                    me.dragDelta = dragDelta;
+                });
+                bus.$on('setDragDelegateVisibility', (visible) => {
+                    this.$el.style.visibility = visible ? 'visible': 'hidden';
+                });
+                bus.$on('clearDrag', (dragDelta) => {
+                    me.dragDelta = {x:0,y:0};
+                    bus.$off('updateDragDelta');
+                    bus.$off('clearDrag');
+                    bus.$off('setDragDelegateVisibility');
+                    setTimeout(function () { me.dragging = false; }, 0);
+                });
+            }
+        }
     }
 
 </script>
@@ -53,8 +82,9 @@
 
     .project-card {
         background: white;
-        border: 1px solid $gray;
+        border: 2px solid $gray;
         border-radius: 5px;
+        cursor: default;
         margin: 20px 0;
         padding: 10px;
         position: relative;
@@ -64,25 +94,38 @@
         &:hover {
             border-color: white;
             .flag, .unresolved {
-                border-top: 1px solid white;
+                // border-top: 1px solid white;
+            }
+        }
+        &.dragging {
+            transition: none !important;
+            z-index: 100;
+        }
+        &.pending {
+            background: $light;
+            border: 2px dashed $medium;
+            margin: 19px -1px !important;
+            opacity: 0.5;
+            * {
+                visibility: hidden;
             }
         }
 
         // Badges
         .flag, .unresolved {
-            background: white;
-            border: 1px solid $gray;
-            border-radius: 0 0 3px 3px;
-            color: $gray;
+            background: $light;
+            // border: 2px solid $gray;
+            border-radius: 3px;
+            color: darken($light,10%);
+            display: block;
             position: absolute;
-                top: -6px;
+                top: -10px;
             text-align: center;
             transition: all 0.15s ease;
-            width: 25px; height: 17px;
+            width: 25px; height: 18px;
 
-            &.active {
-                // border: none;
-                // top: -6px;
+            ceri-icon {
+                height: 17px;
 
             }
         }
