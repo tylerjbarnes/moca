@@ -1,6 +1,6 @@
 <template>
 
-    <div @mousedown="becomeDragDelegate" @click="open" tag="div" class="project-card" :class="{dragging}" :style="{transform:'translate(' + dragDelta.x + 'px,' + dragDelta.y + 'px)'}">
+    <div @mousedown="considerDragDelegacy" @mouseup="cancelDragDelegacy" @click="open" tag="div" class="project-card" :class="{dragging}" :style="{transform:'translate(' + dragDelta.x + 'px,' + dragDelta.y + 'px)'}">
         <div class="flag" :class="{ active: project.flagged }">
             <ceri-icon name="fa-flag" size="10" hcenter></ceri-icon>
         </div>
@@ -45,13 +45,24 @@
         data () { return {
             dragging: false,
             dragDelta: {x:0, y:0},
-            visible: true
+            visible: true,
+            dragTimeout: null
         }},
         components: {PersonTag},
         methods: {
             open () {
-                // if (this.dragging) { return; }
+                if (this.dragging) { return; }
                 this.$router.push({ name: this.$store.state.route.view + '-project', params: { id: this.project.id }});
+            },
+            considerDragDelegacy (event) {
+                this.dragTimeout = setTimeout(() => {
+                    this.becomeDragDelegate(event);
+                }, 200);
+            },
+            cancelDragDelegacy () {
+                if (this.dragTimeout) {
+                    clearTimeout(this.dragTimeout);
+                }
             },
             becomeDragDelegate (event) {
                 this.dragging = true;

@@ -1,5 +1,5 @@
 <template>
-    <div id="app" @mousemove="updateDragDelta" @scroll="updateDragDelta" @mouseup="endDrag">
+    <div id="app" @mousemove="updateDragDelta" @scroll="updateDragDelta">
         <header>
             <div class="logo"></div>
             <nav>
@@ -85,6 +85,7 @@
 
             },
             endDrag () {
+                if (!this.dragStart) {return}
                 this.dragStart = null;
                 bus.$emit('clearDrag');
                 if (this.dropDelegateEl) {
@@ -105,6 +106,11 @@
                     me.endDrag();
                 }
             });
+            document.addEventListener("mouseup", function(e) {
+                if (me.dragStart) {
+                    me.endDrag();
+                }
+            }, true);
         }
     }
 </script>
@@ -119,7 +125,6 @@
         display: flex;
         font-size: 14px;
         min-height: 100vh;
-        border: 1px solid red;
 
         > header {
             background-color: white;
