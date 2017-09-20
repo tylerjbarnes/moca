@@ -58,7 +58,8 @@
                 let dragexitEvent = new CustomEvent('dragexit');
 
 
-                bus.$emit('setDragDelegateVisibility', false);
+                bus.$emit('setDragDelegateVisibility', false); /////////////////
+
                 // console.log(document.elementFromPoint(event.pageX,event.pageY));
 
                     this.dropDelegateEl = closestDropZone(document.elementFromPoint(event.pageX,event.pageY));
@@ -80,7 +81,8 @@
 
                     this.previousDropDelegateEl = this.dropDelegateEl;
 
-                bus.$emit('setDragDelegateVisibility', true);
+                bus.$emit('setDragDelegateVisibility', true); //////////////////
+
             },
             endDrag () {
                 this.dragStart = null;
@@ -95,7 +97,14 @@
             bus.$on('setDragStart', (x, y, payload) => {
                 this.dragStart = {x,y};
                 this.payload = payload;
-            })
+            });
+            let me = this;
+            document.addEventListener('mouseout', (e) => {
+                let from = e.relatedTarget || e.toElement;
+                if (!from || from.nodeName == "HTML") {
+                    me.endDrag();
+                }
+            });
         }
     }
 </script>
@@ -110,6 +119,7 @@
         display: flex;
         font-size: 14px;
         min-height: 100vh;
+        border: 1px solid red;
 
         > header {
             background-color: white;

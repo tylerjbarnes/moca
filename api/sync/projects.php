@@ -270,6 +270,8 @@ function hpm_api_update_project( $project_id, $project_data, $socket_id ) {
 
     }
 
+    error_log( $project_id );
+
 }
 
 /**

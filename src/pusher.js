@@ -57,10 +57,21 @@ class MocaPusher {
             'resource',
             'time'
         ]) {
-            me.pusher.bind('add-' + type, data => { store.dispatch('addObject', {type: type, primitive: data}) });
-            me.pusher.bind('update-' + type, data => { store.dispatch('updateObject', {type: type, primitive: data}) });
-            me.pusher.bind('remove-' + type, id => { store.dispatch('removeObject', {type: type, id}) });
+            me.pusher.bind('add-' + type, data => {
+                store.dispatch('addObject', {type, primitive: data});
+                console.log('Add ' + type + ' ' + data.id + ':');
+                console.log(data);
+            });
+            me.pusher.bind('update-' + type, dataAndId => {
+                store.dispatch('updateObject', {type, id: dataAndId.id, delta: dataAndId.data});
+                console.log('Update ' + type + ' ' + dataAndId.id + ':');
+                console.log(dataAndId.data);
+            });
+            me.pusher.bind('remove-' + type, id => {
+                store.dispatch('removeObject', {type, id})
+            });
         }
+
     }
 
     // Getters
