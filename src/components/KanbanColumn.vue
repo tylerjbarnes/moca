@@ -4,7 +4,7 @@
         <header><span>{{ title }}</span></header>
         <div class="items">
             <!-- <transition-group name="list"> -->
-                <project-card v-for="project in items" :project="project" :key="project.id" :class="{pending: project.status != title}"></project-card>
+                <project-card v-for="project in items" :project="project" :show="{contractor: true, manager: false}" :key="project.id" :class="{pending: project.status != title}"></project-card>
             <!-- </transition-group> -->
         </div>
     </div>
