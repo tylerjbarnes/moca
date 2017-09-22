@@ -54,19 +54,12 @@ axios.post(ajaxurl, qs.stringify({
         store.dispatch('ready');
     }
     store.dispatch('setUser', currentUserWpId);
-
-    // new Vue({
-    //   el: '#app',
-    //   render: h => h(App),
-    //   router,
-    //   store
-    // })
+    bus.$emit('storeLoaded');
 });
 
 window.bus = new Vue();
 
-// debug version
-new Vue({
+window.moca = new Vue({
   el: '#app',
   render: h => h(App),
   router,

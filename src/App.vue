@@ -1,8 +1,9 @@
 <template>
-    <div id="app" @mousemove="updateDragDelta" @scroll="updateDragDelta">
+    <div id="app" v-if="appReady" @mousemove="updateDragDelta" @scroll="updateDragDelta">
         <header>
             <div class="logo"></div>
             <nav>
+                <router-link :to="{name:'projects'}" class="navbar-item" v-if="$store.state.user.role == 'contractor'">Projects</router-link>
                 <router-link :to="{name:'team'}" class="navbar-item">Team</router-link>
                 <router-link :to="{name:'clients'}" class="navbar-item">Clients</router-link>
                 <router-link :to="{name:'time'}" class="navbar-item">Time</router-link>
@@ -34,7 +35,8 @@
             dragStart: null,
             dropDelegateEl: null,
             previousDropDelegateEl: null,
-            payload: null
+            payload: null,
+            appReady: false
         }},
         computed: {
             modalOpen () {
@@ -95,6 +97,9 @@
             }
         },
         created () {
+            bus.$on('storeLoaded', () => {
+                this.appReady = true;
+            });
             bus.$on('setDragStart', (x, y, payload) => {
                 this.dragStart = {x,y};
                 this.payload = payload;
