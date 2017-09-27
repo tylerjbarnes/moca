@@ -42,3 +42,26 @@ function hpm_api_load() {
     $response->packages = hpm_api_load_packages();
     return $response;
 }
+
+
+// start new moca version
+
+
+/**
+ * Download Static App Data from DB
+ * @return Object app data
+ */
+function hpm_api_download_data() {
+
+    $response = new stdClass();
+
+    $response->messages = [];
+    $response->packages = [];
+    $response->persons = moca_get_persons();
+    $response->projects = [];
+    $response->resources = [];
+    $response->times = [];
+    
+    return $response;
+
+}

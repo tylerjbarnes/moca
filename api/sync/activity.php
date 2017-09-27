@@ -1,5 +1,58 @@
 <?php
 
+function hpm_api_activities ( $last_activity_id = 0 ) {
+
+    $user_id = hpm_user_id();
+    $user_role = hpm_user_role();
+
+    global $wpdb;
+    $activity_table = $wpdb->prefix . 'hpm_activity';
+    // $where = "WHERE id = '$id'";
+
+    // // Secure
+    // switch ($user_role) {
+    //
+    //     case "administrator":
+    //     case "manager":
+    //         break;
+    //
+    //     case "contractor":
+    //         $where .= " AND contractor_id = $user_id";
+    //         $where .= " AND archived = 0";
+    //         break;
+    //
+    //     default:
+    //         return null;
+    //
+    // }
+
+    // Return
+    $results = $wpdb->get_results( "SELECT * FROM $activity_table WHERE id > $last_activity_id" );
+    return array_map(function($row){
+        $row = hpm_typify_data_from_db( $row );
+        $row->id = (int) $row->id;
+        return $row;
+    }, $results);
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /**
  * Perform and Log Activity
  * @param  Activity $activity
@@ -120,6 +173,14 @@ function hpm_typify_data_from_db( $data ) {
                 break;
             case 'meta':
                 $typified->$key = json_decode( $value );
+                break;
+            case 'property_value':
+                $first_char = substr($value, 0, 1);
+                if ( $first_char === '{' || $first_char === '[' ) {
+                    $typified->$key = hpm_typify_data_from_db( json_decode( $value ) );
+                } else {
+                    $typified->$key = $value;
+                }
                 break;
             default:
                 $typified->$key = $value;

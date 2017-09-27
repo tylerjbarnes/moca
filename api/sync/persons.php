@@ -1,54 +1,25 @@
 <?php
 
+////////////
+// Create //
+////////////
+
+
+
 //////////
-// Load //
+// Read //
 //////////
 
-/**
- * Load Person
- * @param  String $id
- * @return Object person data
- */
-function hpm_api_load_person( $id ) {
-
-    global $wpdb;
-    $person_table = $wpdb->prefix . 'hpm_persons';
-    $times_table = $wpdb->prefix . 'hpm_times';
-
-    // Query
-    $query = "
-        SELECT persons.*, SUM(time.hours) balance
-        FROM $person_table persons
-        LEFT JOIN $times_table time
-            ON persons.id = time.client_id
-        WHERE persons.id = '$id'
-    ";
-    $person_data = $wpdb->get_row( $query );
-
-    // // Avatar
-    // $person_data->avatar = get_wp_user_avatar_src( $datum->wp_id, 'thumbnail');
-
-    // Return
-    return hpm_typify_data_from_db( hpm_attach_avatar( $person_data ) );
-
+function hpm_attach_avatar( $row ) {
+    $row->avatar = get_wp_user_avatar_src( $row->wp_id, 'thumbnail');
+    return $row;
 }
 
-/**
- * Load Persons
- * @return Array
- */
-function hpm_api_load_persons($filters = []) {
+function moca_get_persons () {
 
     global $wpdb;
     $person_table = $wpdb->prefix . 'hpm_persons';
     $times_table = $wpdb->prefix . 'hpm_times';
-
-    // Filter
-    foreach( $filters as $key=>$value ) {
-        if ($value == "true") { $value = 1; }
-        if ($value == "false") { $value = 0; }
-        $where .= " AND $key = '$value'";
-    }
 
     // Clients
 
@@ -58,7 +29,7 @@ function hpm_api_load_persons($filters = []) {
         FROM $person_table persons
         LEFT JOIN $times_table time
             ON persons.id = time.client_id
-        WHERE role = 'client' $where
+        WHERE role = 'client'
         GROUP BY persons.id;
     ";
     $clients_data = $wpdb->get_results( $query );
@@ -67,7 +38,7 @@ function hpm_api_load_persons($filters = []) {
     $query = "
         SELECT *
         FROM $person_table
-        WHERE role != 'client' $where;
+        WHERE role != 'client';
     ";
     $others_data = $wpdb->get_results( $query );
 
@@ -84,10 +55,110 @@ function hpm_api_load_persons($filters = []) {
 
 }
 
-function hpm_attach_avatar( $row ) {
-    $row->avatar = get_wp_user_avatar_src( $row->wp_id, 'thumbnail');
-    return $row;
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// //////////
+// // Load //
+// //////////
+//
+// /**
+//  * Load Person
+//  * @param  String $id
+//  * @return Object person data
+//  */
+// function hpm_api_load_person( $id ) {
+//
+//     global $wpdb;
+//     $person_table = $wpdb->prefix . 'hpm_persons';
+//     $times_table = $wpdb->prefix . 'hpm_times';
+//
+//     // Query
+//     $query = "
+//         SELECT persons.*, SUM(time.hours) balance
+//         FROM $person_table persons
+//         LEFT JOIN $times_table time
+//             ON persons.id = time.client_id
+//         WHERE persons.id = '$id'
+//     ";
+//     $person_data = $wpdb->get_row( $query );
+//
+//     // // Avatar
+//     // $person_data->avatar = get_wp_user_avatar_src( $datum->wp_id, 'thumbnail');
+//
+//     // Return
+//     return hpm_typify_data_from_db( hpm_attach_avatar( $person_data ) );
+//
+// }
+//
+// /**
+//  * Load Persons
+//  * @return Array
+//  */
+// function hpm_api_load_persons($filters = []) {
+//
+//     global $wpdb;
+//     $person_table = $wpdb->prefix . 'hpm_persons';
+//     $times_table = $wpdb->prefix . 'hpm_times';
+//
+//     // Filter
+//     foreach( $filters as $key=>$value ) {
+//         if ($value == "true") { $value = 1; }
+//         if ($value == "false") { $value = 0; }
+//         $where .= " AND $key = '$value'";
+//     }
+//
+//     // Clients
+//
+//     // SELECT persons.*, SUM(time.hours) balance
+//     $query = "
+//         SELECT persons.*
+//         FROM $person_table persons
+//         LEFT JOIN $times_table time
+//             ON persons.id = time.client_id
+//         WHERE role = 'client' $where
+//         GROUP BY persons.id;
+//     ";
+//     $clients_data = $wpdb->get_results( $query );
+//
+//     // Non-Clients
+//     $query = "
+//         SELECT *
+//         FROM $person_table
+//         WHERE role != 'client' $where;
+//     ";
+//     $others_data = $wpdb->get_results( $query );
+//
+//     // Combine
+//     $persons_data = array_merge( $clients_data, $others_data );
+//
+//     // Avatars
+//     $persons_data = array_map( function($datum) {
+//         return hpm_typify_data_from_db( hpm_attach_avatar( $datum ) );
+//     }, $persons_data );
+//
+//     // Return
+//     return $persons_data;
+//
+// }
+
 
 
 //////////

@@ -38,7 +38,7 @@ import MocaPusher from './pusher.js';
 
 axios.post(ajaxurl, qs.stringify({
     action: 'hpm_api',
-    function: 'load'
+    function: 'download_data'
 }))
 .then(({data}) => {
     window.pusher = new MocaPusher();
@@ -56,6 +56,17 @@ axios.post(ajaxurl, qs.stringify({
     store.dispatch('setUser', currentUserWpId);
     bus.$emit('storeLoaded');
 });
+
+
+axios.post(ajaxurl, qs.stringify({
+    action: 'hpm_api',
+    function: 'activities',
+    last_activity_id: 0
+}))
+.then(({data}) => {
+    console.log(data);
+});
+
 
 window.bus = new Vue();
 

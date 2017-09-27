@@ -44,12 +44,12 @@
             previousScrollHeight: 0
         }},
         components: {MessageView},
-        mounted () {
-            this.scrollToBottom();
-        },
+        // mounted () {
+        //     this.scrollToBottom();
+        // },
         computed: {
             messages () {
-                return this.project.messages.filter(message => !message.parent_id);
+                return this.project.messages.filter(message => !message.parent_id).reverse();
             },
             replyingTo () {
                 let message = store.getters.message(this.messagePrimitive.parent_id);
@@ -72,12 +72,12 @@
                 this.messagePrimitive.content = '';
                 this.messagePrimitive.parent_id = null;
             },
-            scrollToBottom () {
-                let me = this;
-                setTimeout(function () {
-                    me.$refs.items.scrollTop = me.$refs.items.scrollHeight;
-                }, 0);
-            },
+            // scrollToBottom () {
+            //     let me = this;
+            //     setTimeout(function () {
+            //         me.$refs.items.scrollTop = me.$refs.items.scrollHeight;
+            //     }, 0);
+            // },
             toggleReplying (messageId) {
                 this.messagePrimitive.parent_id == messageId ?
                     this.messagePrimitive.parent_id = null :
@@ -88,11 +88,11 @@
                 this.messagePrimitive.parent_id = null;
             }
         },
-        watch: {
-            messages: function (newVal) {
-                this.scrollToBottom();
-            }
-        }
+        // watch: {
+        //     messages: function (newVal) {
+        //         this.scrollToBottom();
+        //     }
+        // }
     }
 
 </script>
@@ -107,6 +107,8 @@
         width: 100%; height: 100%;
 
         .items {
+            display: flex;
+            flex-flow: column-reverse;
             flex: 1 1;
             overflow: scroll;
             width: 100%;
