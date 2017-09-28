@@ -61,7 +61,9 @@ function hpm_api_download_data() {
     $response->projects = [];
     $response->resources = [];
     $response->times = [];
-    
+
+    $response->last_mutation_id = hpm_last_mutation_id();
+
     return $response;
 
 }

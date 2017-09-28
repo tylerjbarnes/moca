@@ -7,82 +7,62 @@ function hpm_api_mutations ( $last_mutation_id = 0 ) {
 
     global $wpdb;
     $table = $wpdb->prefix . 'hpm_mutations';
-    // $where = "WHERE id = '$id'";
-
-    // // Secure
-    // switch ($user_role) {
-    //
-    //     case "administrator":
-    //     case "manager":
-    //         break;
-    //
-    //     case "contractor":
-    //         $where .= " AND contractor_id = $user_id";
-    //         $where .= " AND archived = 0";
-    //         break;
-    //
-    //     default:
-    //         return null;
-    //
-    // }
-
-    // Return
     $results = $wpdb->get_results( "SELECT * FROM $table WHERE id > $last_mutation_id" );
     $mutations = array_map(function($row){
-        $row = hpm_typify_data_from_db( $row );
-        $mutation = new stdClass();
-
-        $mutation->id = (int) $row->id;
-        $mutation->action = $row->action;
-        $mutation->authorId = $row->author_id;
-        $mutation->objectId = $row->object_id;
-        $mutation->objectType = $row->object_type;
-        $mutation->propertyName = $row->property_name;
-        $mutation->propertyValue = $row->property_value;
-
-        return $mutation;
+        return hpm_typify_data_from_db( $row );
     }, $results);
 
     $response = new stdClass();
     $response->mutations = $mutations;
-    $response->last_mutation_id = end( $mutations )->id;
+    $response->last_mutation_id = hpm_last_mutation_id();
     return $response;
 
 }
-
-
 
 function hpm_api_mutate ( $mutations, $socket_id ) {
 
     global $wpdb;
 
-    // Log Mutations
-    $table = $wpdb->prefix . "hpm_mutations";
+    // error_log(print_r( $mutations, TRUE ));
+
+    // Apply Mutations
     foreach( $mutations as $mutation ) {
-
-        $mutation['datetime'] = gmdate("Y-m-d H:i:s");
-        $wpdb->insert(
-            $table,
-            [
-                "action" => $mutation['action'],
-                "object_type" => $mutation['objectType'],
-                "object_id" => $mutation['objectId'],
-                "property_name" => $mutation['propertyName'] ? $mutation['propertyName'] : NULL,
-                "property_value" => json_encode($mutation['propertyValue']),
-                "author_id" => $mutation['authorId']
-            ],
-            array("%s","%s","%s","%s","%s","%s")
-        );
-
+        $table = $wpdb->prefix . 'hpm_' . $mutation->object_type . 's';
+        $mutation->datetime = gmdate("Y-m-d H:i:s");
+        $mutation->property_name = $mutation->property_name ? $mutation->property_name : NULL;
+        switch ( $mutation->action ) {
+            case "create": $wpdb->insert( $table, (array) $mutation->property_value ); break;
+            case "update": $wpdb->update( $table, [ $mutation->property_name => $mutation->property_value ],
+                [ "id" => $mutation->object_id ] ); break;
+            case "delete": $wpdb->delete( $table, [ 'id' => $mutation->object_id ] ); break;
+            default: break;
+        }
     }
 
+    // Store Mutations
+    $table = $wpdb->prefix . "hpm_mutations";
+    foreach( $mutations as $mutation ) {
+        $mutation->property_value = json_encode( $mutation->property_value );
+        $wpdb->insert( $table, (array) $mutation, array("%s","%s","%s","%s","%s","%s") );
+    }
+
+    // Push Mutations
+
+    // Respond
     $response = new stdClass();
     $response->last_mutation_id = $wpdb->insert_id;
     return $response;
 
 }
 
+function hpm_last_mutation_id () {
 
+    global $wpdb;
+    $table = $wpdb->prefix . 'hpm_mutations';
+    $result = $wpdb->get_var( "SELECT id FROM $table ORDER BY id DESC LIMIT 1" );
+    return $result;
+
+}
 
 
 

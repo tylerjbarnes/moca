@@ -28,31 +28,19 @@ import router from './router.js';
 import Store from './store.js';
 import App from './App.vue';
 
-
-import axios from 'axios';
-import qs from 'qs';
-
 import store from './store.js';
 window.store = store;
 import MocaPusher from './pusher.js';
 
-axios.post(ajaxurl, qs.stringify({
-    action: 'hpm_api',
-    function: 'download_data'
-}))
-.then(({data}) => {
+hpmAPI('download_data').then(data => {
+
     window.pusher = new MocaPusher();
     store.dispatch('importObjects', data);
-    store.dispatch('ready');
     store.dispatch('setUser', currentUserWpId);
+    store.dispatch('setLastMutationId', data.last_mutation_id);
     bus.$emit('storeLoaded');
 
-    axios.post(ajaxurl, qs.stringify({
-        action: 'hpm_api',
-        function: 'mutations',
-        last_activity_id: store.state.last_activity_id
-    }))
-    .then(({data}) => {
+    hpmAPI('mutations', { last_mutation_id: store.state.lastMutationId }).then(data => {
         store.dispatch('importMutations', data);
     });
 

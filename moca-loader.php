@@ -418,14 +418,10 @@ class Moca {
 
     public function hpm_api() {
         header('Content-Type: application/json');
-
-        $function = $_POST['function'];
-        $args = array_slice( $_POST, 2 );
-        $output = call_user_func_array( 'hpm_api_' . $function, $args );
-        echo json_encode( $output );
-
-        wp_die();
-
+        $function_name = 'hpm_api_' . $_POST['functionName'];
+        $args = (array) json_decode( stripslashes( $_POST['args'] ) );
+        $args = $args ? array_values( $args ) : [];
+        wp_send_json( call_user_func_array( $function_name, $args ) );
     }
 
 }

@@ -82,17 +82,17 @@ const mutations = {
 
         switch (mutation.action) {
             case 'create':
-                state[mutation.objectType + 's'].push(
-                    MocaFactory.constructObject(mutation.objectType, mutation.propertyValue)
+                state[mutation.object_type + 's'].push(
+                    MocaFactory.constructObject(mutation.object_type, mutation.property_value)
                 );
                 break;
             case 'update':
-                let object = state[mutation.objectType + 's'].find(object => object.id === mutation.objectId);
-                object[mutation.propertyName] = mutation.propertyValue;
+                let object = state[mutation.object_type + 's'].find(object => object.id === mutation.object_id);
+                object[mutation.property_name] = mutation.property_value;
                 break;
             case 'delete':
-                state[mutation.objectType + 's'] = state[mutation.objectType + 's'].filter(
-                    object => object.id !== mutation.objectId
+                state[mutation.object_type + 's'] = state[mutation.object_type + 's'].filter(
+                    object => object.id !== mutation.object_id
                 );
                 break;
             default: return;
@@ -139,11 +139,8 @@ const actions = {
 
     exportMutations (context, mutations) {
         store.dispatch('applyMutations', mutations);
-        axios.post(ajaxurl, qs.stringify({ action: 'hpm_api', function: 'mutate',
-            mutations,
-            socket_id: pusher.socketId
-        })).then((response) => {
-            store.dispatch('setLastMutationId', response.data.last_mutation_id);
+        hpmAPI('mutate', [mutations, pusher.socketId]).then(response => {
+            store.dispatch('setLastMutationId', response.last_mutation_id);
         });
     },
 

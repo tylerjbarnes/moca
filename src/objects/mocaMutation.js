@@ -2,12 +2,12 @@ class MocaMutation {
 
     constructor (action, objectType, objectId, propertyName, propertyValue) {
         this.action = action;
-        this.objectType = objectType;
-        this.objectId = objectId;
-        this.propertyName = propertyName;
-        this.propertyValue = propertyValue;
+        this.object_type = objectType;
+        this.object_id = objectId;
+        this.property_name = propertyName;
+        this.property_value = propertyValue;
 
-        this.authorId = store.state.user.id;
+        this.author_id = store.state.user.id;
     }
 
 }
