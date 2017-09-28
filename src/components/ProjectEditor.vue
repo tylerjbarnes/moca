@@ -129,6 +129,7 @@
     import FlaggedInput from './inputs/FlaggedInput.vue';
 
     import MocaFactory from '../objects/mocaFactory.js';
+    import MocaMutationSet from '../objects/mocaMutationSet.js';
 
     export default {
         name: 'project-editor',
@@ -157,10 +158,12 @@
                 if (this.projectPrimitive.contractor_id) {
                     this.projectPrimitive.status = 'do';
                 }
-                this.$store.dispatch('createObject',{
-                    type: 'project',
-                    primitive: this.projectPrimitive
-                });
+                new MocaMutationSet(
+                    'create',
+                    'project',
+                    this.projectPrimitive.id,
+                    this.projectPrimitive
+                ).commit();
                 if (this.resourcePrimitive.content.body) {
                     this.resourcePrimitive.client_id = this.projectPrimitive.client_id;
                     this.resourcePrimitive.project_id = this.projectPrimitive.id;

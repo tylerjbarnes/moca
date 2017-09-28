@@ -42,31 +42,21 @@ axios.post(ajaxurl, qs.stringify({
 }))
 .then(({data}) => {
     window.pusher = new MocaPusher();
-    for (let type of [
-        'person',
-        'message',
-        'package',
-        'project',
-        'resource',
-        'time'
-    ]) {
-        store.dispatch('addObjects', {type, primitives: data[type + 's']});
-        store.dispatch('ready');
-    }
+    store.dispatch('importObjects', data);
+    store.dispatch('ready');
     store.dispatch('setUser', currentUserWpId);
     bus.$emit('storeLoaded');
+
+    axios.post(ajaxurl, qs.stringify({
+        action: 'hpm_api',
+        function: 'mutations',
+        last_activity_id: store.state.last_activity_id
+    }))
+    .then(({data}) => {
+        store.dispatch('importMutations', data);
+    });
+
 });
-
-
-axios.post(ajaxurl, qs.stringify({
-    action: 'hpm_api',
-    function: 'activities',
-    last_activity_id: 0
-}))
-.then(({data}) => {
-    console.log(data);
-});
-
 
 window.bus = new Vue();
 

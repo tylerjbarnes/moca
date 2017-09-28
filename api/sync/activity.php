@@ -1,12 +1,12 @@
 <?php
 
-function hpm_api_activities ( $last_activity_id = 0 ) {
+function hpm_api_mutations ( $last_mutation_id = 0 ) {
 
     $user_id = hpm_user_id();
     $user_role = hpm_user_role();
 
     global $wpdb;
-    $activity_table = $wpdb->prefix . 'hpm_activity';
+    $table = $wpdb->prefix . 'hpm_mutations';
     // $where = "WHERE id = '$id'";
 
     // // Secure
@@ -27,17 +27,60 @@ function hpm_api_activities ( $last_activity_id = 0 ) {
     // }
 
     // Return
-    $results = $wpdb->get_results( "SELECT * FROM $activity_table WHERE id > $last_activity_id" );
-    return array_map(function($row){
+    $results = $wpdb->get_results( "SELECT * FROM $table WHERE id > $last_mutation_id" );
+    $mutations = array_map(function($row){
         $row = hpm_typify_data_from_db( $row );
-        $row->id = (int) $row->id;
-        return $row;
+        $mutation = new stdClass();
+
+        $mutation->id = (int) $row->id;
+        $mutation->action = $row->action;
+        $mutation->authorId = $row->author_id;
+        $mutation->objectId = $row->object_id;
+        $mutation->objectType = $row->object_type;
+        $mutation->propertyName = $row->property_name;
+        $mutation->propertyValue = $row->property_value;
+
+        return $mutation;
     }, $results);
+
+    $response = new stdClass();
+    $response->mutations = $mutations;
+    $response->last_mutation_id = end( $mutations )->id;
+    return $response;
 
 }
 
 
 
+function hpm_api_mutate ( $mutations, $socket_id ) {
+
+    global $wpdb;
+
+    // Log Mutations
+    $table = $wpdb->prefix . "hpm_mutations";
+    foreach( $mutations as $mutation ) {
+
+        $mutation['datetime'] = gmdate("Y-m-d H:i:s");
+        $wpdb->insert(
+            $table,
+            [
+                "action" => $mutation['action'],
+                "object_type" => $mutation['objectType'],
+                "object_id" => $mutation['objectId'],
+                "property_name" => $mutation['propertyName'] ? $mutation['propertyName'] : NULL,
+                "property_value" => json_encode($mutation['propertyValue']),
+                "author_id" => $mutation['authorId']
+            ],
+            array("%s","%s","%s","%s","%s","%s")
+        );
+
+    }
+
+    $response = new stdClass();
+    $response->last_mutation_id = $wpdb->insert_id;
+    return $response;
+
+}
 
 
 
@@ -146,45 +189,66 @@ function hpm_typify_data_from_db( $data ) {
     $typified = new stdClass();
 
     foreach ($data as $key => $value) {
-        switch ($key) {
-            case 'archived':
-            case 'flagged':
-            case 'pending':
-            case 'resolved':
-                $typified->$key = $value == 1;
-                break;
-            case 'avatar':
-                $typified->$key = get_wp_user_avatar_src( $data->wp_id, 'thumbnail');
-                break;
-            case 'content':
-            case 'memo':
-            case 'name':
-                $typified->$key = stripslashes( $value );
-                break;
-            case 'cycle':
-            case 'time_offset':
-                $typified->$key = (int) $value;
-                break;
-            case 'estimate':
-            case 'hours':
-            case 'max':
-            case 'notification_time':
-                $typified->$key = abs((float) $value);
-                break;
-            case 'meta':
-                $typified->$key = json_decode( $value );
-                break;
-            case 'property_value':
-                $first_char = substr($value, 0, 1);
-                if ( $first_char === '{' || $first_char === '[' ) {
-                    $typified->$key = hpm_typify_data_from_db( json_decode( $value ) );
-                } else {
+        if ($value == "" && in_array($key,[
+            'property_name',
+            'parent_id',
+            'author_id',
+            'project_id',
+            'client_id',
+            'meta',
+            'wp_id',
+            'cell_provider',
+            'cell_number',
+            'target',
+            'due',
+            'max',
+            'autocycle',
+            'contractor_id',
+            'manager_id',
+            'worker_id',
+            'cycle',
+            'package_id'
+        ])) { $typified->$key = NULL; } else {
+            switch ($key) {
+                case 'archived':
+                case 'flagged':
+                case 'pending':
+                case 'resolved':
+                    $typified->$key = $value == 1;
+                    break;
+                case 'avatar':
+                    $typified->$key = get_wp_user_avatar_src( $data->wp_id, 'thumbnail');
+                    break;
+                case 'content':
+                case 'memo':
+                case 'name':
+                    $typified->$key = stripslashes( $value );
+                    break;
+                case 'cycle':
+                case 'time_offset':
+                    $typified->$key = (int) $value;
+                    break;
+                case 'estimate':
+                case 'hours':
+                case 'max':
+                case 'notification_time':
+                    $typified->$key = abs((float) $value);
+                    break;
+                case 'meta':
+                    $typified->$key = json_decode( $value );
+                    break;
+                case 'property_value':
+                    $first_char = substr($value, 0, 1);
+                    if ( $first_char === '{' || $first_char === '[' ) {
+                        $typified->$key = hpm_typify_data_from_db( json_decode( $value ) );
+                    } else {
+                        $typified->$key = $value;
+                    }
+                    break;
+                default:
                     $typified->$key = $value;
-                }
-                break;
-            default:
-                $typified->$key = $value;
-                break;
+                    break;
+            }
         }
     }
 

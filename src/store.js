@@ -25,10 +25,13 @@ const state = {
     times:  [],
     //
     searchTerm: '',
-    route: { view: null, item: null }
+    route: { view: null, item: null },
+    lastMutationId: 0
 };
 
 const getters = {
+
+    object: (state, getters) => (type, id) => state[type + 's'].find(object => object.id === id),
 
     // Messages
     message: (state, getters) => (id) => state.messages.find(message => message.id === id),
@@ -73,20 +76,52 @@ const getters = {
 
 const mutations = {
 
-    // Objects
+    // Object Mutation
 
-    addObjects (state, args) { state[args.setName] = [...state[args.setName], ...args.objects]; },
-    addObject (state, args) { state[args.setName].push(args.object); },
-    updateObject (state, args) {
-        let object = store.state[args.setName].find(object => object.id === args.id);
-        object.update(args.delta);
+    mutateObject (state, mutation) {
+
+        switch (mutation.action) {
+            case 'create':
+                state[mutation.objectType + 's'].push(
+                    MocaFactory.constructObject(mutation.objectType, mutation.propertyValue)
+                );
+                break;
+            case 'update':
+                let object = state[mutation.objectType + 's'].find(object => object.id === mutation.objectId);
+                object[mutation.propertyName] = mutation.propertyValue;
+                break;
+            case 'delete':
+                state[mutation.objectType + 's'] = state[mutation.objectType + 's'].filter(
+                    object => object.id !== mutation.objectId
+                );
+                break;
+            default: return;
+        }
+
     },
-    removeObject (state, args) { state[args.setName] = state[args.setName].filter(object => object.id !== args.id) },
+
+    // Static Objects
+
+    importObjects (state, data) {
+        for (let type of [
+            'message',
+            'package',
+            'person',
+            'project',
+            'resource',
+            'time'
+        ]) {
+            state[type + 's'] = data[type + 's'].map(
+                primitive => MocaFactory.constructObject(type, primitive)
+            );
+        }
+    },
 
     // Interface
 
     setSearchTerm(state, searchTerm) { state.searchTerm = searchTerm; },
     setUser(state, wpId) { state.user = state.persons.find(person => person.wp_id == wpId); },
+    setLastMutationId(state, mutationId) { state.lastMutationId = mutationId; },
     updateRoute(state, route) { state.route = route; },
     ready(state) { state.ready = true; }
 
@@ -94,51 +129,40 @@ const mutations = {
 
 const actions = {
 
-    // Object Pulling
+    // Object Mutation
 
-    addObjects (context, args) {
-        let objects = MocaFactory.constructObjects(args.type, args.primitives);
-        context.commit('addObjects', {setName: args.type + 's', objects});
+    applyMutations (context, mutations) {
+        for (let mutation of mutations) {
+            context.commit('mutateObject', mutation);
+        }
     },
-    addObject (context, args) {
-        let object = MocaFactory.constructObject(args.type, args.primitive);
-        context.commit('addObject', {setName: args.type + 's', object});
-    },
-    updateObject (context, args) { context.commit('updateObject', {setName: args.type + 's', id: args.id, delta: args.delta}) },
-    removeObject(context, args) { context.commit('removeObject', {setName: args.type + 's', id: args.id}) },
 
-    // Object Pushing
+    exportMutations (context, mutations) {
+        store.dispatch('applyMutations', mutations);
+        axios.post(ajaxurl, qs.stringify({ action: 'hpm_api', function: 'mutate',
+            mutations,
+            socket_id: pusher.socketId
+        })).then((response) => {
+            store.dispatch('setLastMutationId', response.data.last_mutation_id);
+        });
+    },
 
-    createObject (context, args) {
-        store.dispatch('addObject', args);
-        axios.post(ajaxurl, qs.stringify({ action: 'hpm_api', function: 'create_object',
-            type: args.type,
-            object_data: args.primitive,
-            socket_id: pusher.socketId
-        })).then((response) => {});
+    importMutations (context, data) {
+        store.dispatch('applyMutations', data.mutations);
+        store.dispatch('setLastMutationId', data.last_mutation_id);
     },
-    modifyObject (context, args) {
-        store.dispatch('updateObject', args);
-        axios.post(ajaxurl, qs.stringify({ action: 'hpm_api', function: 'modify_object',
-            type: args.type,
-            id: args.id,
-            delta: args.delta,
-            socket_id: pusher.socketId
-        })).then((response) => {});
-    },
-    deleteObject (context, args) {
-        store.dispatch('removeObject', args);
-        axios.post(ajaxurl, qs.stringify({ action: 'hpm_api', function: 'delete_object',
-            type: args.type,
-            object_id: args.id,
-            socket_id: pusher.socketId
-        })).then((response) => {});
+
+    // Static Objects
+
+    importObjects (context, data) {
+        context.commit('importObjects', data);
     },
 
     // Interface
 
     setSearchTerm (context, searchTerm) { context.commit('setSearchTerm', searchTerm); },
     setUser (context, wpId) { context.commit('setUser', wpId); },
+    setLastMutationId (context, mutationId) { context.commit('setLastMutationId', mutationId); },
     updateRoute (context, route) { context.commit('updateRoute', route); },
     ready (context) { context.commit('ready'); }
 
