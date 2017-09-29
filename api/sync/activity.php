@@ -23,8 +23,6 @@ function hpm_api_mutate ( $mutations, $socket_id ) {
 
     global $wpdb;
 
-    // error_log(print_r( $mutations, TRUE ));
-
     // Apply Mutations
     foreach( $mutations as $mutation ) {
         $table = $wpdb->prefix . 'hpm_' . $mutation->object_type . 's';
@@ -60,7 +58,7 @@ function hpm_last_mutation_id () {
     global $wpdb;
     $table = $wpdb->prefix . 'hpm_mutations';
     $result = $wpdb->get_var( "SELECT id FROM $table ORDER BY id DESC LIMIT 1" );
-    return $result;
+    return (int) $result;
 
 }
 

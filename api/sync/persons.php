@@ -15,45 +15,7 @@ function hpm_attach_avatar( $row ) {
     return $row;
 }
 
-function moca_get_persons () {
 
-    global $wpdb;
-    $person_table = $wpdb->prefix . 'hpm_persons';
-    $times_table = $wpdb->prefix . 'hpm_times';
-
-    // Clients
-
-    // SELECT persons.*, SUM(time.hours) balance
-    $query = "
-        SELECT persons.*
-        FROM $person_table persons
-        LEFT JOIN $times_table time
-            ON persons.id = time.client_id
-        WHERE role = 'client'
-        GROUP BY persons.id;
-    ";
-    $clients_data = $wpdb->get_results( $query );
-
-    // Non-Clients
-    $query = "
-        SELECT *
-        FROM $person_table
-        WHERE role != 'client';
-    ";
-    $others_data = $wpdb->get_results( $query );
-
-    // Combine
-    $persons_data = array_merge( $clients_data, $others_data );
-
-    // Avatars
-    $persons_data = array_map( function($datum) {
-        return hpm_typify_data_from_db( hpm_attach_avatar( $datum ) );
-    }, $persons_data );
-
-    // Return
-    return $persons_data;
-
-}
 
 
 

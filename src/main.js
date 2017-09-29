@@ -32,18 +32,41 @@ import store from './store.js';
 window.store = store;
 import MocaPusher from './pusher.js';
 
-hpmAPI('download_data').then(data => {
+import forager from './forager.js';
 
-    window.pusher = new MocaPusher();
+
+
+
+
+let forceRemoteLoad = false;
+function getMocaObjects() {
+    return new Promise(function(resolve, reject) {
+        forager.exists().then(exists => {
+            if (exists && !forceRemoteLoad) {
+                console.log('Loading from Local Storage');
+                forager.getState().then(state => { resolve(state); });
+            } else {
+                console.log('Loading from Database');
+                hpmAPI('objects').then(data => { resolve(data); });
+            }
+        });
+    });
+}
+
+function getMocaMutations() {
+    return hpmAPI('mutations', { last_mutation_id: store.state.lastMutationId });
+}
+
+getMocaObjects().then(data => {
     store.dispatch('importObjects', data);
     store.dispatch('setUser', currentUserWpId);
     store.dispatch('setLastMutationId', data.last_mutation_id);
-    bus.$emit('storeLoaded');
+    window.pusher = new MocaPusher();
 
-    hpmAPI('mutations', { last_mutation_id: store.state.lastMutationId }).then(data => {
-        store.dispatch('importMutations', data);
+    getMocaMutations().then((mutationData) => {
+        store.dispatch('importMutations', mutationData);
+        bus.$emit('storeLoaded');
     });
-
 });
 
 window.bus = new Vue();

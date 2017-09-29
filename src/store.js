@@ -15,6 +15,7 @@ import Time from './objects/time.js';
 import axios from 'axios';
 import qs from 'qs';
 
+import forager from './forager.js';
 
 const state = {
     messages:  [],
@@ -133,7 +134,13 @@ const actions = {
 
     applyMutations (context, mutations) {
         for (let mutation of mutations) {
+
+            // Add to Local Store
             context.commit('mutateObject', mutation);
+
+            // Add to IndexedDB
+            forager.mutateObject(mutation);
+
         }
     },
 
@@ -145,21 +152,46 @@ const actions = {
     },
 
     importMutations (context, data) {
+        console.log(data.mutations.length + ' New Mutations Imported');
         store.dispatch('applyMutations', data.mutations);
         store.dispatch('setLastMutationId', data.last_mutation_id);
+    },
+
+    setLastMutationId (context, mutationId) {
+        context.commit('setLastMutationId', mutationId);
+        forager.setLastMutationId(mutationId);
     },
 
     // Static Objects
 
     importObjects (context, data) {
+
+        // Add to Local Store
+        let objectCount = data.messages.length + data.packages.length + data.persons.length
+            + data.projects.length + data.resources.length + data.times.length;
+        console.log(objectCount + ' Existing Objects Imported');
         context.commit('importObjects', data);
+
+        // Add to IndexedDB
+        for (let type of [
+            'message',
+            'package',
+            'person',
+            'project',
+            'resource',
+            'time'
+        ]) {
+            for (let primitive of data[type + 's']) {
+                forager.setObject(type, primitive.id, primitive);
+            }
+        }
+
     },
 
     // Interface
 
     setSearchTerm (context, searchTerm) { context.commit('setSearchTerm', searchTerm); },
     setUser (context, wpId) { context.commit('setUser', wpId); },
-    setLastMutationId (context, mutationId) { context.commit('setLastMutationId', mutationId); },
     updateRoute (context, route) { context.commit('updateRoute', route); },
     ready (context) { context.commit('ready'); }
 
