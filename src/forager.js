@@ -89,6 +89,20 @@ class Forager {
         });
     }
 
+    reset() {
+        for (let type of [
+            'setting',
+            'message',
+            'package',
+            'person',
+            'project',
+            'resource',
+            'time'
+        ]) {
+            this.instances[type].clear();
+        }
+    }
+
     getState() {
         let me = this;
         me.state = {};

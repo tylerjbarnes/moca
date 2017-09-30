@@ -35,10 +35,7 @@ import MocaPusher from './pusher.js';
 import forager from './forager.js';
 
 
-
-
-
-let forceRemoteLoad = false;
+let forceRemoteLoad = true;
 function getMocaObjects() {
     return new Promise(function(resolve, reject) {
         forager.exists().then(exists => {
@@ -47,6 +44,7 @@ function getMocaObjects() {
                 forager.getState().then(state => { resolve(state); });
             } else {
                 console.log('Loading from Database');
+                forager.reset();
                 hpmAPI('objects').then(data => { resolve(data); });
             }
         });
