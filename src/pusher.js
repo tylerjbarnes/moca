@@ -20,6 +20,7 @@ class MocaPusher {
         this.subscribeToChannels();
         this.bindPresenceEvents();
         this.bindMutationEvents();
+        this.bindStateEvents();
     }
 
     subscribeToChannels () {
@@ -50,6 +51,14 @@ class MocaPusher {
     bindMutationEvents () {
         this.pusher.bind('mutate', mutations => {
             store.dispatch('importMutations', mutations);
+        });
+    }
+
+    bindStateEvents () {
+        this.pusher.connection.bind('state_change', states => {
+            if (states.current == 'unavailable') {
+                alert('Hmm, looks like we lost the connection. Please refresh to avoid losing future changes!');
+            }
         });
     }
 

@@ -10,10 +10,7 @@
 // Read //
 //////////
 
-function hpm_attach_avatar( $row ) {
-    $row->avatar = get_wp_user_avatar_src( $row->wp_id, 'thumbnail');
-    return $row;
-}
+
 
 
 
