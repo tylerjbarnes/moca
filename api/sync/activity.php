@@ -40,15 +40,20 @@ function hpm_api_mutate ( $mutations, $socket_id ) {
     // Store Mutations
     $table = $wpdb->prefix . "hpm_mutations";
     foreach( $mutations as $mutation ) {
-        $mutation->property_value = json_encode( $mutation->property_value );
-        $wpdb->insert( $table, (array) $mutation, array("%s","%s","%s","%s","%s","%s") );
+        $flattened_mutation = clone $mutation;
+        $flattened_mutation->property_value = json_encode( $flattened_mutation->property_value );
+        $wpdb->insert( $table, (array) $flattened_mutation, array("%s","%s","%s","%s","%s","%s") );
     }
+    $last_mutation_id = $wpdb->insert_id;
 
     // Push Mutations
+    $pusher = hpm_get_pusher();
+    $data = (object) ['mutations' => $mutations, 'last_mutation_id' => $last_mutation_id];
+    $pusher->trigger('members', 'mutate', $data, $socket_id);
 
     // Respond
     $response = new stdClass();
-    $response->last_mutation_id = $wpdb->insert_id;
+    $response->last_mutation_id = $last_mutation_id;
     return $response;
 
 }
@@ -65,11 +70,11 @@ function hpm_last_mutation_id () {
 
 
 
-
-
-
-
-
+/////////////////////////////////////////
+/////////////////////////////////////////
+/////////////////////////////////////////
+/////////////////////////////////////////
+/////////////////////////////////////////
 
 
 

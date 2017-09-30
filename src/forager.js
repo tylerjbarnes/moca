@@ -36,7 +36,6 @@ class Forager {
     }
 
     mutateObject(mutation) {
-        console.log(mutation);
         switch (mutation.action) {
             case 'create':
                 this.setObject(mutation.object_type, mutation.object_id, mutation.property_value);

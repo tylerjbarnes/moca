@@ -19,11 +19,11 @@ class MocaPusher {
     init () {
         this.subscribeToChannels();
         this.bindPresenceEvents();
-        this.bindObjectEvents();
+        this.bindMutationEvents();
     }
 
     subscribeToChannels () {
-        this.presenceChannel = this.pusher.subscribe("presence-all");
+        this.presenceChannel = this.pusher.subscribe('presence-all');
         this.publicChannel = this.pusher.subscribe('members');
         this.privateChannel = store.state.user.role == 'contractor' ?
             this.pusher.subscribe('private-contractor-' + store.state.user.id) :
@@ -47,31 +47,10 @@ class MocaPusher {
         });
     }
 
-    bindObjectEvents () {
-        let me = this;
-        for (let type of [
-            'message',
-            'package',
-            'person',
-            'project',
-            'resource',
-            'time'
-        ]) {
-            me.pusher.bind('add-' + type, data => {
-                store.dispatch('addObject', {type, primitive: data});
-                console.log('Add ' + type + ' ' + data.id + ':');
-                console.log(data);
-            });
-            me.pusher.bind('update-' + type, dataAndId => {
-                store.dispatch('updateObject', {type, id: dataAndId.id, delta: dataAndId.data});
-                console.log('Update ' + type + ' ' + dataAndId.id + ':');
-                console.log(dataAndId.data);
-            });
-            me.pusher.bind('remove-' + type, id => {
-                store.dispatch('removeObject', {type, id})
-            });
-        }
-
+    bindMutationEvents () {
+        this.pusher.bind('mutate', mutations => {
+            store.dispatch('importMutations', mutations);
+        });
     }
 
     // Getters

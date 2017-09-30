@@ -379,7 +379,7 @@ class Moca {
     }
 
     public function create_person( $user_id ) {
-        error_log( $user_id );
+
         $cuid = new EndyJasmi\Cuid;
         $normalCuid = $cuid->cuid();
 
