@@ -66,6 +66,22 @@ function hpm_user_role( $hpm_id = null ) {
 }
 
 /**
+ * Load Profile Data
+ * @return Object profile data
+ */
+function hpm_load_profile() {
+
+    $wp_id = get_current_user_id();
+
+    global $wpdb;
+    $person_table = $wpdb->prefix . 'hpm_persons';
+    $profile_data = $wpdb->get_row( "SELECT * FROM $person_table WHERE wp_id = $wp_id" );
+
+    return $profile_data;
+
+}
+
+/**
  * Get Pusher
  * @return Pusher
  */
@@ -192,6 +208,128 @@ function hpm_get_message( $id ) {
     return $resource;
 
 }
+
+
+/////////////////
+// Data Typing //
+/////////////////
+
+/**
+ * Restore Types Accessed from DB
+ * @param  Object $data
+ * @return Object type-restored object
+ */
+function hpm_typify_data_from_db( $data ) {
+    $typified = new stdClass();
+
+    foreach ($data as $key => $value) {
+        if ($value == "" && in_array($key,[
+            'property_name',
+            'parent_id',
+            'author_id',
+            'project_id',
+            'client_id',
+            'meta',
+            'wp_id',
+            'cell_provider',
+            'cell_number',
+            'target',
+            'due',
+            'max',
+            'autocycle',
+            'contractor_id',
+            'manager_id',
+            'worker_id',
+            'cycle',
+            'package_id'
+        ])) { $typified->$key = NULL; } else {
+            switch ($key) {
+                case 'archived':
+                case 'flagged':
+                case 'pending':
+                case 'resolved':
+                    $typified->$key = $value == 1;
+                    break;
+                case 'avatar':
+                    $typified->$key = get_wp_user_avatar_src( $data->wp_id, 'thumbnail');
+                    break;
+                case 'content':
+                case 'memo':
+                case 'name':
+                    $typified->$key = stripslashes( $value );
+                    break;
+                case 'cycle':
+                case 'time_offset':
+                    $typified->$key = (int) $value;
+                    break;
+                case 'estimate':
+                case 'hours':
+                case 'max':
+                case 'notification_time':
+                    $typified->$key = abs((float) $value);
+                    break;
+                case 'meta':
+                    $typified->$key = json_decode( $value );
+                    break;
+                case 'property_value':
+                    $first_char = substr($value, 0, 1);
+                    if ( $first_char === '{' || $first_char === '[' ) {
+                        $typified->$key = hpm_typify_data_from_db( json_decode( $value ) );
+                    } else {
+                        $typified->$key = $value;
+                    }
+                    break;
+                case 'static_balance':
+                    $typified->$key = (float) $value;
+                    break;
+                default:
+                    $typified->$key = $value;
+                    break;
+            }
+        }
+    }
+
+    return $typified;
+}
+
+/**
+ * Restore Types Sent from JS
+ * @param  Object $data
+ * @return Object type-restored object
+ */
+function hpm_typify_data_from_js( $data ) {
+    $typified = [];
+
+    foreach ($data as $key => $value) {
+        switch ($key) {
+            case 'archived':
+            case 'flagged':
+            case 'pending':
+            case 'resolved':
+                $typified[$key] = $value == 'true';
+                break;
+            case 'cycle':
+            case 'time_offset':
+                $typified[$key] = (int) $value;
+                break;
+            case 'estimate':
+            case 'hours':
+            case 'max':
+            case 'notification_time':
+                $typified[$key] = abs((float) $value);
+                if (array_key_exists('type', $data) && $data['type'] !== 'purchase') {
+                    $typified[$key] = $typified[$key] * -1;
+                }
+                break;
+            default:
+                $typified[$key] = $value;
+                break;
+        }
+    }
+
+    return $typified;
+}
+
 
 
 

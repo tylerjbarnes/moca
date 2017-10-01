@@ -52,10 +52,11 @@ function getMocaObjects() {
 }
 
 function getMocaMutations() {
-    return hpmAPI('mutations', { last_mutation_id: store.state.lastMutationId });
+    return hpmAPI('mutations', { last_mutation_id: 0 });
 }
 
 getMocaObjects().then(data => {
+    console.log(data);
     store.dispatch('importObjects', data);
     store.dispatch('setUser', currentUserWpId);
     store.dispatch('setLastMutationId', data.last_mutation_id);

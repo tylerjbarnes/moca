@@ -1,20 +1,6 @@
 <?php
 
-/**
- * Load Profile Data
- * @return Object profile data
- */
-function hpm_load_profile() {
 
-    $wp_id = get_current_user_id();
-
-    global $wpdb;
-    $person_table = $wpdb->prefix . 'hpm_persons';
-    $profile_data = $wpdb->get_row( "SELECT * FROM $person_table WHERE wp_id = $wp_id" );
-
-    return $profile_data;
-
-}
 
 /**
  * Load App Data from DB

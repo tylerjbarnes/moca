@@ -3,18 +3,6 @@
 require 'lib/Cuid.php';
 require 'functions.php';
 
-// require 'front_load.php';
-// require 'lazy_load.php';
-
-// require 'sync/activity.php';
-// require 'sync/projects.php';
-// require 'sync/persons.php';
-// require 'sync/times.php';
-// require 'sync/resources.php';
-// require 'sync/files.php';
-// require 'sync/messages.php';
-// require 'sync/packages.php';
-
 
 /////////////
 // Objects //
@@ -30,7 +18,7 @@ function hpm_api_objects() {
 
     $response->messages = hpm_objects('message');
     $response->packages = hpm_objects('package');
-    $response->persons = hpm_persons();
+    $response->persons = hpm_objects('person');
     $response->projects = hpm_objects('project');
     $response->resources = hpm_objects('resource');
     $response->times = hpm_objects('time');
@@ -42,6 +30,16 @@ function hpm_api_objects() {
 }
 
 /**
+ * Attach Avatar URL to Person Primitive
+ * @param  Object $primitive
+ * @return Object
+ */
+function hpm_attach_avatar( $primitive ) {
+    $primitive->avatar = get_wp_user_avatar_src( $primitive->wp_id, 'thumbnail');
+    return $primitive;
+}
+
+/**
  * Get Static Objects of Type
  * @param  String $type
  * @return Array
@@ -50,66 +48,54 @@ function hpm_objects( $type ) {
 
     global $wpdb;
     $table = $wpdb->prefix . 'hpm_' . $type . 's';
-    $results = $wpdb->get_results(
-        "SELECT * FROM $table"
-    );
-    return array_map( function( $result ) {
+
+    // Limit Access for Contractors
+    $where = '';
+    $user_id = hpm_user_id();
+    if (hpm_user_role() == 'contractor') {
+        switch ( $type ) {
+            case 'message':
+            case 'resource':
+                $project_table = $wpdb->prefix . 'hpm_projects';
+                $where = "
+                    LEFT JOIN (
+                        SELECT id, contractor_id
+                        FROM $project_table
+                    ) projects on main.project_id = projects.id
+                    WHERE projects.contractor_id = '$user_id'
+                    OR main.project_id IS NULL
+                ";
+                break;
+            case 'package': $where = "WHERE 0 = 1"; break;
+            case 'project':
+                $where = "WHERE contractor_id = '$user_id'";
+                break;
+            case 'time':
+                $where = "WHERE worker_id = '$user_id'";
+                break;
+            default: break;
+        }
+    }
+
+    // Get Rows from DB
+    $results = $wpdb->get_results( "SELECT main.* FROM $table main $where;" );
+
+    // Typify into Primitives
+    $primitives = array_map( function( $result ) {
         return hpm_typify_data_from_db( $result );
     }, $results );
 
-}
-
-/**
- * Attach Avatar URL to Person Row
- * @param  Object $row
- * @return Object
- */
-function hpm_attach_avatar( $row ) {
-    $row->avatar = get_wp_user_avatar_src( $row->wp_id, 'thumbnail');
-    return $row;
-}
-
-/**
- * Get Static Persons
- * @return Array
- */
-function hpm_persons () {
-
-    global $wpdb;
-    $person_table = $wpdb->prefix . 'hpm_persons';
-    $times_table = $wpdb->prefix . 'hpm_times';
-
-    // Clients
-
-    // SELECT persons.*, SUM(time.hours) balance
-    $query = "
-        SELECT persons.*
-        FROM $person_table persons
-        LEFT JOIN $times_table time
-            ON persons.id = time.client_id
-        WHERE role = 'client'
-        GROUP BY persons.id;
-    ";
-    $clients_data = $wpdb->get_results( $query );
-
-    // Non-Clients
-    $query = "
-        SELECT *
-        FROM $person_table
-        WHERE role != 'client';
-    ";
-    $others_data = $wpdb->get_results( $query );
-
-    // Combine
-    $persons_data = array_merge( $clients_data, $others_data );
-
-    // Avatars
-    $persons_data = array_map( function($datum) {
-        return hpm_typify_data_from_db( hpm_attach_avatar( $datum ) );
-    }, $persons_data );
-
-    // Return
-    return $persons_data;
+    // Add Type-Specific Transformations
+    switch ( $type ) {
+        case 'person':
+            return array_map( function( $primitive ) {
+                return hpm_attach_avatar( $primitive );
+            }, $primitives );
+            break;
+        default:
+            return $primitives;
+            break;
+    }
 
 }
 
@@ -138,12 +124,63 @@ function hpm_last_mutation_id () {
  */
 function hpm_api_mutations ( $last_mutation_id = 0 ) {
 
-    $user_id = hpm_user_id();
-    $user_role = hpm_user_role();
-
     global $wpdb;
     $table = $wpdb->prefix . 'hpm_mutations';
-    $results = $wpdb->get_results( "SELECT * FROM $table WHERE id > $last_mutation_id" );
+    $messages_table = $wpdb->prefix . 'hpm_messages';
+    $persons_table = $wpdb->prefix . 'hpm_persons';
+    $projects_table = $wpdb->prefix . 'hpm_projects';
+    $resources_table = $wpdb->prefix . 'hpm_resources';
+    $times_table = $wpdb->prefix . 'hpm_times';
+
+    // Limit Access for Contractors
+    $where = 'WHERE 1 = 1';
+    $user_id = hpm_user_id();
+    if ( hpm_user_role() == 'contractor' ) {
+        $where = "JOIN (
+            # object id for MPRT associated by project
+            SELECT object_id
+            FROM (
+                # object_id -> contractor_id for messages, projects, resources
+            	SELECT object_id, contractor_id
+                FROM (
+                    # object_id -> project_id for messages, projects, resources
+                    SELECT id object_id, project_id FROM $messages_table
+                    UNION ALL
+                    SELECT id object_id, id project_id FROM $projects_table
+                    UNION ALL
+                    SELECT id object_id, project_id FROM $resources_table
+                ) mesProjRes
+                LEFT JOIN (
+                    SELECT id, contractor_id
+                    FROM $projects_table
+                ) mprProj on mesProjRes.project_id = mprProj.id
+
+                UNION ALL
+
+                # object_id -> contractor_id for times
+                SELECT id object_id, worker_id contractor_id FROM $times_table
+            ) associated
+            WHERE contractor_id = '$user_id'
+
+            UNION ALL
+
+            # object id for all persons
+            SELECT id object_id FROM $persons_table
+
+            UNION ALL
+
+            # object id for all non-project resources
+            SELECT id object_id FROM (
+            	SELECT * FROM $resources_table WHERE project_id IS NULL
+            ) projectlessResources
+
+        ) valid_objects on main.object_id = valid_objects.object_id";
+    }
+
+    // Get Rows from DB
+    $results = $wpdb->get_results( "SELECT * FROM $table main $where AND main.id > $last_mutation_id" );
+
+    // Typify Mutations
     $mutations = array_map(function($row){
         return hpm_typify_data_from_db( $row );
     }, $results);
@@ -198,122 +235,4 @@ function hpm_api_mutate ( $mutations, $socket_id ) {
     $response->last_mutation_id = $last_mutation_id;
     return $response;
 
-}
-
-
-/////////////////
-// Data Typing //
-/////////////////
-
-/**
- * Restore Types Accessed from DB
- * @param  Object $data
- * @return Object type-restored object
- */
-function hpm_typify_data_from_db( $data ) {
-    $typified = new stdClass();
-
-    foreach ($data as $key => $value) {
-        if ($value == "" && in_array($key,[
-            'property_name',
-            'parent_id',
-            'author_id',
-            'project_id',
-            'client_id',
-            'meta',
-            'wp_id',
-            'cell_provider',
-            'cell_number',
-            'target',
-            'due',
-            'max',
-            'autocycle',
-            'contractor_id',
-            'manager_id',
-            'worker_id',
-            'cycle',
-            'package_id'
-        ])) { $typified->$key = NULL; } else {
-            switch ($key) {
-                case 'archived':
-                case 'flagged':
-                case 'pending':
-                case 'resolved':
-                    $typified->$key = $value == 1;
-                    break;
-                case 'avatar':
-                    $typified->$key = get_wp_user_avatar_src( $data->wp_id, 'thumbnail');
-                    break;
-                case 'content':
-                case 'memo':
-                case 'name':
-                    $typified->$key = stripslashes( $value );
-                    break;
-                case 'cycle':
-                case 'time_offset':
-                    $typified->$key = (int) $value;
-                    break;
-                case 'estimate':
-                case 'hours':
-                case 'max':
-                case 'notification_time':
-                    $typified->$key = abs((float) $value);
-                    break;
-                case 'meta':
-                    $typified->$key = json_decode( $value );
-                    break;
-                case 'property_value':
-                    $first_char = substr($value, 0, 1);
-                    if ( $first_char === '{' || $first_char === '[' ) {
-                        $typified->$key = hpm_typify_data_from_db( json_decode( $value ) );
-                    } else {
-                        $typified->$key = $value;
-                    }
-                    break;
-                default:
-                    $typified->$key = $value;
-                    break;
-            }
-        }
-    }
-
-    return $typified;
-}
-
-/**
- * Restore Types Sent from JS
- * @param  Object $data
- * @return Object type-restored object
- */
-function hpm_typify_data_from_js( $data ) {
-    $typified = [];
-
-    foreach ($data as $key => $value) {
-        switch ($key) {
-            case 'archived':
-            case 'flagged':
-            case 'pending':
-            case 'resolved':
-                $typified[$key] = $value == 'true';
-                break;
-            case 'cycle':
-            case 'time_offset':
-                $typified[$key] = (int) $value;
-                break;
-            case 'estimate':
-            case 'hours':
-            case 'max':
-            case 'notification_time':
-                $typified[$key] = abs((float) $value);
-                if (array_key_exists('type', $data) && $data['type'] !== 'purchase') {
-                    $typified[$key] = $typified[$key] * -1;
-                }
-                break;
-            default:
-                $typified[$key] = $value;
-                break;
-        }
-    }
-
-    return $typified;
 }
