@@ -1,40 +1,38 @@
+// JS Requires
 require('./helpers.js');
+require('./filters.js');
 
+// JS Libraries as Globals
+import tinycolor2 from 'tinycolor2'; window.tinycolor = tinycolor2;
+import moment from 'moment'; window.moment = moment;
+import lodash from 'lodash'; window.lodash = lodash;
+import fuzzy from 'fuzzy'; window.fuzzy = fuzzy;
+import cuid from 'cuid'; window.cuid = cuid;
+import Period from './period.js'; window.currentPeriod = new Period();
+import CeriIcon from 'ceri-icon'; window.customElements.define("ceri-icon", CeriIcon);
+
+// Vue & Plugins
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 Vue.use(VueRouter);
 
-import tinycolor2 from 'tinycolor2';
-import moment from 'moment';
-import lodash from 'lodash';
-import fuzzy from 'fuzzy';
-import cuid from 'cuid';
-
-window.tinycolor = tinycolor2;
-window.moment = moment;
-window.lodash = lodash;
-window.fuzzy = fuzzy;
-window.cuid = cuid;
-
+// App Parts
+import App from './App.vue';
+import router from './router.js';
+import store from './store.js'; window.store = store;
+import MocaPusher from './pusher.js';
+import forager from './forager.js';
 window.bus = new Vue();
 
-import Period from './period.js';
-window.currentPeriod = new Period();
+// Define App
+window.moca = new Vue({
+  el: '#app',
+  render: h => h(App),
+  router,
+  store
+});
 
-window.customElements.define("ceri-icon", require("ceri-icon"));
-require('./filters.js');
-
-import router from './router.js';
-import Store from './store.js';
-import App from './App.vue';
-
-import store from './store.js';
-window.store = store;
-import MocaPusher from './pusher.js';
-
-import forager from './forager.js';
-
-
+// Fetch Objects & Mutations...
 let forceRemoteLoad = false;
 function getMocaObjects() {
     return new Promise(function(resolve, reject) {
@@ -50,11 +48,11 @@ function getMocaObjects() {
         });
     });
 }
-
 function getMocaMutations() {
     return hpmAPI('mutations', { last_mutation_id: store.state.lastMutationId });
 }
 
+// ... Then Set Up Store & Emit Ready Signal
 getMocaObjects().then(data => {
     store.dispatch('importObjects', data);
     store.dispatch('setUser', currentUserWpId);
@@ -66,12 +64,3 @@ getMocaObjects().then(data => {
         bus.$emit('storeLoaded');
     });
 });
-
-window.bus = new Vue();
-
-window.moca = new Vue({
-  el: '#app',
-  render: h => h(App),
-  router,
-  store
-})
