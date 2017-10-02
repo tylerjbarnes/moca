@@ -55,8 +55,6 @@ function getMocaMutations() {
     return hpmAPI('mutations', { last_mutation_id: store.state.lastMutationId });
 }
 
-// import MocaMutationSet from './objects/mocaMutationSet.js'; // test playground //
-
 getMocaObjects().then(data => {
     store.dispatch('importObjects', data);
     store.dispatch('setUser', currentUserWpId);
@@ -66,28 +64,6 @@ getMocaObjects().then(data => {
     getMocaMutations().then((mutationData) => {
         store.dispatch('importMutations', mutationData);
         bus.$emit('storeLoaded');
-
-        ///////////////////////////// test playground //////////////
-        ///////////////////////////// test playground //////////////
-        ///////////////////////////// test playground //////////////
-
-
-        // new MocaMutationSet(
-        //     'create',
-        //     'time',
-        //     'some_id', // id
-        //     {
-        //         id: 'some_id',
-        //         hours: 5,
-        //         worker_id: store.state.user.id
-        //     }
-        // ).commit();
-
-        ///////////////////////////// test playground //////////////
-        ///////////////////////////// test playground //////////////
-        ///////////////////////////// test playground //////////////
-
-
     });
 });
 

@@ -1,83 +1,48 @@
 <?php
 
-function hpm_billing_cycle_start_date_string() {
-
-    $today  = new DateTime();
-    $day    = intval( $today->format('d') );
-    $month  = intval( $today->format('m') );
-    $year   = intval( $today->format('Y') );
-
-    if ( $day <= 15 ) {
-        $day = 1;
-    } else {
-        $day = 15;
-    }
-
-    $start = DateTime::createFromFormat('Y-m-d', "{$year}-{$month}-{$day}")->format('Y-m-d');
-    return $start;
-}
-
-function hpm_response( $success, $data_or_message ) {
-    $response = new stdClass();
-    $response->success = $success;
-
-    if ($success) {
-        $response->data = $data_or_message;
-    } else {
-        $response->message = $data_or_message;
-    }
-
-    return $response;
-}
-
 /**
- * Get Current User ID
+ * Get (Current) User Data
+ * @param  String $property
+ * @param  Int $wp_id
  * @return String
  */
-function hpm_user_id( $wp_id = null) {
+function hpm_user_data( $property, $wp_id = null) {
 
     $wp_id = $wp_id ? $wp_id : get_current_user_id();
 
     global $wpdb;
     $table = $wpdb->prefix . "hpm_persons";
-    $id = $wpdb->get_var(
-        "SELECT id FROM $table WHERE wp_id = $wp_id"
+    $var = $wpdb->get_var(
+        "SELECT $property FROM $table WHERE wp_id = $wp_id"
     );
-    return $id;
+    return $var;
 
 }
+function hpm_user_id( $hpm_id = null ) { return hpm_user_data( 'id', $hpm_id ); }
+function hpm_user_role( $hpm_id = null ) { return hpm_user_data( 'role', $hpm_id ); }
+function hpm_user_name( $hpm_id = null ) { return hpm_user_data( 'name', $hpm_id ); }
 
 /**
- * Get Current User Role
- * @return String
+ * Get Object
+ * @param  String $id
+ * @return Project
  */
-function hpm_user_role( $hpm_id = null ) {
-
-    $hpm_id = $hpm_id ? $hpm_id : hpm_user_id();
+function hpm_object( $type, $id ) {
 
     global $wpdb;
-    $table = $wpdb->prefix . "hpm_persons";
-    $role = $wpdb->get_var(
-        "SELECT role FROM $table WHERE id = '$hpm_id'"
-    );
+    $table = $wpdb->prefix . 'hpm_' . $type . 's';
 
-    return $role;
+    // Get Row from DB
+    $row = $wpdb->get_row( "SELECT * FROM $table WHERE id = '$id'" );
 
-}
+    // Typify into Primitive
+    $primitive = hpm_typify_data_from_db( $row );
 
-/**
- * Load Profile Data
- * @return Object profile data
- */
-function hpm_load_profile() {
-
-    $wp_id = get_current_user_id();
-
-    global $wpdb;
-    $person_table = $wpdb->prefix . 'hpm_persons';
-    $profile_data = $wpdb->get_row( "SELECT * FROM $person_table WHERE wp_id = $wp_id" );
-
-    return $profile_data;
+    // Add Type-Specific Transformations & Return
+    switch ( $type ) {
+        case 'person': return hpm_attach_avatar( $primitive );
+        default: return $primitive;
+    }
 
 }
 
@@ -115,114 +80,6 @@ function hpm_get_pusher() {
     }
 
     return $pusher;
-}
-
-/**
- * Get Object
- * @param  String $id
- * @return Project
- */
-function hpm_object( $type, $id ) {
-
-    global $wpdb;
-    $table = $wpdb->prefix . 'hpm_' . $type . 's';
-    $object = $wpdb->get_row(
-        "SELECT * FROM $table WHERE id = '$id'"
-    );
-    return hpm_typify_data_from_db( $object );
-
-}
-
-/**
- * Get Project
- * @param  String $id
- * @return Project
- */
-function hpm_get_project( $id ) {
-
-    global $wpdb;
-    $table = $wpdb->prefix . "hpm_projects";
-    $project = $wpdb->get_row(
-        "SELECT * FROM $table WHERE id = '$id'"
-    );
-    return $project;
-
-}
-
-/**
- * Get Person
- * @param  String $id
- * @return Person
- */
-function hpm_get_person( $id ) {
-
-    global $wpdb;
-    $person_table = $wpdb->prefix . "hpm_persons";
-    $times_table = $wpdb->prefix . 'hpm_times';
-
-    // Query
-    $query = "
-        SELECT persons.*, SUM(time.hours) balance
-        FROM $person_table persons
-        LEFT JOIN $times_table time
-            ON persons.id = time.client_id
-        WHERE persons.id = '$id'
-    ";
-    $person_data = $wpdb->get_row( $query );
-
-    // Avatar
-    $person_data->avatar = get_wp_user_avatar_src( $datum->wp_id, 200);
-
-    return $person_data;
-
-}
-
-/**
- * Get Time
- * @param  String $id
- * @return Project
- */
-function hpm_get_time( $id ) {
-
-    global $wpdb;
-    $table = $wpdb->prefix . "hpm_times";
-    $time = $wpdb->get_row(
-        "SELECT * FROM $table WHERE id = '$id'"
-    );
-    return $time;
-
-}
-
-/**
- * Get Resource
- * @param  String $id
- * @return Project
- */
-function hpm_get_resource( $id ) {
-
-    global $wpdb;
-    $table = $wpdb->prefix . "hpm_resources";
-    $resource = $wpdb->get_row(
-        "SELECT * FROM $table WHERE id = '$id'"
-    );
-    return $resource;
-
-}
-
-/**
- * Get Message
- * @param  String $id
- * @return Project
- */
-function hpm_get_message( $id ) {
-
-    global $wpdb;
-    $table = $wpdb->prefix . "hpm_messages";
-    $resource = $wpdb->get_row(
-        "SELECT * FROM $table WHERE id = '$id'"
-    );
-    return $resource;
-
 }
 
 
