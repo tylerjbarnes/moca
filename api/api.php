@@ -202,6 +202,44 @@ function hpm_api_mutate ( $mutations, $socket_id ) {
 
     global $wpdb;
 
+    // Restrict Mutations
+    if ( hpm_user_role() == 'contractor' ) {
+        foreach( $mutations as $mutation ) {
+            switch ( $mutation->object_type ) {
+                case 'message':
+                    if ( $mutation->action !== 'create' || $mutation->property_value->author_id !== hpm_user_id() ) { return; }
+                    break;
+                case 'package':
+                    return;
+                case 'person':
+                    if (
+                        $mutation->action !== 'update' ||
+                        $mutation->object_id !== hpm_user_id() ||
+                        !in_array( $mutation->property_name,
+                            ['color', 'time_offset', 'cell_provider', 'cell_number', 'notification_time']
+                        )
+                    ) { return; }
+                    break;
+                case 'project':
+                    $project = hpm_object( 'project', $mutation->object_id );
+                    if (
+                        $mutation->action !== 'update' ||
+                        $project->contractor_id !== hpm_user_id() ||
+                        $mutation->property_name !== 'status' ||
+                        $mutation->property_value !== 'approve'
+                    ) { return; }
+                    break;
+                case 'resource':
+                    if ( !in_array( $mutation->action, ['create', 'update'] ) ) { return; }
+                    break;
+                case 'time':
+                    if ( !in_array( $mutation->action, ['create', 'update'] ) ) { return; }
+                    break;
+                default: break;
+            }
+        }
+    }
+
     // Apply Mutations
     foreach( $mutations as $mutation ) {
         $table = $wpdb->prefix . 'hpm_' . $mutation->object_type . 's';
@@ -228,11 +266,52 @@ function hpm_api_mutate ( $mutations, $socket_id ) {
     // Push Mutations
     $pusher = hpm_get_pusher();
     $data = (object) ['mutations' => $mutations, 'last_mutation_id' => $last_mutation_id];
-    $pusher->trigger('members', 'mutate', $data, $socket_id);
+    $pusher->trigger(hpm_channels( $mutations ), 'mutate', $data, $socket_id);
 
     // Respond
     $response = new stdClass();
     $response->last_mutation_id = $last_mutation_id;
     return $response;
 
+}
+
+/**
+ * Get Valid Channels to Push Mutations
+ * @param  Array $mutations
+ * @return Array
+ */
+function hpm_channels( $mutations ) {
+    $mutation = $mutations[0];
+    $object = hpm_object( $mutation->object_type, $mutation->object_id );
+    $channels = [];
+    switch ($mutation->object_type) {
+        case 'message':
+        case 'resource':
+            if ( $object->project_id === NULL ) {
+                $channels = ['members'];
+            } else {
+                $channels[] = 'private-managers';
+                $project = hpm_object( 'project', $object->project_id );
+                if ( $project->contractor_id !== NULL ) {
+                    $channels[] = 'private-contractor-' . $project->contractor_id;
+                }
+            }
+            break;
+        case 'package':
+            $channels = ['private-managers'];
+            break;
+        case 'person':
+        case 'project':
+            $channels = ['members'];
+            break;
+        case 'time':
+            $channels = ['private-managers'];
+            $worker = hpm_object( 'person', $object->worker_id );
+            if ( $worker->role === 'contractor' ) {
+                $channels[] = 'private-contractor-' . $object->worker_id;
+            }
+            break;
+        default: break;
+    }
+    return $channels;
 }

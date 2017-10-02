@@ -118,6 +118,22 @@ function hpm_get_pusher() {
 }
 
 /**
+ * Get Object
+ * @param  String $id
+ * @return Project
+ */
+function hpm_object( $type, $id ) {
+
+    global $wpdb;
+    $table = $wpdb->prefix . 'hpm_' . $type . 's';
+    $object = $wpdb->get_row(
+        "SELECT * FROM $table WHERE id = '$id'"
+    );
+    return hpm_typify_data_from_db( $object );
+
+}
+
+/**
  * Get Project
  * @param  String $id
  * @return Project

@@ -35,7 +35,7 @@ import MocaPusher from './pusher.js';
 import forager from './forager.js';
 
 
-let forceRemoteLoad = true;
+let forceRemoteLoad = false;
 function getMocaObjects() {
     return new Promise(function(resolve, reject) {
         forager.exists().then(exists => {
@@ -52,11 +52,12 @@ function getMocaObjects() {
 }
 
 function getMocaMutations() {
-    return hpmAPI('mutations', { last_mutation_id: 0 });
+    return hpmAPI('mutations', { last_mutation_id: store.state.lastMutationId });
 }
 
+// import MocaMutationSet from './objects/mocaMutationSet.js'; // test playground //
+
 getMocaObjects().then(data => {
-    console.log(data);
     store.dispatch('importObjects', data);
     store.dispatch('setUser', currentUserWpId);
     store.dispatch('setLastMutationId', data.last_mutation_id);
@@ -65,6 +66,28 @@ getMocaObjects().then(data => {
     getMocaMutations().then((mutationData) => {
         store.dispatch('importMutations', mutationData);
         bus.$emit('storeLoaded');
+
+        ///////////////////////////// test playground //////////////
+        ///////////////////////////// test playground //////////////
+        ///////////////////////////// test playground //////////////
+
+
+        // new MocaMutationSet(
+        //     'create',
+        //     'time',
+        //     'some_id', // id
+        //     {
+        //         id: 'some_id',
+        //         hours: 5,
+        //         worker_id: store.state.user.id
+        //     }
+        // ).commit();
+
+        ///////////////////////////// test playground //////////////
+        ///////////////////////////// test playground //////////////
+        ///////////////////////////// test playground //////////////
+
+
     });
 });
 
