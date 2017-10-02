@@ -16,7 +16,7 @@ class Forager {
             'time'
         ]) {
             this.instances[type] = localForage.createInstance({
-                name: 'moca',
+                name: 'moca-' + currentUserWpId,
                 storeName: type + 's'
             });
         }
