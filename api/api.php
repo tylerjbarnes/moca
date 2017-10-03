@@ -187,7 +187,7 @@ function hpm_api_mutations ( $last_mutation_id = 0 ) {
 
     $response = new stdClass();
     $response->mutations = $mutations;
-    $response->last_mutation_id = hpm_last_mutation_id();
+    $response->mutation_id = hpm_last_mutation_id();
     return $response;
 
 }
@@ -261,18 +261,55 @@ function hpm_api_mutate ( $mutations, $socket_id ) {
         $flattened_mutation->property_value = json_encode( $flattened_mutation->property_value );
         $wpdb->insert( $table, (array) $flattened_mutation, array("%s","%s","%s","%s","%s","%s") );
     }
-    $last_mutation_id = $wpdb->insert_id;
+    $mutation_id = $wpdb->insert_id;
 
     // Push Mutations
     $pusher = hpm_get_pusher();
-    $data = (object) ['mutations' => $mutations, 'last_mutation_id' => $last_mutation_id];
-    $pusher->trigger(hpm_channels( $mutations ), 'mutate', $data, $socket_id);
+    $data = (object) ['mutations' => $mutations, 'mutation_id' => $mutation_id, 'integrity' => hpm_last_mutation_ids()];
+    $channels = hpm_channels( $mutations );
+    hpm_set_last_mutation_ids( $channels, $mutation_id );
+    $pusher->trigger($channels, 'mutate', $data, $socket_id);
 
     // Respond
     $response = new stdClass();
-    $response->last_mutation_id = $last_mutation_id;
+    $response->mutation_id = $mutation_id;
     return $response;
 
+}
+
+/**
+ * Get Last Mutation IDs Per Person from DB
+ * @return Object
+ */
+function hpm_last_mutation_ids() {
+    global $wpdb;
+    $table = $wpdb->prefix . 'hpm_persons';
+    $results = $wpdb->get_results( "SELECT id, last_mutation_id FROM $table WHERE role != 'client';" );
+    $arr = [];
+    foreach ($results as $result) {
+        $arr[$result->id] = $result->last_mutation_id;
+    }
+    return (object) $arr;
+}
+
+/**
+ * Record Last Mutation IDs Per Person in DB
+ * @param Array $channels
+ * @param Int $mutation_id
+ */
+function hpm_set_last_mutation_ids( $channels, $mutation_id ) {
+    if ( in_array( 'members', $channels ) ) {
+        $where = '';
+    } else {
+        $channel = array_values ( array_filter( $channels, function( $channel ) {
+            return $channel != 'private-managers';
+        }))[0];
+        $user_id = explode( '-', $channel )[2];
+        $where = "WHERE role = 'manager' OR role = 'administrator' OR id = '$user_id'";
+    }
+    global $wpdb;
+    $table = $wpdb->prefix . 'hpm_persons';
+    $wpdb->query( "UPDATE $table SET last_mutation_id = $mutation_id $where;" );
 }
 
 /**

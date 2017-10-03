@@ -21,6 +21,10 @@ function hpm_user_data( $property, $wp_id = null) {
 function hpm_user_id( $hpm_id = null ) { return hpm_user_data( 'id', $hpm_id ); }
 function hpm_user_role( $hpm_id = null ) { return hpm_user_data( 'role', $hpm_id ); }
 function hpm_user_name( $hpm_id = null ) { return hpm_user_data( 'name', $hpm_id ); }
+function hpm_user_last_mutation( $hpm_id = null ) {
+    $both = hpm_user_data( 'last_mutation', $hpm_id );
+    return explode( ',', $both );
+}
 
 /**
  * Get Object

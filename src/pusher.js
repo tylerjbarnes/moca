@@ -56,9 +56,7 @@ class MocaPusher {
 
     bindStateEvents () {
         this.pusher.connection.bind('state_change', states => {
-            if (states.current == 'unavailable') {
-                alert('Hmm, looks like we lost the connection. Please refresh to avoid losing future changes!');
-            }
+            console.log('Pusher State Changed: ' + states.current);
         });
     }
 

@@ -13,6 +13,8 @@ window.hpmAPI = (functionName, args) => {
             action: 'hpm_api',
             functionName,
             args: JSON.stringify(args)
-        })).then(({data}) => { resolve(data); });
+        })).then(
+            ({data}) => { resolve(data); },
+            ({data}) => { reject(data); });
     });
 }

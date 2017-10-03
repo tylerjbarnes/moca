@@ -134,27 +134,37 @@ const actions = {
 
     applyMutations (context, mutations) {
         for (let mutation of mutations) {
-
-            // Add to Local Store
             context.commit('mutateObject', mutation);
+        }
+    },
 
-            // Add to IndexedDB
+    persistMutations (context, mutations) {
+        if (!mutations) { return; }
+        for (let mutation of mutations) {
             forager.mutateObject(mutation);
-
         }
     },
 
     exportMutations (context, mutations) {
         store.dispatch('applyMutations', mutations);
         hpmAPI('mutate', [mutations, pusher.socketId]).then(response => {
-            store.dispatch('setLastMutationId', response.last_mutation_id);
+            store.dispatch('persistMutations', mutations);
+            store.dispatch('setLastMutationId', response.mutation_id);
+        }, response => {
+            alert("Crap, got disconnected, and that didn't save. Make sure you're connected and refresh.");
         });
     },
 
     importMutations (context, data) {
         console.log(data.mutations.length + ' New Mutations Imported');
         store.dispatch('applyMutations', data.mutations);
-        store.dispatch('setLastMutationId', data.last_mutation_id);
+        if ( !data.integrity || data.integrity[store.state.user.id] == store.state.lastMutationId) {
+            store.dispatch('setLastMutationId', data.mutation_id);
+            store.dispatch('persistMutations', data.mutations);
+        } else {
+            console.log('Out of sync.');
+            alert("Hmm... looks like you're out of sync. Refresh to make sure you have the latest.");
+        }
     },
 
     setLastMutationId (context, mutationId) {

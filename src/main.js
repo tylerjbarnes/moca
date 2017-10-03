@@ -39,7 +39,7 @@ function getMocaObjects() {
         forager.exists().then(exists => {
             if (exists && !forceRemoteLoad) {
                 console.log('Loading from Local Storage');
-                forager.getState().then(state => { resolve(state); });
+                forager.getState().then(data => { resolve(data); });
             } else {
                 console.log('Loading from Database');
                 forager.reset();
@@ -58,7 +58,6 @@ getMocaObjects().then(data => {
     store.dispatch('setUser', currentUserWpId);
     store.dispatch('setLastMutationId', data.last_mutation_id);
     window.pusher = new MocaPusher();
-
     getMocaMutations().then((mutationData) => {
         store.dispatch('importMutations', mutationData);
         bus.$emit('storeLoaded');
