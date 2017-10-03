@@ -148,8 +148,13 @@ const actions = {
     exportMutations (context, mutations) {
         store.dispatch('applyMutations', mutations);
         hpmAPI('mutate', [mutations, pusher.socketId]).then(response => {
-            store.dispatch('persistMutations', mutations);
-            store.dispatch('setLastMutationId', response.mutation_id);
+            if ( response.integrity == store.state.lastMutationId) {
+                store.dispatch('persistMutations', mutations);
+                store.dispatch('setLastMutationId', response.mutation_id);
+            } else {
+                console.log('Out of sync.');
+                alert("Hmm... looks like you're out of sync. Refresh to make sure you have the latest.");
+            }
         }, response => {
             alert("Crap, got disconnected, and that didn't save. Make sure you're connected and refresh.");
         });

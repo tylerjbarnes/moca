@@ -201,6 +201,7 @@ function hpm_api_mutations ( $last_mutation_id = 0 ) {
 function hpm_api_mutate ( $mutations, $socket_id ) {
 
     global $wpdb;
+    $previous_mutation_id = hpm_user_last_mutation_id();
 
     // Restrict Mutations
     if ( hpm_user_role() == 'contractor' ) {
@@ -273,6 +274,7 @@ function hpm_api_mutate ( $mutations, $socket_id ) {
     // Respond
     $response = new stdClass();
     $response->mutation_id = $mutation_id;
+    $response->integrity = $previous_mutation_id;
     return $response;
 
 }
