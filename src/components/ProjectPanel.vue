@@ -3,7 +3,7 @@
     <div class="project-panel">
 
         <div class="titles">
-            <h2 class="client-name">{{ project.client.name }}</h2>
+            <h2 class="client-name">{{ project.client ? project.client.name : 'No Client' }}</h2>
             <h1 class="project-name">{{ project.name }}</h1>
         </div>
 

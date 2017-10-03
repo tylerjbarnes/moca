@@ -143,8 +143,6 @@ function hpm_typify_data_from_db( $data ) {
                     $typified->$key = abs((float) $value);
                     break;
                 case 'meta':
-                    $typified->$key = json_decode( $value );
-                    break;
                 case 'property_value':
                     $first_char = substr($value, 0, 1);
                     if ( $first_char === '{' || $first_char === '[' ) {

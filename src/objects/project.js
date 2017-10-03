@@ -63,7 +63,9 @@ class Project extends MocaObject {
     // Messages
 
     get messages () {
-        return store.getters.messagesByProject(this.id);
+        return store.getters.messagesByProject(this.id).sort((a,b) => {
+            return a.datetime > b.datetime;
+        });
     }
 
     get unresolvedMessages () {

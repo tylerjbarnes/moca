@@ -29,6 +29,17 @@ class MocaFactory {
     static constructPrimitive(type, defaults) {
         let primitive = {};
         switch (type) {
+            case 'message':
+                primitive = {
+                    id: cuid(),
+                    author_id: store.state.user.id,
+                    project_id: null,
+                    cycle: 0,
+                    content: '',
+                    meta: null,
+                    resolved: false,
+                    datetime: null
+                }; break;
             case 'project':
                 primitive = {
                     id: cuid(),

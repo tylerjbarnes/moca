@@ -32,7 +32,7 @@
         name: 'project-view',
         props: ['id'],
         data () { return {
-            mode: 'resources'
+            mode: 'messages'
         }},
         components: {ConversationView,ResourceView,ProjectPanel},
         computed: {

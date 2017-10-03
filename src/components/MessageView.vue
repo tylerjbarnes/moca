@@ -1,18 +1,17 @@
 <template>
 
-    <div class="message-view">
+    <div class="message-view" :class="{self: message.author_id == $store.state.user.id}">
         <header>
             <img :src="message.author.avatar">
-            {{ message.author.name }}
-            <button class="reply" v-if="!isReply" @click="toggleReplying" :class="{active:replying}">
-                <ceri-icon name="ma-reply" size="15" hcenter></ceri-icon>
-            </button>
+            <span class="name">{{ message.author.firstName }}</span>
+            <span class="time">{{ message.datetime | time }}</span>
         </header>
         <div class="main">
-            <div class="markup" v-html="markup"></div>
-        </div>
-        <div class="replies">
-            <message-view v-for="message in replies" :message="message" :key="message.id" :isReply="true">Hey!</message-view>
+            <div class="card"  :style="{
+                backgroundColor: message.author_id == $store.state.user.id ? message.author.color : ''
+            }">
+                <div class="markup" v-html="markup"></div>
+            </div>
         </div>
     </div>
 
@@ -46,39 +45,86 @@
     @import '~styles/settings.scss';
 
     .message-view {
-        background: white;
-        border-radius: 5px;
-        margin: 20px;
-        @include shadow;
+        display: block;
+        margin-left: -5px;
+        margin-right: 20px;
+
+        &.self {
+            margin-left: 20px;
+            margin-right: 0;
+            header {
+                justify-content: flex-end;
+                margin-top: 0;
+                img, span.name {
+                    visibility: hidden;
+                }
+            }
+            .main {
+                font-weight: 700;
+                justify-content: flex-end;
+                .card, .card * {
+                    color: white !important;
+                    strong {
+                        font-weight: 900;
+                    }
+                }
+            }
+        }
+
+        &:hover {
+            span.time {
+                opacity: 0.5;
+            }
+        }
 
         header {
             align-items: center;
-            border-bottom: 1px solid darken($light, 3%);
             display: flex;
             font-weight: 700;
-            padding: 10px;
+            margin-top: 10px;
+            padding: 5px 0;
 
             img {
                 border-radius: 15px;
-                margin-right: 10px;
+                margin-right: 5px;
                 width: 30px; height: 30px;
+                z-index: 5;
             }
 
-            button.reply {
-                background: none;
-                border: none;
-                color: $dark;
-                outline: none;
+            span.name {
+                font-size: 0.8em;
+            }
 
-                &.active {
-                    color: $primary;
-                }
+            span.time {
+                font-size: 0.8em;
+                opacity: 0;
+                padding-left: 5px;
+                transition: 0.3s;
             }
 
         }
 
         .main {
-            padding: 20px;
+            display: flex;
+
+            .card {
+                background: white;
+                border-radius: 5px;
+                display: flex;
+                margin-top: -10px;
+                margin-left: 15px;
+                overflow: auto;
+                padding: 10px 15px;
+                @include shadow;
+
+                ul {
+                    margin-left: 20px;
+                    li {
+                        list-style: disc;
+                    }
+                }
+
+            }
 
         }
 

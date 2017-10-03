@@ -4,12 +4,6 @@
         <div class="items" ref="items">
             <message-view v-for="message in messages" key="message.id" :message="message" :replying="message.id == messagePrimitive.parent_id" v-on:toggleReplying="toggleReplying(message.id)"></message-view>
         </div>
-        <div class="message-tools">
-            <template v-if="messagePrimitive.parent_id">
-                <span class="replying" v-text="replyingTo"></span>
-                <button @click="clearReplying">x</button>
-            </template>
-        </div>
         <div class="create" ref="dynamicHeight">
             <div class="textarea-wrapper">
                 <textarea ref="textarea" rows="1" placeholder="Ask a question..." @input="resizeTextarea($event.target.value)" v-model="messagePrimitive.content"></textarea>
@@ -26,73 +20,45 @@
 
 <script>
     import MessageView from './MessageView.vue';
+    import MocaFactory from '../objects/mocaFactory.js';
+    import MocaMutationSet from '../objects/mocaMutationSet.js';
 
     export default {
         name: 'conversation-view',
         props: ['project'],
         data () { return {
-            messagePrimitive: {
-                id: cuid(),
-                parent_id: null,
-                author_id: this.$store.state.user.id,
-                project_id: this.project.id,
-                cycle: this.project.cycle,
-                content: '',
-                meta: null,
-                resolved: false
-            },
-            previousScrollHeight: 0
+            messagePrimitive: this.newMessagePrimitive()
         }},
         components: {MessageView},
-        // mounted () {
-        //     this.scrollToBottom();
-        // },
         computed: {
             messages () {
                 return this.project.messages.filter(message => !message.parent_id).reverse();
-            },
-            replyingTo () {
-                let message = store.getters.message(this.messagePrimitive.parent_id);
-                return 'Replying to ' + message.author.firstName;
             }
         },
         methods: {
+            newMessagePrimitive () {
+                return MocaFactory.constructPrimitive('message',{
+                    project_id: this.project.id,
+                    cycle: this.project.cycle
+                });
+            },
             resizeTextarea (value) {
                 this.$refs.clone.innerHTML = value + ' ';
                 let newHeight = this.$refs.clone.clientHeight;
                 this.$refs.dynamicHeight.style.height = newHeight + 'px';
             },
             createMessage () {
-                this.$store.dispatch('createObject',{
-                    type: 'message',
-                    primitive: this.messagePrimitive
-                });
-                let me = this;
-                this.messagePrimitive.id = cuid();
-                this.messagePrimitive.content = '';
-                this.messagePrimitive.parent_id = null;
-            },
-            // scrollToBottom () {
-            //     let me = this;
-            //     setTimeout(function () {
-            //         me.$refs.items.scrollTop = me.$refs.items.scrollHeight;
-            //     }, 0);
-            // },
-            toggleReplying (messageId) {
-                this.messagePrimitive.parent_id == messageId ?
-                    this.messagePrimitive.parent_id = null :
-                    this.messagePrimitive.parent_id = messageId;
-                this.$refs.textarea.focus();
-            },
-            clearReplying () {
-                this.messagePrimitive.parent_id = null;
+                this.messagePrimitive.datetime = new moment().utc().format('YYYY-MM-DD H:mm:ss');
+                new MocaMutationSet(
+                    'create',
+                    'message',
+                    this.messagePrimitive.id,
+                    this.messagePrimitive
+                ).commit();
+                this.messagePrimitive = this.newMessagePrimitive();
+                this.resizeTextarea('');
             }
-        },
-        // watch: {
-        //     messages: function (newVal) {
-        //         this.scrollToBottom();
-        //     }
-        // }
+        }
     }
 
 </script>
@@ -111,14 +77,8 @@
             flex-flow: column-reverse;
             flex: 1 1;
             overflow: scroll;
+            padding: 20px;
             width: 100%;
-
-        }
-
-        .message-tools {
-            background: $gray;
-            display: flex;
-            height: 20px;
 
         }
 

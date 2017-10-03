@@ -13,6 +13,10 @@ Vue.filter('date', (value) => {
     return new moment(value).format('MMM DD');
 });
 
+Vue.filter('time', (value) => {
+    return new moment.utc(value).fromNow(true);
+});
+
 // Vue.filter('dateRange', (value) => {
 //     var hasNone = !this.value[0] && !this.value[1];
 //     var hasBoth = this.value[0] && this.value[1];
@@ -32,6 +36,6 @@ Vue.filter('date', (value) => {
 // });
 
 window.markdown = (value) => {
-    let converter = new showdown.Converter();
+    let converter = new showdown.Converter({simplifiedAutoLink: true, openLinksInNewWindow: true});
     return converter.makeHtml(value);
 };
