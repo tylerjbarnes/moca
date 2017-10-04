@@ -16,14 +16,16 @@
 @mixin markup( $on_color: false ) {
     ul, ol {
         margin-left: 20px;
+        padding: 10px;
+    }
+    ul {
         li {
             list-style: disc;
         }
     }
 
-    h1 { font-weight: 900; font-size: 1.5em; }
-    h2 { font-weight: 900; font-size: 1.2em; }
-    h3 { font-weight: 700; font-size: 1.1em; }
+    h1 { font-weight: 900; font-size: 1.1em; margin-top: 5px; }
+    h2 { font-weight: 700; font-size: 0.8em; text-transform: uppercase; opacity: 0.8; }
 
     a {
         text-decoration: underline;
@@ -33,6 +35,16 @@
         color: white !important;
         strong {
             font-weight: 900;
+        }
+    }
+
+    p {
+        padding: 10px 0;
+        &:first-of-type {
+            padding-top: 0;
+        }
+        &:last-of-type {
+            padding-bottom: 0;
         }
     }
 

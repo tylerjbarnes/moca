@@ -6,7 +6,7 @@
         </div>
         <div class="create" ref="dynamicHeight">
             <div class="textarea-wrapper">
-                <textarea ref="textarea" rows="1" placeholder="Ask a question..." @input="resizeTextarea($event.target.value)" v-model="messagePrimitive.content"></textarea>
+                <textarea ref="textarea" rows="1" placeholder="Send a message..." @input="resizeTextarea($event.target.value)" v-model="messagePrimitive.content"></textarea>
                 <div class="clone" ref="clone"></div>
             </div>
             <button class="send" @click="createMessage" :disabled="!messagePrimitive.content.length">

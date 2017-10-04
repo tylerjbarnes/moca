@@ -98,7 +98,6 @@
                 display: flex;
                 flex: 1 1;
                 flex-flow: column;
-                margin: 0 2px;
                 text-align: center;
                 &:first-of-type {
                     border-left: 2px solid $light;
@@ -114,6 +113,8 @@
 
                 span {
                     font-weight: 700;
+                    padding: 0 10px;
+                    white-space: nowrap;
 
                 }
 

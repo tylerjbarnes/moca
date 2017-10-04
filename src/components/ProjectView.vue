@@ -61,10 +61,12 @@
 
         .project-modal {
             background: $light;
+            border-radius: 5px;
             display: flex;
             overflow: hidden;
             margin: 0 auto;
             max-height: 750px; max-width: 1000px;
+            overflow: hidden;
             width: 100%; height: 100%;
             @include shadow;
 
@@ -79,8 +81,9 @@
 
                 .resources {
                     background: white;
+                    overflow: scroll;
                     .items {
-                        padding: 20px;
+                        padding: 0 20px 20px 20px;
                     }
                 }
 

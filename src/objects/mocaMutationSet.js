@@ -26,7 +26,7 @@ class MocaMutationSet {
                 var mutations = [];
                 for (let propertyName of Object.keys(this.delta)) {
                     let object = store.getters.object(this.type, this.id);
-                    if (object[propertyName] !== this.delta.propertyName) {
+                    if (object[propertyName] != this.delta[propertyName]) {
                         mutations.push(new MocaMutation(
                             'update',
                             this.type,

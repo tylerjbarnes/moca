@@ -250,7 +250,7 @@ function hpm_api_mutate ( $mutations, $socket_id ) {
         $mutation->property_name = $mutation->property_name ? $mutation->property_name : NULL;
         switch ( $mutation->action ) {
             case "create": $wpdb->insert( $table, (array) $mutation->property_value ); break;
-            case "update": $wpdb->update( $table, [ $mutation->property_name => $mutation->property_value ],
+            case "update": $wpdb->update( $table, [ $mutation->property_name => hpm_flatten_data_for_db( $mutation->property_value ) ],
                 [ "id" => $mutation->object_id ] ); break;
             case "delete": $wpdb->delete( $table, [ 'id' => $mutation->object_id ] ); break;
             default: break;

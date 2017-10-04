@@ -14,7 +14,7 @@
                 backgroundColor: message.author_id == $store.state.user.id ? message.author.color : ''
             }">
                 <div class="markup" v-html="markup"></div>
-                <span class="resolve" @click="resolveMessage" :class="{off: !canResolve}">
+                <span class="resolve" @click="resolveMessage" :class="{off: !message.userCanResolve}">
                     <ceri-icon name="fa-check" size="12" hcenter></ceri-icon>
                 </span>
             </div>
@@ -37,10 +37,6 @@
             },
             canDelete () {
                 return store.state.user.canManage;
-            },
-            canResolve () {
-                return !this.message.resolved &&
-                    this.message.author.role !== store.state.user.role;
             }
         },
         methods: {
@@ -79,7 +75,7 @@
             margin-left: 20px;
             margin-right: 0;
             header {
-                // justify-content: flex-end;
+                justify-content: flex-end;
                 margin-top: 0;
                 img {
                     visibility: hidden;

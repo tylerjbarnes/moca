@@ -36,6 +36,10 @@ Vue.filter('time', (value) => {
 // });
 
 window.markdown = (value) => {
-    let converter = new showdown.Converter({simplifiedAutoLink: true, openLinksInNewWindow: true});
+    let converter = new showdown.Converter({
+        simplifiedAutoLink: true,
+        openLinksInNewWindow: true,
+        simpleLineBreaks: true
+    });
     return converter.makeHtml(value);
 };

@@ -203,6 +203,17 @@ function hpm_typify_data_from_js( $data ) {
     return $typified;
 }
 
+/**
+ * Flatten to JSON if Object
+ * @param  Any $data
+ * @return String
+ */
+function hpm_flatten_data_for_db( $data ) {
+    return is_object( $data ) ?
+        json_encode( $data ) :
+        $data;
+}
+
 
 
 

@@ -5,6 +5,11 @@ class Message extends MocaObject {
         return store.getters.person(this.author_id);
     }
 
+    get userCanResolve () {
+        return !this.resolved &&
+            this.author.canManage !== store.state.user.canManage;
+    }
+
 }
 
 export default Message;
