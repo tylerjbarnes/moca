@@ -4,7 +4,10 @@
         <header>
             <img :src="message.author.avatar">
             <span class="name">{{ message.author.firstName }}</span>
-            <span class="time">{{ message.datetime | time }}</span>
+            <div class="extras">
+                <span class="time">{{ message.datetime | time }}</span>
+                <span class="delete" @click="deleteMessage" v-if="canDelete"></span>
+            </div>
         </header>
         <div class="main">
             <div class="card"  :style="{
@@ -20,20 +23,28 @@
 
 <script>
 
+    import MocaMutationSet from '../objects/mocaMutationSet.js';
+
     export default {
         name: 'message-view',
-        props: ['message','isReply','replying'],
+        props: ['message'],
         computed: {
             markup () {
                 return markdown(this.message.content);
             },
-            replies () {
-                return this.$store.getters.messagesByParent(this.message.id);
+            canDelete () {
+                return store.state.user.canManage;
             }
         },
         methods: {
-            toggleReplying () {
-                this.$emit('toggleReplying');
+            deleteMessage () {
+                if (confirm("Are you sure you want to delete this message?")) {
+                    new MocaMutationSet(
+                        'delete',
+                        'message',
+                        this.message.id
+                    ).commit();
+                }
             }
         }
     }
@@ -72,8 +83,8 @@
         }
 
         &:hover {
-            span.time {
-                opacity: 0.5;
+            .extras {
+                opacity: 1;
             }
         }
 
@@ -95,11 +106,26 @@
                 font-size: 0.8em;
             }
 
-            span.time {
+            .extras {
+                align-items: center;
+                display: flex;
                 font-size: 0.8em;
                 opacity: 0;
-                padding-left: 5px;
                 transition: 0.3s;
+
+                span.time {
+
+                    opacity: 0.5;
+                    padding-left: 5px;
+
+                }
+
+                span.delete {
+                    margin-left: 2px;
+                    opacity: 0.75;
+                    transform: scale(0.65);
+                }
+
             }
 
         }
@@ -117,11 +143,19 @@
                 padding: 10px 15px;
                 @include shadow;
 
-                ul {
+                ul, ol {
                     margin-left: 20px;
                     li {
                         list-style: disc;
                     }
+                }
+
+                h1 { font-weight: 900; font-size: 1.5em; }
+                h2 { font-weight: 900; font-size: 1.2em; }
+                h3 { font-weight: 700; font-size: 1.1em; }
+
+                a {
+                    text-decoration: underline;
                 }
 
             }

@@ -2,7 +2,7 @@
 
     <div class="resource-view">
         <header>
-            {{ resource.name }}
+            <span class="name">{{ resource.name }}</span>
             <!-- {{ resource.author.name }} -->
         </header>
         <div class="main">
@@ -33,16 +33,21 @@
 
     .resource-view {
         background: white;
-        border-radius: 5px;
-        margin: 20px;
-        @include shadow;
+        border-radius: 10px;
+        box-shadow: 0px 7.5px 25px 0px darken($light,5%);
 
         header {
+            padding: 20px;
+
+            .name {
+                font-size: 1.2em;
+                font-weight: 900;
+            }
 
         }
 
         .main {
-            padding: 20px;
+            padding: 0 20px 20px 20px;
 
         }
 

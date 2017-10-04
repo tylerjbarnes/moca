@@ -10,7 +10,7 @@ Vue.filter('hours', (value) => {
 });
 
 Vue.filter('date', (value) => {
-    return new moment(value).format('MMM DD');
+    return new moment(value).format('MMM D');
 });
 
 Vue.filter('time', (value) => {

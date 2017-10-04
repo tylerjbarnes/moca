@@ -127,7 +127,6 @@ function hpm_typify_data_from_db( $data ) {
                 case 'avatar':
                     $typified->$key = get_wp_user_avatar_src( $data->wp_id, 'thumbnail');
                     break;
-                case 'content':
                 case 'memo':
                 case 'name':
                     $typified->$key = stripslashes( $value );
@@ -142,13 +141,14 @@ function hpm_typify_data_from_db( $data ) {
                 case 'notification_time':
                     $typified->$key = abs((float) $value);
                     break;
+                case 'content':
                 case 'meta':
                 case 'property_value':
                     $first_char = substr($value, 0, 1);
                     if ( $first_char === '{' || $first_char === '[' ) {
                         $typified->$key = hpm_typify_data_from_db( json_decode( $value ) );
                     } else {
-                        $typified->$key = $value;
+                        $typified->$key = stripslashes( $value );
                     }
                     break;
                 case 'static_balance':
