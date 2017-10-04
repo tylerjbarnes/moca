@@ -74,10 +74,7 @@
                 font-weight: 700;
                 justify-content: flex-end;
                 .card, .card * {
-                    color: white !important;
-                    strong {
-                        font-weight: 900;
-                    }
+                    @include markup(true);
                 }
             }
         }
@@ -142,21 +139,7 @@
                 overflow: auto;
                 padding: 10px 15px;
                 @include shadow;
-
-                ul, ol {
-                    margin-left: 20px;
-                    li {
-                        list-style: disc;
-                    }
-                }
-
-                h1 { font-weight: 900; font-size: 1.5em; }
-                h2 { font-weight: 900; font-size: 1.2em; }
-                h3 { font-weight: 700; font-size: 1.1em; }
-
-                a {
-                    text-decoration: underline;
-                }
+                @include markup;
 
             }
 

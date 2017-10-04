@@ -115,7 +115,8 @@ function hpm_typify_data_from_db( $data ) {
             'manager_id',
             'worker_id',
             'cycle',
-            'package_id'
+            'package_id',
+            'last_editor_id'
         ])) { $typified->$key = NULL; } else {
             switch ($key) {
                 case 'archived':

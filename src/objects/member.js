@@ -15,7 +15,7 @@ class Member extends Person {
     }
 
     get darkColor () {
-        return tinycolor(this.color).darken(20).toString();
+        return tinycolor(this.color).darken(20).saturate(20).toString();
     }
 
     // Projects

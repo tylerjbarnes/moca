@@ -62,7 +62,7 @@
         background: white;
         display: flex;
         flex-flow: column;
-        padding: 20px;
+        padding: 20px 20px 10px 20px;
         width: 100%;
 
         .top {

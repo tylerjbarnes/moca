@@ -12,6 +12,32 @@
     }
 }
 
+// Display Markup
+@mixin markup( $on_color: false ) {
+    ul, ol {
+        margin-left: 20px;
+        li {
+            list-style: disc;
+        }
+    }
+
+    h1 { font-weight: 900; font-size: 1.5em; }
+    h2 { font-weight: 900; font-size: 1.2em; }
+    h3 { font-weight: 700; font-size: 1.1em; }
+
+    a {
+        text-decoration: underline;
+    }
+
+    @if $on_color == true {
+        color: white !important;
+        strong {
+            font-weight: 900;
+        }
+    }
+
+}
+
 // Form Input Style
 @mixin moca-input {
     background: $light;
