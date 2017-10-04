@@ -208,7 +208,9 @@ function hpm_api_mutate ( $mutations, $socket_id ) {
         foreach( $mutations as $mutation ) {
             switch ( $mutation->object_type ) {
                 case 'message':
-                    if ( $mutation->action !== 'create' || $mutation->property_value->author_id !== hpm_user_id() ) { return; }
+                    $valid_create = $mutation->action == 'create' && $mutation->property_value->author_id == hpm_user_id();
+                    $valid_resolve = $mutation->action == 'update' && $mutation->property_name == 'resolved';
+                    if ( !$valid_create && !$valid_resolve ) { return; }
                     break;
                 case 'package':
                     return;

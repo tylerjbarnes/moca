@@ -69,7 +69,8 @@ class Project extends MocaObject {
     }
 
     get unresolvedMessages () {
-        return this.messages.filter( message => { return !message.resolved });
+        return this.messages.filter( message => { return !message.resolved
+        && message.author.role != store.state.user.role; });
     }
 
     // Resources

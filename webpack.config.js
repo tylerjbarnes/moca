@@ -49,7 +49,8 @@ module.exports = {
             "fa-plus",
             "fa-minus",
             "fa-paper-plane",
-            "ma-reply"
+            "ma-reply",
+            "fa-check"
           ]
       }
       }

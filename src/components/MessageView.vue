@@ -14,6 +14,9 @@
                 backgroundColor: message.author_id == $store.state.user.id ? message.author.color : ''
             }">
                 <div class="markup" v-html="markup"></div>
+                <span class="resolve" @click="resolveMessage" :class="{off: !canResolve}">
+                    <ceri-icon name="fa-check" size="12" hcenter></ceri-icon>
+                </span>
             </div>
         </div>
     </div>
@@ -34,6 +37,10 @@
             },
             canDelete () {
                 return store.state.user.canManage;
+            },
+            canResolve () {
+                return !this.message.resolved &&
+                    this.message.author.role !== store.state.user.role;
             }
         },
         methods: {
@@ -45,6 +52,14 @@
                         this.message.id
                     ).commit();
                 }
+            },
+            resolveMessage () {
+                new MocaMutationSet(
+                    'update',
+                    'message',
+                    this.message.id,
+                    {resolved: true}
+                ).commit();
             }
         }
     }
@@ -64,10 +79,14 @@
             margin-left: 20px;
             margin-right: 0;
             header {
-                justify-content: flex-end;
+                // justify-content: flex-end;
                 margin-top: 0;
-                img, span.name {
+                img {
                     visibility: hidden;
+                    width: 10px;
+                }
+                span.name {
+                    display: none;
                 }
             }
             .main {
@@ -136,10 +155,43 @@
                 display: flex;
                 margin-top: -10px;
                 margin-left: 15px;
-                overflow: auto;
+                overflow: visible;
                 padding: 10px 15px;
+                position: relative;
                 @include shadow;
                 @include markup;
+
+                .resolve {
+                    background: $orange;
+                    border-radius: 50%;
+                    color: white;
+                    cursor: pointer;
+                    height: 25px; width: 25px;
+                    position: absolute;
+                        bottom: -10px; right: -10px;
+                    text-align: center;
+                    transition: 0.3s ease;
+                    @include shadow;
+
+                    &.off {
+                        transform: scale(0);
+                    }
+
+                    &:hover {
+                        background: $green;
+                        transform: scale(1.1);
+                        &.off {
+                            transform: scale(0);
+                        }
+
+                    }
+                    &:active {
+                        background: darken($green, 10%);
+                        transform: scale(1);
+
+                    }
+
+                }
 
             }
 
