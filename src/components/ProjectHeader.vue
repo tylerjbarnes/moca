@@ -7,11 +7,16 @@
                 <h2 class="client-name">{{ project.client ? project.client.name : 'No Client' }}</h2>
                 <h1 class="project-name">{{ project.name }}</h1>
             </div>
-            <div class="person-tags">
+            <div v-if="!$store.state.user.canManage && $store.state.user.id != project.contractor_id" class="meta">
                 <person-tag :person="project.manager"></person-tag>
                 <person-tag v-if="project.contractor" :person="project.contractor" :solid="true"></person-tag>
             </div>
+            <div v-else class="logging">
+                <!-- <span class="logged">{{ project.hoursLogged | hours }} Logged</span> -->
+                <quick-log :project="project"></quick-log>
+            </div>
         </div>
+
         <div class="blurbs">
             <div class="blurb">
                 <label>Start</label>
@@ -29,13 +34,7 @@
                 <label>Recycle</label>
                 <span>{{ project.autocycleString | capitalize }}</span>
             </div>
-            <!-- <div class="blurb">
-                <label>Logged</label>
-                <span>{{ project.hoursLogged | hours }}</span>
-            </div> -->
         </div>
-
-        <!-- <project-actions :project="project"></project-actions> -->
 
     </div>
 
@@ -45,11 +44,12 @@
 <script>
     import PersonTag from './PersonTag.vue';
     import ProjectActions from './ProjectActions.vue';
+    import QuickLog from './QuickLog.vue';
 
     export default {
         name: 'project-header',
         props: ['project'],
-        components: {PersonTag,ProjectActions}
+        components: {PersonTag,ProjectActions,QuickLog}
     }
 
 </script>
@@ -80,10 +80,19 @@
 
             }
 
-            .person-tags {
-                .person-tag:first-of-type {
-                    margin-right: 5px;
+            .meta {
+
+                .person-tag {
+                    &:first-of-type {
+                        margin-right: 10px;
+                    }
                 }
+
+            }
+
+            .logged {
+                display: block;
+                text-align: right;
             }
 
         }

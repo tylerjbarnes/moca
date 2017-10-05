@@ -10,6 +10,11 @@
         @include shadow;
         transform: scale(1.03);
     }
+    &:active {
+        box-shadow: none;
+        transform: scale(0.97);
+        filter: brightness(0.9);
+    }
 }
 
 // Display Markup

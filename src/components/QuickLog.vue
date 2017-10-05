@@ -1,10 +1,16 @@
 <template>
-    <div class="quick-log" :class="{disabled:disabled}">
-        <template v-if="!disabled">
-            <hours-input v-model="logPrimitive.hours" :max="project.max - project.hoursLogged"></hours-input>
-            <button class="log" @click="save">Log</button>
+    <div class="quick-log">
+        <template>
+            <button v-if="editing" class="cancel" @click="cancel">
+                <ceri-icon name="fa-times" size="10" ></ceri-icon>
+            </button>
+            <hours-input v-if="editing" v-model="logPrimitive.hours" :max="project.max - project.hoursLogged"></hours-input>
+            <span v-if="!editing" class="logged" :class="{locked: project.hoursLogged >= project.max}">{{ project.hoursLogged | hours }} Logged</span>
+            <button class="log" @click="editOrSave" v-if="project.hoursLogged < project.max">
+                <ceri-icon v-if="!editing" name="fa-plus" size="10" hcenter></ceri-icon>
+                <ceri-icon v-if="editing" name="fa-check" size="10" hcenter></ceri-icon>
+            </button>
         </template>
-        <span class="disabled" v-if="disabled">Max Reached</span>
     </div>
 </template>
 
@@ -12,12 +18,14 @@
 <script>
     import HoursInput from './inputs/HoursInput.vue';
     import MocaFactory from '../objects/mocaFactory.js';
+    import MocaMutationSet from '../objects/mocaMutationSet.js';
 
     export default {
         name: 'quick-log',
-        props: ['project','disabled'],
+        props: ['project'],
         data () { return {
-            logPrimitive: this.newLogPrimitive()
+            logPrimitive: this.newLogPrimitive(),
+            editing: false
         }},
         components: {HoursInput},
         methods: {
@@ -32,12 +40,21 @@
             resetPrimitive () {
                 this.logPrimitive = this.newLogPrimitive();
             },
+            editOrSave () {
+                this.editing ? this.save() : this.editing = true;
+            },
+            cancel () {
+                this.editing = false;
+            },
             save () {
-                this.$store.dispatch('createObject',{
-                    type: 'time',
-                    primitive: this.logPrimitive
-                });
+                new MocaMutationSet(
+                    'create',
+                    'time',
+                    this.logPrimitive.id,
+                    this.logPrimitive
+                ).commit();
                 this.resetPrimitive();
+                this.editing = false;
             }
         }
     }
@@ -49,53 +66,44 @@
 
     .quick-log {
         align-items: center;
-        background: $light;
+        border-radius: 20px;
+        border: 2px solid $light;
         display: flex;
-        position: relative;
-
-        &.disabled {
-            .hours-input, button {
-                opacity: 0;
-            }
-        }
+        height: 40px;
+        overflow: hidden;
 
         .hours-input {
-            height: 100%;
-            width: 100px;
-        }
+            border-radius: 15px;
+            margin: 0 4px;
+            max-width: 100px;
 
-        button.button {
-            background: pink !important;
-        }
-
-        button.log {
-            background: $medium;
-            border: none;
-            border-radius: 2px;
-            color: white;
-            font-family: inherit !important;
-            font-size: 0.75rem;
-            font-weight: 900;
-            height: 20px;
-            margin: 5px;
-            outline: none;
-            text-transform: uppercase;
-            transition: 0.15s ease;
-
-            &:hover {
-                background: $dark;
-
+            button.increment {
+                border-radius: 0;
             }
-
         }
 
-        span.disabled {
-            color: $medium;
-            font-size: 0.75em;
-            font-weight: 900;
-            padding: 0 20px;
-            white-space: nowrap;
-            width: 100%;
+        .logged {
+            font-size: 0.9em;
+            font-weight: 700;
+            margin: 0 6px;
+            padding-left: 10px;
+            &.locked {
+                padding-right: 10px;
+            }
+        }
+
+        button.log, button.cancel {
+            border: none;
+            border-radius: 50%;
+            height: 28px;
+            color: white;
+            margin: 0 4px;
+            outline: none;
+            padding: 0 10px;
+            width: 28px;
+            @include lifts;
+            &.log { background: $primary; }
+            &.cancel { background: $medium; }
 
         }
 

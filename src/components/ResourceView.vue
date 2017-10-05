@@ -152,7 +152,7 @@
         }
 
         .main {
-            padding: 10px 20px;
+            padding: 20px 20px 10px 20px;
             position: relative;
 
             .markup {

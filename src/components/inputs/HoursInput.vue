@@ -101,9 +101,11 @@
 
     .hours-input {
         @include moca-input;
-        align-items: center;
+        // align-items: center;
         display: flex;
         overflow: hidden;
+        height: 30px;
+        position: relative;
 
         input {
             width: calc(100% - 60px);
@@ -116,9 +118,11 @@
         button {
             background: none;
             border: none;
+            display: block;
             height: 100%;
             outline: none;
             padding: 0;
+            // position: absolute;
             transition: all 0.15s ease;
             width: 30px;
             &:hover {
