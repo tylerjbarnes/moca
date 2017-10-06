@@ -7,9 +7,11 @@
             <span class="delete" @click="deleteResource"></span>
         </header>
         <div class="main">
-            <div class="markup" v-show="!editingContent" v-html="markup" @dblclick="startEditingContent"></div>
-            <textarea class="editor" v-show="editingContent" ref="contentEditor" @input="resizeTextarea($event.target.value)" v-model="modifiedBody" @blur="stopEditingContent"></textarea>
-            <div class="clone" ref="clone"></div>
+            <div class="markup" v-html="markup" v-show="!editingContent" @dblclick="startEditingContent"></div>
+            <div class="editor-wrapper" ref="dynamicHeight" :class="{open:editingContent}">
+                <textarea class="editor" ref="contentEditor" @input="resizeTextarea($event.target.value)" v-model="modifiedBody" @blur="stopEditingContent"></textarea>
+                <div class="clone" ref="clone"></div>
+            </div>
             <div class="meta">
                 created by <strong>{{ resource.author.firstName }}</strong>
                 <template v-if="resource.lastEditor"> • edited by <strong>{{ resource.lastEditor.firstName }}</strong></template> {{ resource.datetime | time }} ago
@@ -48,9 +50,12 @@
         },
         methods: {
             resizeTextarea (value) {
-                this.$refs.clone.innerHTML = value + ' ';
-                let newHeight = this.$refs.clone.clientHeight;
-                this.$refs.contentEditor.style.height = newHeight + 'px';
+                let me = this;
+                setTimeout(function () {
+                    me.$refs.clone.innerHTML = value + ' ';
+                    let newHeight = me.$refs.clone.clientHeight;
+                    me.$refs.dynamicHeight.style.height = newHeight + 'px';
+                }, 0);
             },
             startEditingContent () {
                 this.modifiedBody = this.resource.content.body;
@@ -78,7 +83,7 @@
                     'resource',
                     this.resource.id,
                     {
-                        datetime: new moment().utc().format('YYYY-MM-DD H:mm:ss'),
+                        datetime: new moment().utc().format('YYYY-MM-DD HH:mm:ss'),
                         last_editor_id: store.state.user.id,
                         name: this.modifiedName,
                         content: {
@@ -156,26 +161,39 @@
             position: relative;
 
             .markup {
+                z-index: 2;
                 @include markup;
             }
 
-            .editor {
-                border: none;
-                display: block;
-                font: inherit !important;
-                outline: none;
-                resize: none;
-                width: 100% !important;
-            }
-
-            .clone {
-                background: white;
-                color: black;
-                height: auto;
+            .editor-wrapper {
+                height: 100%;
                 position: absolute;
-                width: 100%;
                 visibility: hidden;
-                white-space: pre-wrap;
+                &.open {
+                    position: relative;
+                    visibility: visible;
+                }
+
+                .editor {
+                    border: none;
+                    display: block;
+                    font: inherit !important;
+                    height: 100%;
+                    outline: none;
+                    resize: none;
+                    width: 100% !important;
+                }
+
+                .clone {
+                    background: white;
+                    color: black;
+                    height: auto;
+                    position: absolute;
+                    width: 100%;
+                    visibility: hidden;
+                    white-space: pre-wrap;
+                }
+
             }
 
             .meta {

@@ -48,7 +48,7 @@
                 this.$refs.dynamicHeight.style.height = newHeight + 'px';
             },
             createMessage () {
-                this.messagePrimitive.datetime = new moment().utc().format('YYYY-MM-DD H:mm:ss');
+                this.messagePrimitive.datetime = new moment().utc().format('YYYY-MM-DD HH:mm:ss');
                 new MocaMutationSet(
                     'create',
                     'message',
@@ -110,7 +110,7 @@
                     max-height: 200px;
                     min-height: 40px;
                     padding: 7.5px 0 7.5px 10px;
-                    visibility: hidden;
+                    // visibility: hidden;
                     white-space: pre-wrap;
 
 

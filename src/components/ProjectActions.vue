@@ -1,20 +1,21 @@
 <template>
 
     <div class="project-actions">
-        <quick-log :project="project" :disabled="project.hoursLogged >= project.max"></quick-log>
-        <button class="button primary">Submit</button>
+        <button class="button">Edit Project</button>
+        <button class="button">Add Resource</button>
+        <button class="button dangerous">Reject</button>
+        <button class="button primary">Approve</button>
     </div>
 
 </template>
 
 
 <script>
-    import QuickLog from './QuickLog.vue';
 
     export default {
         name: 'project-actions',
         props: ['project'],
-        components: {QuickLog}
+        components: {}
     }
 
 </script>
@@ -24,8 +25,11 @@
     @import '~styles/settings.scss';
 
     .project-actions {
+        background: white;
+        border-top: 1px solid $gray;
         display: flex;
-        height: 30px;
+        height: 40px;
+        justify-content: center;
         margin: 0 -5px;
 
         > * {

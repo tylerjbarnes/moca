@@ -7,12 +7,12 @@
                 <h2 class="client-name">{{ project.client ? project.client.name : 'No Client' }}</h2>
                 <h1 class="project-name">{{ project.name }}</h1>
             </div>
-            <div v-if="!$store.state.user.canManage && $store.state.user.id != project.contractor_id" class="meta">
+            <div v-if="managing" class="meta">
+                <span class="logged">{{ project.hoursLogged | hours }} Logged</span>
                 <person-tag :person="project.manager"></person-tag>
                 <person-tag v-if="project.contractor" :person="project.contractor" :solid="true"></person-tag>
             </div>
             <div v-else class="logging">
-                <!-- <span class="logged">{{ project.hoursLogged | hours }} Logged</span> -->
                 <quick-log :project="project"></quick-log>
             </div>
         </div>
@@ -49,6 +49,9 @@
     export default {
         name: 'project-header',
         props: ['project'],
+        computed: {
+            managing () { return store.state.user.canManage && store.state.user.id != this.project.contractor_id; }
+        },
         components: {PersonTag,ProjectActions,QuickLog}
     }
 
@@ -81,11 +84,22 @@
             }
 
             .meta {
+                align-items: center;
+                display: flex;
 
                 .person-tag {
-                    &:first-of-type {
-                        margin-right: 10px;
-                    }
+                    margin-left: 10px;
+                }
+
+                .logged {
+                    background: $light;
+                    border: 2px solid $light;
+                    border-radius: calc(0.9em + 8px);
+                    color: $dark;
+                    display: block;
+                    font-size: 0.9em;
+                    font-weight: 700;
+                    padding: 4px 14px;
                 }
 
             }

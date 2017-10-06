@@ -38,6 +38,10 @@ button.button {
         background: $primary;
     }
 
+    &.dangerous {
+        background: $orange;
+    }
+
     &.inverted {
         background-color: white;
         color: $primary;

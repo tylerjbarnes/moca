@@ -18,6 +18,7 @@
                         <resource-view v-for="resource in project.resources.reverse()" :resource="resource" key="resource.id"></resource-view>
                     </div>
                 </div>
+                <project-actions :project="project"></project-actions>
             </div>
             <conversation-view v-if="mode == 'messages'" :project="project"></conversation-view>
 
@@ -31,6 +32,7 @@
     import ConversationView from './ConversationView.vue';
     import ResourceView from './ResourceView.vue';
     import ProjectHeader from './ProjectHeader.vue';
+    import ProjectActions from './ProjectActions.vue';
 
     export default {
         name: 'project-view',
@@ -38,7 +40,7 @@
         data () { return {
             mode: 'messages'
         }},
-        components: {ConversationView,ResourceView,ProjectHeader},
+        components: {ConversationView,ResourceView,ProjectHeader,ProjectActions},
         computed: {
             project () {
                 return this.$store.getters.project(this.id);
@@ -90,8 +92,8 @@
             }
 
             .conversation-view {
-                border-left: 1px solid $light;
-                flex: 1 1;
+                border-left: 1px solid $gray;
+                flex: 0 1 400px;
             }
 
         }
