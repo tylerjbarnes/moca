@@ -1,6 +1,6 @@
 <template>
 
-    <div class="message-view" :class="{self: message.author_id == $store.state.user.id}">
+    <div class="message-view" v-if="message.type == 'chat'" :class="{self: message.author_id == $store.state.user.id}">
         <header>
             <img :src="message.author.avatar">
             <span class="name">{{ message.author.firstName }}</span>

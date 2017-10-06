@@ -7,6 +7,7 @@ class Message extends MocaObject {
 
     get userCanResolve () {
         return !this.resolved &&
+            this.author &&
             this.author.canManage !== store.state.user.canManage;
     }
 

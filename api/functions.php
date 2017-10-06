@@ -103,7 +103,6 @@ function hpm_typify_data_from_db( $data ) {
             'author_id',
             'project_id',
             'client_id',
-            'meta',
             'wp_id',
             'cell_provider',
             'cell_number',
@@ -143,7 +142,6 @@ function hpm_typify_data_from_db( $data ) {
                     $typified->$key = abs((float) $value);
                     break;
                 case 'content':
-                case 'meta':
                 case 'property_value':
                     $first_char = substr($value, 0, 1);
                     if ( $first_char === '{' || $first_char === '[' ) {
