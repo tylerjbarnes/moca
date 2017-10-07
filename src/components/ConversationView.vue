@@ -38,6 +38,7 @@
         methods: {
             newMessagePrimitive () {
                 return MocaFactory.constructPrimitive('message',{
+                    type: 'chat',
                     project_id: this.project.id,
                     cycle: this.project.cycle
                 });

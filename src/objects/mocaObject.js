@@ -12,6 +12,12 @@ class MocaObject {
         Object.assign(this, delta);
     }
 
+    // Deletion
+
+    cleanUp () {
+        console.log('Cleaning up object ' + this.id);
+    }
+
 }
 
 export default MocaObject;

@@ -39,8 +39,8 @@ const getters = {
     messagesByProject: (state, getters) => (id) => {
         return state.messages.filter(message => message.project_id === id);
     },
-    messagesByParent: (state, getters) => (id) => {
-        return state.messages.filter(message => message.parent_id === id);
+    mutationMessagesForObject: (state, getters) => (id) => {
+        return state.messages.filter(message => message.content.object_id === id);
     },
 
     // Packages
@@ -65,6 +65,7 @@ const getters = {
     projectsByClient: (state, getters) => (id) => state.projects.filter(project => project.client_id === id),
 
     // Resources
+    resource: (state, getters) => (id) => state.resources.find(resource => resource.id === id),
     resourcesByProject: (state, getters) => (id) => state.resources.filter(resource => resource.project_id === id),
 
     // Times
@@ -92,6 +93,8 @@ const mutations = {
                 object[mutation.property_name] = mutation.property_value;
                 break;
             case 'delete':
+                let deletionObject = state[mutation.object_type + 's'].find(object => object.id === mutation.object_id);
+                deletionObject.cleanUp();
                 state[mutation.object_type + 's'] = state[mutation.object_type + 's'].filter(
                     object => object.id !== mutation.object_id
                 );

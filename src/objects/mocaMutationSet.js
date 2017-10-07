@@ -1,4 +1,5 @@
 import MocaMutation from './mocaMutation.js';
+import MocaFactory from './mocaFactory.js';
 
 class MocaMutationSet {
 
@@ -12,18 +13,21 @@ class MocaMutationSet {
     }
 
     commit () {
+        let mutations = [];
         switch (this.action) {
             case 'create':
-                store.dispatch('exportMutations', [new MocaMutation(
+                mutations = [new MocaMutation(
                     'create',
                     this.type,
                     this.id,
                     null,
                     this.delta
-                )]);
+                )];
+                this.notifyProjectOfMutations(mutations);
+                store.dispatch('exportMutations', mutations);
                 break;
             case 'update':
-                var mutations = [];
+                mutations = [];
                 for (let propertyName of Object.keys(this.delta)) {
                     let object = store.getters.object(this.type, this.id);
                     if (object[propertyName] != this.delta[propertyName]) {
@@ -36,18 +40,43 @@ class MocaMutationSet {
                         ));
                     }
                 }
+                this.notifyProjectOfMutations(mutations);
                 store.dispatch('exportMutations', mutations);
                 break;
             case 'delete':
-                store.dispatch('exportMutations', [new MocaMutation(
+                mutations = [new MocaMutation(
                     'delete',
                     this.type,
                     this.id,
                     null,
                     null
-                )]);
+                )];
+                this.notifyProjectOfMutations(mutations);
+                store.dispatch('exportMutations', mutations);
                 break;
             default: return;
+        }
+    }
+
+    notifyProjectOfMutations (mutations) {
+        for (let mutation of mutations) {
+
+            // Avoid Infinite Loop of Mutation Message Initating a Mutation Message
+            if (mutation.object_type == 'message' && mutation.action == 'create' && mutation.property_value.type == 'mutation') { return; }
+
+            // Get the Original Object & Its Old Value
+            let object = store.getters.object(mutation.object_type, mutation.object_id) ?
+                store.getters.object(mutation.object_type, mutation.object_id) :
+                mutation.property_value;
+            let oldValue = mutation.property_name ? object[mutation.property_name] : null;
+
+            // Get the Project or Bail
+            let projectId = mutation.object_type == 'project' ? object.id : object.project_id;
+            if (!projectId) { return; }
+            let project = mutation.object_type == 'project' ? object : store.getters.project(projectId);
+
+            project.generateMutationMessage(mutation, oldValue);
+
         }
     }
 

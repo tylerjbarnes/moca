@@ -94,6 +94,7 @@ function hpm_get_pusher() {
  * @return Object type-restored object
  */
 function hpm_typify_data_from_db( $data ) {
+    if ( $data === NULL ) { return NULL; }
     $typified = new stdClass();
 
     foreach ($data as $key => $value) {
@@ -210,6 +211,19 @@ function hpm_flatten_data_for_db( $data ) {
     return is_object( $data ) ?
         json_encode( $data ) :
         $data;
+}
+
+/**
+ * Flatten Contained Properties to JSON where Objects
+ * @param  Object $object
+ * @return Object
+ */
+function hpm_flatten_properties_for_db( $original ) {
+    $object = clone $original;
+    foreach( $object as $key => $value ) {
+        $object->$key = hpm_flatten_data_for_db( $value );
+    }
+    return $object;
 }
 
 

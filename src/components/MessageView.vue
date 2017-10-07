@@ -1,6 +1,6 @@
 <template>
 
-    <div class="message-view" v-if="message.type == 'chat'" :class="{self: message.author_id == $store.state.user.id}">
+    <div class="message-view chat" v-if="message.type == 'chat'" :class="{self: message.author_id == $store.state.user.id}">
         <header>
             <img :src="message.author.avatar">
             <span class="name">{{ message.author.firstName }}</span>
@@ -19,6 +19,9 @@
                 </span>
             </div>
         </div>
+    </div>
+    <div class="message-view mutation" v-else>
+        <div class="description">{{ message.mutationDescription }} <span class="time">{{ message.datetime | time }} ago</span></div>
     </div>
 
 </template>
@@ -70,6 +73,20 @@
         display: block;
         margin-left: -5px;
         margin-right: 20px;
+
+        &.mutation {
+            .description {
+                color: $medium-dark;
+                font-size: 0.9em;
+                font-weight: 700;
+                margin-top: 20px;
+                text-align: center;
+
+                .time {
+                    font-weight: 500;
+                }
+            }
+        }
 
         &.self {
             margin-left: 20px;

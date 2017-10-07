@@ -3,8 +3,8 @@
     <div class="project-actions">
         <button class="button">Edit Project</button>
         <button class="button">Add Resource</button>
-        <button class="button dangerous">Reject</button>
-        <button class="button primary">Approve</button>
+        <button @click="moveProjectBackward" class="button dangerous" v-if="project.canMoveBackward">{{ project.previousStatusActionName }}</button>
+        <button @click="moveProjectForward" class="button primary">{{ project.nextStatusActionName }}</button>
     </div>
 
 </template>
@@ -12,10 +12,16 @@
 
 <script>
 
+    // import MocaMutationSet from '../objects/mocaMutationSet.js';
+
     export default {
         name: 'project-actions',
         props: ['project'],
-        components: {}
+        components: {},
+        methods: {
+            moveProjectForward () { this.project.moveForward(); },
+            moveProjectBackward () { this.project.moveBackward(); }
+        }
     }
 
 </script>

@@ -1,5 +1,12 @@
+import MocaFactory from './mocaFactory.js';
 import MocaObject from './mocaObject.js';
+import MocaMutationSet from '../objects/mocaMutationSet.js';
+
 class Project extends MocaObject {
+
+    /////////////
+    // GETTERS //
+    /////////////
 
     // Persons
 
@@ -76,6 +83,113 @@ class Project extends MocaObject {
 
     get resources () {
         return store.getters.resourcesByProject(this.id);
+    }
+
+    // Status
+
+    get previousStatus () {
+        switch (this.status) {
+            case 'delegate': return 'send';
+            case 'send': return 'approve';
+            case 'approve': return 'do';
+            case 'do': return 'delegate';
+            default: break;
+        }
+    }
+
+    get nextStatus () {
+        switch (this.status) {
+            case 'delegate': return 'do';
+            case 'do': return 'approve';
+            case 'approve': return 'send';
+            case 'send': return 'delegate';
+            default: break;
+        }
+    }
+
+    get nextStatusActionName () {
+        switch (this.status) {
+            case 'do': return store.state.user.canManage ? 'Complete' : 'Submit';
+            default: return this.status;
+        }
+    }
+
+    get previousStatusActionName () {
+        switch (this.status) {
+            case 'do': return 'Undelegate';
+            case 'approve': return 'Reject';
+            case 'send': return 'Unapprove';
+            default: break;
+        }
+    }
+
+    get canMoveBackward () {
+        return this.status != 'delegate';
+    }
+
+
+    /////////////
+    // Setters //
+    /////////////
+
+    // Status
+
+    move (backward) {
+        new MocaMutationSet(
+            'update',
+            'project',
+            this.id,
+            {'status': backward ? this.previousStatus : this.nextStatus}
+        ).commit();
+    }
+    moveForward () { this.move(false); }
+    moveBackward () { this.move(true); }
+
+
+    ///////////////////////
+    // Mutation Messages //
+    ///////////////////////
+
+    generateMutationMessage(mutation, oldValue) {
+
+        // Whitelist Actions that Send Messages
+        if (mutation.action == 'delete' || !(
+            ( // Approve/Reject
+                mutation.object_type == 'project' &&
+                mutation.property_name == 'status' &&
+                oldValue == 'approve'
+            ) ||
+            ( // Any Resource Mutation Except Datetime
+                mutation.object_type == 'resource' &&
+                mutation.property_name != 'datetime'
+            )
+        )) { return; }
+
+        // Construct Message Primitive
+        let messagePrimitive = MocaFactory.constructPrimitive('message', {
+            cycle: this.cycle,
+            resolved: true,
+            type: 'mutation',
+            project_id: this.id,
+            datetime: new moment().utc().format('YYYY-MM-DD HH:mm:ss'),
+            content: {
+                action: mutation.action,
+                object_type: mutation.object_type,
+                object_id: mutation.object_id,
+                property_name: mutation.property_name,
+                old_value: oldValue,
+                new_value: mutation.property_value
+            }
+        });
+
+        // Dispatch New Message
+        new MocaMutationSet(
+            'create',
+            'message',
+            messagePrimitive.id,
+            messagePrimitive
+        ).commit();
+
     }
 
 }
