@@ -255,7 +255,10 @@ function hpm_api_mutate ( $mutations, $socket_id ) {
             case "create": $wpdb->insert( $table, (array) hpm_flatten_properties_for_db( $mutation->property_value ) ); break;
             case "update": $wpdb->update( $table, [ $mutation->property_name => hpm_flatten_data_for_db( $mutation->property_value ) ],
                 [ "id" => $mutation->object_id ] ); break;
-            case "delete": $wpdb->delete( $table, [ 'id' => $mutation->object_id ] ); break;
+            case "delete":
+                hpm_cleanup_object( $mutation->object_type, $mutation->object_id );
+                $wpdb->delete( $table, [ 'id' => $mutation->object_id ] );
+                break;
             default: break;
         }
     }
@@ -358,4 +361,27 @@ function hpm_channels( $mutations ) {
         default: break;
     }
     return $channels;
+}
+
+/**
+ * Delete Dependencies Server-Side
+ * @param  String $object_type
+ * @param  String $object_id
+ * @return
+ */
+function hpm_cleanup_object( $object_type, $object_id ) {
+    global $wpdb;
+    switch ( $object_type ) {
+
+        case 'resource':
+
+            // Mutation Messages
+            $table = $wpdb->prefix . 'hpm_messages';
+            $sql = "DELETE FROM $table WHERE content LIKE '%\"object_id\":\"$object_id%'";
+            $wpdb->query($sql);
+
+            break;
+
+        default: break;
+    }
 }

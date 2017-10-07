@@ -15,7 +15,7 @@ class Message extends MocaObject {
         if (this.type !== 'mutation') { return; }
 
         let string = '';
-        let name = this.author.firstName;
+        let name = this.author.id == store.state.user.id ? 'You' : this.author.firstName;
         switch (this.content.object_type) {
             case 'project':
                 let action = [
