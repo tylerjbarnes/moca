@@ -62,11 +62,12 @@ class MocaFactory {
                 primitive = {
                     id: cuid(),
                     name: '',
+                    author_id: store.state.user.id,
                     client_id: null,
                     project_id: null,
                     cycle: 0,
-                    type: null,
-                    content: ''
+                    type: 'text',
+                    content: {body:''}
                 }; break;
             case 'time':
                 primitive = {

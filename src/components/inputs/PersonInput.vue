@@ -85,6 +85,10 @@
                 this.searchTerm = '';
                 this.$emit('input', null);
             }
+        },
+        created () {
+            let person = this.persons.find(person => person.id === this.value);
+            this.searchTerm = person ? person.name : '';
         }
     }
 

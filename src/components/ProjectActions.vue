@@ -1,10 +1,11 @@
 <template>
 
     <div class="project-actions">
-        <button class="button">Edit Project</button>
-        <button class="button">Add Resource</button>
-        <button @click="moveProjectBackward" class="button dangerous" v-if="project.canMoveBackward">{{ project.previousStatusActionName }}</button>
-        <button @click="moveProjectForward" class="button primary">{{ project.nextStatusActionName }}</button>
+        <button class="button" @click="edit" v-if="$store.state.user.canManage" :style="{backgroundColor: project.manager.color}">Edit Project</button>
+        <button class="button" :style="{backgroundImage: gradientString()}">Add Resource</button>
+        <button v-if="!$store.state.user.canManage" class="button dangerous">Request Time</button>
+        <button @click="moveProjectBackward" v-if="$store.state.user.canManage && project.canMoveBackward" class="button dangerous">{{ project.previousStatusActionName }}</button>
+        <button v-if="$store.state.user.canManage || project.status == 'do'" @click="moveProjectForward" class="button primary">{{ project.nextStatusActionName }}</button>
     </div>
 
 </template>
@@ -19,8 +20,19 @@
         props: ['project'],
         components: {},
         methods: {
+            edit () {
+                this.$router.push({ name: this.$store.state.route.view + '-project-editor', params: { id: this.project.id }});
+            },
             moveProjectForward () { this.project.moveForward(); },
-            moveProjectBackward () { this.project.moveBackward(); }
+            moveProjectBackward () { this.project.moveBackward(); },
+            gradientString () {
+                return 'linear-gradient(20deg,' +
+                this.project.manager.color + ' 0%,' +
+                (this.project.contractor ?
+                    this.project.contractor.color :
+                    this.project.manager.lightColor)
+                    + ' 120%)'
+            }
         }
     }
 

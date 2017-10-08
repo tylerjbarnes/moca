@@ -2,7 +2,7 @@
 
     <div class="flagged-input">
         <label class="switch">
-            <input type="checkbox" @change="updateValue($event.target.checked)">
+            <input type="checkbox" @change="updateValue($event.target.checked)" :checked="value">
             <span class="slider">
                 <span class="puck">
                     <ceri-icon name="fa-flag" hcenter></ceri-icon>

@@ -27,7 +27,7 @@
                                 <person-input roles="['client']" v-model="projectPrimitive.client_id"></person-input>
                             </div>
                         </div>
-                        <div class="field-columns">
+                        <div class="field-columns" v-if="!this.id">
                             <div class="field-column single">
                                 <label>Overview</label>
                                 <div class="moca-input">
@@ -112,8 +112,8 @@
                 </section>
             </section>
             <footer class="modal-card-foot">
-                <button class="button inverted" tabindex="-1">Cancel</button>
-                <button class="button" @click="save" :disabled="!validates">Save</button>
+                <button class="button" @click="$router.go(-1)" tabindex="-1">Cancel</button>
+                <button class="button primary" @click="save" :disabled="!validates">Save</button>
             </footer>
         </div>
     </div>
@@ -133,6 +133,7 @@
 
     export default {
         name: 'project-editor',
+        props: ['id'],
         components: {HoursInput,PersonInput,DateInput,AutocycleInput,FlaggedInput},
         data () {
             return {
@@ -145,6 +146,9 @@
                 return this.projectPrimitive.name &&
                     this.projectPrimitive.manager_id &&
                     this.projectPrimitive.max >= this.projectPrimitive.estimate;
+            },
+            project () {
+                return this.id ? this.$store.getters.project(this.id) : null;
             }
         },
         methods: {
@@ -155,24 +159,42 @@
                 return MocaFactory.constructPrimitive('resource',{name:'Overview'});
             },
             save () {
-                if (this.projectPrimitive.contractor_id) {
+
+                // Logic Checks
+                if (this.projectPrimitive.contractor_id && !this.id) {
                     this.projectPrimitive.status = 'do';
                 }
+                if (!this.projectPrimitive.contractor_id) {
+                    this.projectPrimitive.status = 'delegate';
+                }
+
+                // Commit Project
                 new MocaMutationSet(
-                    'create',
+                    this.id ? 'update' : 'create',
                     'project',
                     this.projectPrimitive.id,
                     this.projectPrimitive
                 ).commit();
+
+                // Commit Resource
                 if (this.resourcePrimitive.content.body) {
                     this.resourcePrimitive.client_id = this.projectPrimitive.client_id;
                     this.resourcePrimitive.project_id = this.projectPrimitive.id;
-                    this.$store.dispatch('createObject',{
-                        type: 'resource',
-                        primitive: this.resourcePrimitive
-                    });
+                    new MocaMutationSet(
+                        'create', 'resource', this.resourcePrimitive.id,
+                        this.resourcePrimitive
+                    ).commit();
                 }
-                router.push({ name: 'team' });
+
+                // Route to Project
+                let currentTab = router.currentRoute.path.split("/")[1];
+                router.push({ name: currentTab + '-project', params: {id: this.projectPrimitive.id} });
+
+            }
+        },
+        created () {
+            if (this.id) {
+                Object.assign(this.projectPrimitive, this.project);
             }
         }
     }

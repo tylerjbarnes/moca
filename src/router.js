@@ -31,6 +31,10 @@ const routes = [
                 default: TeamView,
                 modal: require('./components/ProjectEditor.vue')
             },
+            props: {
+                default: false,
+                modal: true
+            }
         },
         {
             path: '/clients/new-project',
@@ -39,6 +43,34 @@ const routes = [
                 default: require('./components/ClientsView.vue'),
                 modal: require('./components/ProjectEditor.vue')
             },
+            props: {
+                default: false,
+                modal: true
+            }
+        },
+        {
+            path: '/team/project-editor/:id',
+            name: 'team-project-editor',
+            components: {
+                default: TeamView,
+                modal: require('./components/ProjectEditor.vue')
+            },
+            props: {
+                default: false,
+                modal: true
+            }
+        },
+        {
+            path: '/clients/project-editor/:id',
+            name: 'clients-project-editor',
+            components: {
+                default: require('./components/ClientsView.vue'),
+                modal: require('./components/ProjectEditor.vue')
+            },
+            props: {
+                default: false,
+                modal: true
+            }
         },
         {
             path: '/team/:id',

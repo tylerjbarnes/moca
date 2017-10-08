@@ -64,6 +64,9 @@ class MocaMutationSet {
             // Avoid Infinite Loop of Mutation Message Initating a Mutation Message
             if (mutation.object_type == 'message' && mutation.action == 'create' && mutation.property_value.type == 'mutation') { return; }
 
+            // Avoid New Projects
+            if (mutation.object_type == 'project' && mutation.action == 'create') { return; }
+
             // Get the Original Object & Its Old Value
             let object = store.getters.object(mutation.object_type, mutation.object_id) ?
                 store.getters.object(mutation.object_type, mutation.object_id) :

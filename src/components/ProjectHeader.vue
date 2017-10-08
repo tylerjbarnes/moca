@@ -4,7 +4,10 @@
 
         <div class="top">
             <div class="titles">
-                <h2 class="client-name">{{ project.client ? project.client.name : 'No Client' }}</h2>
+                <div class="subtitles">
+                    <h2 class="client-name">{{ project.client ? project.client.name : 'No Client' }}</h2>
+                    <span class="flagged" v-if="project.flagged"><ceri-icon name="fa-flag" size="14" hcenter></ceri-icon></span>
+                </div>
                 <h1 class="project-name">{{ project.name }}</h1>
             </div>
             <div v-if="managing" class="meta">
@@ -75,7 +78,24 @@
             .titles {
                 flex: 1 0;
 
+                .subtitles {
+                    align-items: center;
+                    display: flex;
+
+                    .flagged {
+                        color: $orange;
+                        display: block;
+                        text-align: center;
+                        line-height: 1em;
+                        margin-left: 2px;
+                        width: 20px;
+
+                    }
+
+                }
+
                 h1.project-name {
+                    display: inline-block;
                     font-size: 1.4em;
                     font-weight: 900;
 

@@ -24,6 +24,7 @@ class Message extends MocaObject {
                     this.content.new_value
                 ].join();
                 switch (action) {
+                    case 'status,do,approve': string = name + ' submitted for approval'; break;
                     case 'status,approve,do': string = name + ' rejected submission'; break;
                     case 'status,approve,send': string = name + ' approved submission'; break;
                     default: break;
