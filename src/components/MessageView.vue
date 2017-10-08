@@ -17,6 +17,9 @@
                 <span class="resolve" @click="resolveMessage" :class="{off: !message.userCanResolve}">
                     <ceri-icon name="fa-check" size="12" hcenter></ceri-icon>
                 </span>
+                <span class="resolved" v-if="message.author.canManage == $store.state.user.canManage && message.resolved">
+                    <ceri-icon name="fa-check" size="10" hcenter></ceri-icon>
+                </span>
             </div>
         </div>
     </div>
@@ -79,7 +82,7 @@
                 color: $medium-dark;
                 font-size: 0.9em;
                 font-weight: 700;
-                margin-top: 20px;
+                padding-top: 30px;
                 text-align: center;
 
                 .time {
@@ -204,6 +207,13 @@
 
                     }
 
+                }
+
+                .resolved {
+                    height: 12px;
+                    position: absolute;
+                        bottom: 4px; right: 3px;
+                    opacity: 0.37;
                 }
 
             }
