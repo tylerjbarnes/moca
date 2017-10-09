@@ -1,20 +1,24 @@
 <template>
 
     <div class="resource-view">
-        <header :style="{backgroundImage: gradientString}">
-            <span class="name" v-show="!editingName" @dblclick="startEditingName">{{ resource.name }}</span>
-            <input type="text" class="nameEditor" v-show="editingName" ref="nameEditor" v-model="modifiedName" @blur="stopEditingName">
-            <span class="delete" @click="deleteResource"></span>
+        <header :style="{backgroundImage: gradientString}" @dblclick="edit(null, true)">
+            <span class="name" ref="nameEditor" v-show="!editing">{{ resource.name }}</span>
+            <input type="text" v-show="editing" class="nameEditor" ref="nameEditor" v-model="primitive.name">
+            <span class="delete" @click="deleteResource" v-if="!isDraft"></span>
         </header>
         <div class="main">
-            <div class="markup" v-html="markup" v-show="!editingContent" @dblclick="startEditingContent"></div>
-            <div class="editor-wrapper" ref="dynamicHeight" :class="{open:editingContent}">
-                <textarea class="editor" ref="contentEditor" @input="resizeTextarea($event.target.value)" v-model="modifiedBody" @blur="stopEditingContent"></textarea>
+            <div class="markup" v-html="markup" v-show="!editing" @dblclick="edit"></div>
+            <div class="editor-wrapper" ref="dynamicHeight" :class="{open: editing}">
+                <textarea class="editor" ref="contentEditor" @input="resizeTextarea($event.target.value)" v-model="primitive.content.body"></textarea>
                 <div class="clone" ref="clone"></div>
             </div>
-            <div class="meta">
+            <div class="meta" v-if="!editing">
                 created by <strong>{{ resource.author.firstName }}</strong>
                 <template v-if="resource.lastEditor"> • edited by <strong>{{ resource.lastEditor.firstName }}</strong></template> {{ resource.datetime | time }} ago
+            </div>
+            <div class="actions" v-else>
+                <button class="button" @click="closeEditor">Cancel</button>
+                <button class="button primary" :disabled="!valid" @click="save">Save</button>
             </div>
         </div>
     </div>
@@ -25,19 +29,31 @@
 <script>
 
     import MocaMutationSet from '../objects/mocaMutationSet.js';
+    import MocaFactory from '../objects/mocaFactory.js';
 
     export default {
         name: 'resource-view',
-        props: ['resource'],
+        props: ['resource', 'isDraft'],
         data () { return {
-            modifiedBody: this.resource.content.body,
-            modifiedName: this.resource.name,
-            editingContent: false,
-            editingName: false
+            editing: this.isDraft,
+            primitive: {
+                name: '',
+                content: {
+                    body: ''
+                }
+            }
         }},
         computed: {
             markup () {
                 return markdown(this.resource.content.body);
+            },
+            valid () {
+                let updated = this.resource && (
+                    this.primitive.content.body != this.resource.content.body ||
+                    this.primitive.name != this.resource.name
+                );
+                return this.primitive.name && this.primitive.content.body &&
+                    (this.isDraft || updated);
             },
             gradientString () {
                 return 'linear-gradient(20deg,' +
@@ -57,53 +73,54 @@
                     me.$refs.dynamicHeight.style.height = newHeight + 'px';
                 }, 0);
             },
-            startEditingContent () {
-                this.modifiedBody = this.resource.content.body;
-                this.resizeTextarea(this.modifiedBody);
-                this.editingContent = true;
-                let me = this;
-                setTimeout(function () { me.$refs.contentEditor.focus(); }, 0);
+            setPrimitiveFromResource () {
+                // Clone Deep
+                Object.assign(this.primitive, this.resource);
+                this.primitive.content = {body: this.resource.content.body};
             },
-            stopEditingContent () {
-                this.editingContent = false
-                if (this.resource.content.body != this.modifiedBody) { this.save(); }
+            edit (e, focusName) {
+                this.setPrimitiveFromResource();
+                this.resizeTextarea(this.primitive.content.body);
+                this.editing = true;
+                let focusRef = focusName !== undefined ? this.$refs.nameEditor : this.$refs.contentEditor;
+                console.log(focusName);
+                setTimeout(function () { focusRef.focus(); }, 0);
             },
-            startEditingName () {
-                this.modifiedName = this.resource.name;
-                this.editingName = true;
-                let me = this; setTimeout(function () { me.$refs.nameEditor.focus(); }, 0);
-            },
-            stopEditingName () {
-                this.editingName = false
-                if (this.resource.name != this.modifiedName) { this.save(); }
+            closeEditor () {
+                if (this.isDraft) {
+                    this.$emit('closeDraft');
+                } else {
+                    this.editing = false;
+                }
             },
             save () {
-                new MocaMutationSet(
-                    'update',
-                    'resource',
-                    this.resource.id,
-                    {
-                        datetime: new moment().utc().format('YYYY-MM-DD HH:mm:ss'),
-                        last_editor_id: store.state.user.id,
-                        name: this.modifiedName,
-                        content: {
-                            body: this.modifiedBody
-                        }
-                    }
-                ).commit();
+                this.primitive.datetime = new moment().utc().format('YYYY-MM-DD HH:mm:ss');
+                if (!this.isDraft) {
+                    this.primitive.last_editor_id = store.state.user.id;
+                    new MocaMutationSet(
+                        'update', 'resource',
+                        this.primitive.id, this.primitive
+                    ).commit();
+                    this.closeEditor();
+                } else {
+                    new MocaMutationSet(
+                        'create', 'resource',
+                        this.primitive.id, this.primitive
+                    ).commit();
+                    this.$emit('closeDraft');
+                }
             },
             deleteResource () {
                 if (confirm("Are you sure you want to delete this resource?")) {
-                    new MocaMutationSet(
-                        'delete',
-                        'resource',
-                        this.resource.id
-                    ).commit();
+                    new MocaMutationSet('delete', 'resource', this.resource.id).commit();
                 }
             },
         },
         mounted () {
-            this.resizeTextarea(this.resource.content.body);
+            this.isDraft ? this.edit(null, true) : this.setPrimitiveFromResource();
+        },
+        created () {
+            this.resizeTextarea(this.primitive.content.body);
         }
     }
 
@@ -203,6 +220,19 @@
                 padding-top: 10px;
                 margin-top: 20px;
                 opacity: 0.5;
+
+            }
+
+            .actions {
+                border-top: 1px solid $light;
+                display: flex;
+                justify-content: flex-end;
+                padding-top: 10px;
+                margin-top: 20px;
+
+                .button:last-of-type {
+                    margin-left: 10px;
+                }
 
             }
 

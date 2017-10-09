@@ -13,12 +13,13 @@
                     </div>
                 </header> -->
                 <project-header :project="project"></project-header>
-                <div class="resources">
+                <div class="resources" ref="resources">
                     <div class="items">
-                        <resource-view v-for="resource in project.resources.reverse()" :resource="resource" key="resource.id"></resource-view>
+                        <resource-view v-for="resource in resources" :resource="resource" key="resource.id"></resource-view>
+                        <resource-view v-if="draftResource" :resource="draftResource" :isDraft="true" @closeDraft="closeDraft"></resource-view>
                     </div>
                 </div>
-                <project-actions :project="project"></project-actions>
+                <project-actions :project="project" @addResource="addResource"></project-actions>
             </div>
             <conversation-view v-if="mode == 'messages'" :project="project"></conversation-view>
 
@@ -33,17 +34,39 @@
     import ResourceView from './ResourceView.vue';
     import ProjectHeader from './ProjectHeader.vue';
     import ProjectActions from './ProjectActions.vue';
+    import MocaFactory from '../objects/mocaFactory.js';
+    import Resource from '../objects/resource.js';
 
     export default {
         name: 'project-view',
         props: ['id'],
         data () { return {
-            mode: 'messages'
+            mode: 'messages',
+            draftResource: null
         }},
         components: {ConversationView,ResourceView,ProjectHeader,ProjectActions},
         computed: {
             project () {
                 return this.$store.getters.project(this.id);
+            },
+            resources () {
+                return this.project.resources.reverse();
+            }
+        },
+        methods: {
+            addResource () {
+                this.draftResource = new Resource(MocaFactory.constructPrimitive('resource', {
+                    client_id: this.project.client.id,
+                    project_id: this.project.id,
+                    cycle: this.project.cycle
+                }));
+                let el = this.$refs.resources;
+                setTimeout(function () { el.scrollTop = el.scrollHeight; }, 0);
+            },
+            closeDraft () {
+                this.draftResource = null;
+                let el = this.$refs.resources;
+                setTimeout(function () { el.scrollTop = 0; }, 0);
             }
         }
     }

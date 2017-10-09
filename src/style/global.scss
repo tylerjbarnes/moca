@@ -19,7 +19,7 @@ body {
 // Buttons
 button.button {
     align-self: center;
-    background-color: $medium;
+    background-color: $medium-dark;
     border: none;
     color: white;
     font-size: 0.85em;
@@ -55,7 +55,8 @@ button.button {
     }
 
     &:disabled {
-        color: $dark;
+        // color: $dark;
+        opacity: 0.25;
     }
 
 }

@@ -4,7 +4,7 @@
         <div class="modal-card">
             <header class="modal-card-head">
                 <div class="inner">
-                    <p class="modal-card-title">New Project</p>
+                    <p class="modal-card-title">{{ this.id ? this.projectPrimitive.name : 'New Project'}}</p>
                     <router-link tag="button" :to="{name: $store.state.route.view}" class="delete"></router-link>
                 </div>
             </header>
@@ -24,7 +24,7 @@
                             </div>
                             <div class="field-column">
                                 <label>Client</label>
-                                <person-input roles="['client']" v-model="projectPrimitive.client_id"></person-input>
+                                <person-input roles="['client']" v-model="projectPrimitive.client_id" :disabled="this.id != null"></person-input>
                             </div>
                         </div>
                         <div class="field-columns" v-if="!this.id">

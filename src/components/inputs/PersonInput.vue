@@ -1,7 +1,7 @@
 <template>
 
     <div class="person-input">
-        <input ref="input" role="text" v-model="searchTerm" @focus="focus" @blur="isFocused = false" @keydown="handleKey" @input="input">
+        <input ref="input" role="text" v-model="searchTerm" @focus="focus" @blur="isFocused = false" @keydown="handleKey" @input="input" :disabled="disabled">
         <div class="panel" v-show="isFocused || panelIsFocused" @mouseover="panelIsFocused = true" @mouseleave="leavePanel();panelIsFocused = false">
             <span class="empty" v-if="!persons.length">No Matches Found</span>
             <div class="items">
@@ -17,7 +17,7 @@
 
     export default {
         name: 'person-input',
-        props: ['roles','value'],
+        props: ['roles','value','disabled'],
         data () {
             return {
                 searchTerm: '',

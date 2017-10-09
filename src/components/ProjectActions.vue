@@ -2,8 +2,8 @@
 
     <div class="project-actions">
         <button class="button" @click="edit" v-if="$store.state.user.canManage" :style="{backgroundColor: project.manager.color}">Edit Project</button>
-        <button class="button" :style="{backgroundImage: gradientString()}">Add Resource</button>
-        <button v-if="!$store.state.user.canManage" class="button dangerous">Request Time</button>
+        <button class="button" :style="{backgroundImage: gradientString()}" @click="$emit('addResource')">Add Resource</button>
+        <button v-if="!$store.state.user.canManage && project.status == 'do'" class="button dangerous">Request Time</button>
         <button @click="moveProjectBackward" v-if="$store.state.user.canManage && project.canMoveBackward" class="button dangerous">{{ project.previousStatusActionName }}</button>
         <button v-if="$store.state.user.canManage || project.status == 'do'" @click="moveProjectForward" class="button primary">{{ project.nextStatusActionName }}</button>
     </div>
