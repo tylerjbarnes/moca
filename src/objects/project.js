@@ -196,14 +196,33 @@ class Project extends MocaObject {
             }
         });
 
-        // Dispatch New Message
-        new MocaMutationSet(
-            'create',
-            'message',
-            messagePrimitive.id,
-            messagePrimitive
-        ).commit();
+        // Dispatch New Message or Edit Duplicate
+        if (
+            this.lastMutationMessage &&
+            this.lastMutationMessage.content.object_id == messagePrimitive.content.object_id &&
+            this.lastMutationMessage.author_id == store.state.user.id
+        ) {
+            delete messagePrimitive.id;
+            new MocaMutationSet(
+                'update',
+                'message',
+                this.lastMutationMessage.id,
+                messagePrimitive
+            ).commit();
+        } else {
+            new MocaMutationSet(
+                'create',
+                'message',
+                messagePrimitive.id,
+                messagePrimitive
+            ).commit();
+        }
 
+    }
+
+    get lastMutationMessage () {
+        let mutationMessages = this.messages.reverse().filter(message => message.type == 'mutation');
+        return mutationMessages.length ? mutationMessages[0] : null;
     }
 
 }

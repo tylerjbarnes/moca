@@ -44,7 +44,7 @@
                 });
             },
             resizeTextarea (value) {
-                this.$refs.clone.innerHTML = value + ' ';
+                this.$refs.clone.innerHTML = _.escape(value) + ' ';
                 let newHeight = this.$refs.clone.clientHeight;
                 this.$refs.dynamicHeight.style.height = newHeight + 'px';
             },

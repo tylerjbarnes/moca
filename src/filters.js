@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import showdown from 'showdown';
+require('showdown-youtube');
 
 Vue.filter('capitalize', (value) => {
     return value.charAt(0).toUpperCase() + value.slice(1);
@@ -39,7 +40,8 @@ window.markdown = (value) => {
     let converter = new showdown.Converter({
         simplifiedAutoLink: true,
         openLinksInNewWindow: true,
-        simpleLineBreaks: true
+        simpleLineBreaks: true,
+        extensions: ['youtube']
     });
     return converter.makeHtml(value);
 };

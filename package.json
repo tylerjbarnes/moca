@@ -30,6 +30,7 @@
     "qs": "^6.5.0",
     "sass-loader": "^5.0.1",
     "showdown": "^1.7.2",
+    "showdown-youtube": "^1.2.1",
     "tinycolor2": "^1.4.1",
     "vue-loader": "^12.1.0",
     "vue-router": "^2.7.0",
