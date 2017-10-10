@@ -68,7 +68,7 @@
             resizeTextarea (value) {
                 let me = this;
                 setTimeout(function () {
-                    me.$refs.clone.innerHTML = value + ' ';
+                    me.$refs.clone.innerHTML = _.escape(value) + ' ';
                     let newHeight = me.$refs.clone.clientHeight;
                     me.$refs.dynamicHeight.style.height = newHeight + 'px';
                 }, 0);
@@ -79,6 +79,7 @@
                 this.primitive.content = {body: this.resource.content.body};
             },
             edit (e, focusName) {
+                if (this.editing) { return; }
                 this.setPrimitiveFromResource();
                 this.resizeTextarea(this.primitive.content.body);
                 this.editing = true;
