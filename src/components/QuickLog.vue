@@ -71,6 +71,7 @@
 
         &.open {
             .wrapper {
+                flex-flow: row-reverse;
                 @include shadow;
             }
         }

@@ -3,9 +3,9 @@
         <header>
             <div class="logo"></div>
             <nav>
-                <router-link :to="{name:'projects'}" class="navbar-item" v-if="$store.state.user.role == 'contractor'">Projects</router-link>
-                <router-link :to="{name:'team'}" class="navbar-item">Team</router-link>
-                <router-link :to="{name:'clients'}" class="navbar-item">Clients</router-link>
+                <router-link :to="{name:'projects'}" class="navbar-item" v-if="!$store.state.user.canManage">Projects</router-link>
+                <router-link :to="{name:'team'}" class="navbar-item" v-if="$store.state.user.canManage">Team</router-link>
+                <router-link :to="{name:'clients'}" class="navbar-item" v-if="$store.state.user.canManage">Clients</router-link>
                 <router-link :to="{name:'time'}" class="navbar-item">Time</router-link>
             </nav>
         </header>
@@ -50,6 +50,11 @@
         },
         created () {
             bus.$on('storeLoaded', () => {
+                if (!store.state.route.view) {
+                    store.state.user.canManage ?
+                        router.replace({name: 'team'}) :
+                        router.replace({name: 'projects'});
+                }
                 this.appReady = true;
             });
         }

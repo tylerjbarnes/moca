@@ -76,15 +76,15 @@
                         <div class="field-columns">
                             <div class="field-column">
                                 <label>Start</label>
-                                <date-input v-model="projectPrimitive.start"></date-input>
+                                <date-input v-model="projectPrimitive.start" :upward="true"></date-input>
                             </div>
                             <div class="field-column middle">
                                 <label>Soft Due</label>
-                                <date-input v-model="projectPrimitive.target"></date-input>
+                                <date-input v-model="projectPrimitive.target" :upward="true" :align="'center'"></date-input>
                             </div>
                             <div class="field-column">
                                 <label>Hard Due</label>
-                                <date-input v-model="projectPrimitive.due"></date-input>
+                                <date-input v-model="projectPrimitive.due" :upward="true" :align="'right'"></date-input>
                             </div>
                         </div>
 

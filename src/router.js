@@ -1,12 +1,12 @@
 import VueRouter from 'vue-router';
 import TeamView from './components/TeamView.vue';
-import ProjectCollection from './components/ProjectCollection.vue';
+import ProjectsView from './components/ProjectsView.vue';
 
 const routes = [
         {
             path: '/projects',
             name: 'projects',
-            component: ProjectCollection,
+            component: ProjectsView,
             waitForData: true
         },
         {

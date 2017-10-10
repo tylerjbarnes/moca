@@ -2,7 +2,7 @@
 
     <div class="date-input">
         <input type="text" ref="input" :value="inputReadout" @input="updateStringValue($event.target.value)" @keydown="handleKey" @focus="updateStringValueFromValue();isFocused = true" @blur="isFocused = false" :placeholder="placeholder">
-        <div class="panel" v-show="isFocused || panelIsFocused" @mouseover="panelIsFocused = true" @mouseleave="leavePanel();panelIsFocused = false" :class="{upward:upward}">
+        <div class="panel" v-show="isFocused || panelIsFocused" @mouseover="panelIsFocused = true" @mouseleave="leavePanel();panelIsFocused = false" :class="[align,{upward:upward}]">
             <datepicker :inline="true" v-model="picker" @selected="pickerSelected" @changedMonth="keepFocus" @changedYear="keepFocus" @changedDecade="keepFocus" :highlighted="{dates:[new Date()]}" :disabled="this.disabledDates"></datepicker>
         </div>
     </div>
@@ -15,7 +15,7 @@
 
     export default {
         name: 'date-input',
-        props: ['value','upward','placeholder','disabledDates'],
+        props: ['value','upward','placeholder','disabledDates','align'],
         components: {Datepicker},
         data () {
             return {
@@ -107,6 +107,14 @@
             &.upward {
                 bottom: 100%;
                 padding-bottom: 0;
+            }
+
+            &.center {
+                right: calc(50% - 150px);
+            }
+
+            &.right {
+                right: 0;
             }
 
             .vdp-datepicker {
