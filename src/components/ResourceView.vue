@@ -79,12 +79,12 @@
                 this.primitive.content = {body: this.resource.content.body};
             },
             edit (e, focusName) {
+                let focusRef = focusName !== undefined ? this.$refs.nameEditor : this.$refs.contentEditor;
+                setTimeout(function () { focusRef.focus(); }, 0);
                 if (this.editing) { return; }
                 this.setPrimitiveFromResource();
                 this.resizeTextarea(this.primitive.content.body);
                 this.editing = true;
-                let focusRef = focusName !== undefined ? this.$refs.nameEditor : this.$refs.contentEditor;
-                setTimeout(function () { focusRef.focus(); }, 0);
             },
             closeEditor () {
                 if (this.isDraft) {
