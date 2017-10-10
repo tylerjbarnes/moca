@@ -6,7 +6,7 @@
 // 3D Lift on Hover
 @mixin lifts {
     transition: all 0.15s ease;
-    &:hover {
+    &:hover, &:focus {
         @include shadow;
         // transform: scale(1.03);
     }
@@ -61,6 +61,7 @@
     border-radius: 5px;
     min-height: 30px;
     padding: 0;
+    width: 100%;
 
     input, textarea {
         background: none;
@@ -71,7 +72,7 @@
         height: 30px;
         outline: none;
         padding: 5px 10px;
-
+        width: 100%;
     }
 
     textarea {

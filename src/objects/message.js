@@ -1,4 +1,6 @@
 import MocaObject from './mocaObject.js';
+import MocaMutationSet from '../objects/mocaMutationSet.js';
+
 class Message extends MocaObject {
 
     get author () {
@@ -38,6 +40,13 @@ class Message extends MocaObject {
                     default: break;
                 }
                 break;
+            case 'message':
+                let request = store.getters.message(this.content.object_id);
+                let requesterName = request.author_id == store.state.user.id ? 'your' : store.getters.person(request.author_id).firstName + "'s";
+                switch (request.content.granted) {
+                    case true: string = name + ' granted ' + requesterName + ' time request'; break;
+                    default: string = name + ' denied ' + requesterName + ' time request'; break;
+                }
             default: break;
         }
 
@@ -45,8 +54,50 @@ class Message extends MocaObject {
 
     }
 
+    get requestDescription () {
+        let hoursString = this.content.hours ? '<strong>' + this.content.hours + ' more hours</strong>' : '';
+        let dueString = this.content.due ? 'a later due date of <strong>' + moment(this.content.due).format("MMM D") + '</strong>': '';
+        let both = hoursString && dueString;
+        let name = this.author.id == store.state.user.id ? 'You' : this.author.firstName;
+        return name + ' requested '
+            + hoursString + ( both ? '<br>and ' : '' ) + dueString
+            + '<br><strong>"' + this.content.reason +'"</strong>';
+    }
+
     cleanUp () {
         console.log('Cleaning up message ' + this.id);
+    }
+
+
+    /////////////
+    // Setters //
+    /////////////
+
+    resolve (granted) {
+        let newContent = {};
+        Object.assign(newContent, this.content);
+        newContent.granted = granted;
+        new MocaMutationSet(
+            'update', 'message',
+            this.id, {
+                content: newContent,
+                'resolved': true
+            }
+        ).commit();
+    }
+    reject () {
+        this.resolve(false);
+    }
+    approve () {
+        this.resolve(true);
+        let project = store.getters.project(this.project_id);
+        new MocaMutationSet(
+            'update', 'project',
+            project.id, {
+                max: this.content.hours ? project.max + this.content.hours : project.max,
+                due: this.content.due ? this.content.due : project.due
+            }
+        ).commit();
     }
 
 }

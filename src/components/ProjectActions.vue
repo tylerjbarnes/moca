@@ -3,7 +3,10 @@
     <div class="project-actions">
         <button class="button" @click="edit" v-if="$store.state.user.canManage" :style="{backgroundColor: project.manager.color}">Edit Project</button>
         <button class="button" :style="{backgroundImage: gradientString()}" @click="$emit('addResource')">Add Resource</button>
-        <button v-if="!$store.state.user.canManage && project.status == 'do'" class="button dangerous">Request Time</button>
+        <div class="request-time" v-if="!$store.state.user.canManage && project.status == 'do'">
+            <button class="button" :class="{dangerous: !requesting}" @click="toggleRequesting" :disabled="this.project.hasPendingTimeRequest">{{ requesting ? 'Cancel Request' : 'Request Time'}}</button>
+            <request-view :project="project" v-if="requesting" @closeRequest="requesting = false"></request-view>
+        </div>
         <button @click="moveProjectBackward" v-if="$store.state.user.canManage && project.canMoveBackward" class="button dangerous">{{ project.previousStatusActionName }}</button>
         <button v-if="$store.state.user.canManage || project.status == 'do'" @click="moveProjectForward" class="button primary">{{ project.nextStatusActionName }}</button>
     </div>
@@ -13,13 +16,19 @@
 
 <script>
 
-    // import MocaMutationSet from '../objects/mocaMutationSet.js';
+    import RequestView from './RequestView.vue';
 
     export default {
         name: 'project-actions',
         props: ['project'],
-        components: {},
+        data () {return {
+            requesting: false
+        }},
+        components: {RequestView},
         methods: {
+            toggleRequesting () {
+                this.requesting = this.requesting ? false : true;
+            },
             edit () {
                 this.$router.push({ name: this.$store.state.route.view + '-project-editor', params: { id: this.project.id }});
             },
@@ -52,6 +61,16 @@
 
         > * {
             margin: 0 5px;
+        }
+
+        .request-time {
+            display: flex;
+            position: relative;
+
+            > button {
+                z-index: 10;
+            }
+
         }
 
     }

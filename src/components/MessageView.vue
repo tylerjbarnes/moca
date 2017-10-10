@@ -23,6 +23,15 @@
             </div>
         </div>
     </div>
+    <div class="message-view request" :class="{unresolved: !message.resolved}" v-else-if="message.type == 'request'">
+        <div class="card">
+            <div class="description" v-html="message.requestDescription"></div>
+            <div class="actions" v-if="message.userCanResolve">
+                <button class="button dangerous" @click="message.reject()">Reject</button>
+                <button class="button primary" @click="message.approve()">Approve</button>
+            </div>
+        </div>
+    </div>
     <div class="message-view mutation" v-else>
         <div class="description">{{ message.mutationDescription }} <span class="time">{{ message.datetime | time }} ago</span></div>
     </div>
@@ -78,6 +87,7 @@
         margin-right: 20px;
 
         &.mutation {
+            margin-left: 20px;
             .description {
                 color: $medium-dark;
                 font-size: 0.9em;
@@ -87,6 +97,50 @@
 
                 .time {
                     font-weight: 500;
+                }
+            }
+        }
+
+        &.request {
+            margin-left: 20px;
+            .card {
+                background: none;
+                box-shadow: none;
+                color: $medium-dark;
+                font-size: 0.9em;
+                font-weight: 500;
+                padding-top: 30px;
+                text-align: center;
+
+                strong {
+                    color: inherit;
+                }
+            }
+
+            &.unresolved {
+                .card {
+                    background: white;
+                    border-radius: 5px;
+                    color: $dark;
+                    margin-top: 20px;
+                    padding: 10px 15px;
+                    @include shadow;
+
+                    .actions {
+                        border-top: 1px solid $gray;
+                        display: flex;
+                        justify-content: center;
+                        padding: 10px 10px 0 10px;
+                        margin-top: 10px;
+
+                        button {
+                            // font-size: 1em;
+                            &:not(:first-of-type) {
+                                margin-left: 10px;
+                            }
+                        }
+
+                    }
                 }
             }
         }

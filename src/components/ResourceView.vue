@@ -3,11 +3,11 @@
     <div class="resource-view">
         <header :style="{backgroundImage: gradientString}" @dblclick="edit(null, true)">
             <span class="name" ref="nameEditor" v-show="!editing">{{ resource.name }}</span>
-            <input type="text" v-show="editing" class="nameEditor" ref="nameEditor" v-model="primitive.name">
-            <span class="delete" @click="deleteResource" v-if="!isDraft"></span>
+            <input type="text" v-show="editing" class="nameEditor" ref="nameEditor" v-model="primitive.name" placeholder="Resource Name">
+            <span class="delete" @click="deleteResource" v-if="!isDraft && $store.state.user.canManage"></span>
         </header>
-        <div class="main">
-            <div class="markup" v-html="markup" v-show="!editing" @dblclick="edit"></div>
+        <div class="main" @dblclick="edit">
+            <div class="markup" v-html="markup" v-show="!editing"></div>
             <div class="editor-wrapper" ref="dynamicHeight" :class="{open: editing}">
                 <textarea class="editor" ref="contentEditor" @input="resizeTextarea($event.target.value)" v-model="primitive.content.body"></textarea>
                 <div class="clone" ref="clone"></div>
@@ -83,7 +83,6 @@
                 this.resizeTextarea(this.primitive.content.body);
                 this.editing = true;
                 let focusRef = focusName !== undefined ? this.$refs.nameEditor : this.$refs.contentEditor;
-                console.log(focusName);
                 setTimeout(function () { focusRef.focus(); }, 0);
             },
             closeEditor () {
@@ -164,6 +163,12 @@
                 font-weight: 900 !important;
                 outline: none;
                 padding: 0;
+
+                &::placeholder {
+                    color: white;
+                    opacity: 0.5;
+                }
+
             }
 
             .delete {

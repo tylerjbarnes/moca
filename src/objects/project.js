@@ -79,6 +79,10 @@ class Project extends MocaObject {
         return this.messages.filter( message => { return message.userCanResolve });
     }
 
+    get hasPendingTimeRequest () {
+        return this.messages.find( message => { return message.type == 'request' && !message.resolved });
+    }
+
     // Resources
 
     get resources () {
@@ -166,6 +170,12 @@ class Project extends MocaObject {
                 mutation.object_type == 'resource' &&
                 mutation.property_name != 'datetime' &&
                 mutation.property_name != 'last_editor_id'
+            ) ||
+            ( // Approve/Reject Time Request
+                mutation.object_type == 'message' &&
+                mutation.action == 'update' &&
+                mutation.property_name == 'resolved' &&
+                this.messages.find(message => message.id == mutation.object_id).type == 'request'
             )
         )) { return; }
 

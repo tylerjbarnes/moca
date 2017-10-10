@@ -103,6 +103,7 @@
         @include moca-input;
         // align-items: center;
         display: flex;
+        min-width: 100px !important;
         overflow: hidden;
         height: 30px;
         position: relative;
