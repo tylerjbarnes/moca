@@ -6,7 +6,7 @@
         </div>
         <div class="create" ref="dynamicHeight">
             <div class="textarea-wrapper">
-                <textarea ref="textarea" rows="1" placeholder="Send a message..." @input="resizeTextarea($event.target.value)" v-model="messagePrimitive.content"></textarea>
+                <textarea ref="textarea" rows="1" placeholder="Send a message..." @input="resizeTextarea($event.target.value)" v-model="messagePrimitive.content" @keydown="handleEnter"></textarea>
                 <div class="clone" ref="clone"></div>
             </div>
             <button class="send" @click="createMessage" :disabled="!messagePrimitive.content.length">
@@ -33,9 +33,23 @@
         computed: {
             messages () {
                 return this.project.messages.filter(message => !message.parent_id).reverse();
+            },
+            content () {
+                return this.messagePrimitive.content;
             }
         },
         methods: {
+            handleEnter (e) {
+                if (e.keyCode == 13) {
+                    if (!e.altKey) {
+                        e.preventDefault();
+                        this.createMessage();
+                    } else {
+                        this.messagePrimitive.content += "\n";
+                        this.resizeTextarea(this.messagePrimitive.content);
+                    }
+                }
+            },
             newMessagePrimitive () {
                 return MocaFactory.constructPrimitive('message',{
                     type: 'chat',
@@ -49,6 +63,7 @@
                 this.$refs.dynamicHeight.style.height = newHeight + 'px';
             },
             createMessage () {
+                if (!this.messagePrimitive.content) { return; }
                 this.messagePrimitive.datetime = new moment().utc().format('YYYY-MM-DD HH:mm:ss');
                 new MocaMutationSet(
                     'create',
