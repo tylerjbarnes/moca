@@ -26,7 +26,11 @@ class Message extends MocaObject {
                     this.content.new_value
                 ].join();
                 switch (action) {
-                    case 'status,do,approve': string = name + ' submitted for approval'; break;
+                    case 'status,do,approve':
+                        string = this.author.canManage ?
+                            name + ' marked this complete' :
+                            name + ' submitted for approval';
+                        break;
                     case 'status,approve,do': string = name + ' rejected submission'; break;
                     case 'status,approve,send': string = name + ' approved submission'; break;
                     default: break;
@@ -44,7 +48,7 @@ class Message extends MocaObject {
                 let request = store.getters.message(this.content.object_id);
                 let requesterName = request.author_id == store.state.user.id ? 'your' : store.getters.person(request.author_id).firstName + "'s";
                 switch (request.content.granted) {
-                    case true: string = name + ' granted ' + requesterName + ' time request'; break;
+                    case true: string = name + ' allowed ' + requesterName + ' time request'; break;
                     default: string = name + ' denied ' + requesterName + ' time request'; break;
                 }
             default: break;

@@ -27,8 +27,8 @@
         <div class="card">
             <div class="description" v-html="message.requestDescription"></div>
             <div class="actions" v-if="message.userCanResolve">
-                <button class="button dangerous" @click="message.reject()">Reject</button>
-                <button class="button primary" @click="message.approve()">Approve</button>
+                <button class="button dangerous" @click="message.reject()">Deny</button>
+                <button class="button primary" @click="message.approve()">Allow</button>
             </div>
         </div>
     </div>
