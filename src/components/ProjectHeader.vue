@@ -5,7 +5,7 @@
         <div class="top">
             <div class="titles">
                 <div class="subtitles">
-                    <h2 class="client-name">{{ project.client ? project.client.name : 'No Client' }}</h2>
+                    <h2 class="client-name">{{ project.client ? project.client.name : 'No Client' }}<template class="manager-name" v-if="!$store.state.user.canManage"> • {{ project.manager.firstName }}</template></h2>
                     <span class="flagged" v-if="project.flagged"><ceri-icon name="fa-flag" size="14" hcenter></ceri-icon></span>
                 </div>
                 <h1 class="project-name">{{ project.name }}</h1>

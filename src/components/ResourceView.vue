@@ -35,7 +35,7 @@
         name: 'resource-view',
         props: ['resource', 'isDraft'],
         data () { return {
-            editing: this.isDraft,
+            editing: false,
             primitive: {
                 name: '',
                 content: {
@@ -103,6 +103,7 @@
                     ).commit();
                     this.closeEditor();
                 } else {
+                    console.log(this.primitive);
                     new MocaMutationSet(
                         'create', 'resource',
                         this.primitive.id, this.primitive

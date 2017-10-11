@@ -2,7 +2,9 @@
 
     <div class="projects-view">
         <h1 class="title">Active</h1>
-        <project-collection :projects="$store.state.user.projectsAssigned"></project-collection>
+        <project-collection :projects="activeProjects"></project-collection>
+        <h1 class="title">Pending Approval</h1>
+        <project-collection :projects="pendingProjects"></project-collection>
     </div>
 
 </template>
@@ -13,7 +15,15 @@
 
     export default {
         name: 'projects-view',
-        components: {ProjectCollection}
+        components: {ProjectCollection},
+        computed: {
+            activeProjects () {
+                return store.state.user.projectsAssigned.filter(project => project.status == 'do');
+            },
+            pendingProjects () {
+                return store.state.user.projectsAssigned.filter(project => project.status == 'approve');
+            }
+        }
     }
 
 </script>
@@ -34,6 +44,17 @@
                 opacity: 0.5;
             }
 
+        }
+
+        .project-collection {
+            margin: 0 40px;
+
+            .project-card {
+
+                .flag, .unresolved {
+                    
+                }
+            }
         }
 
     }

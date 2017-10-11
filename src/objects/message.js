@@ -31,8 +31,8 @@ class Message extends MocaObject {
                             name + ' marked this complete' :
                             name + ' submitted for approval';
                         break;
-                    case 'status,approve,do': string = name + ' rejected submission'; break;
-                    case 'status,approve,send': string = name + ' approved submission'; break;
+                    case 'status,approve,do': string = name + ' rejected this'; break;
+                    case 'status,approve,send': string = name + ' approved this'; break;
                     default: break;
                 }
                 break;

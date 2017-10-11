@@ -3,7 +3,7 @@
     <div class="project-collection">
         <kanban :projects="projects" v-if="kanban" :person="person"></kanban>
         <div class="items" v-else>
-            <div class="item" v-for="project in projects">
+            <div class="item" v-for="project in sortedProjects">
                 <project-card :project="project" :key="project.id"></project-card>
             </div>
         </div>
@@ -19,7 +19,12 @@
     export default {
         name: 'project-collection',
         props: ['projects','kanban','person'],
-        components: {Kanban,ProjectCard}
+        components: {Kanban,ProjectCard},
+        computed: {
+            sortedProjects () {
+                return this.projects.sort((a,b) => new Date(a.earliestDue) > new Date(b.earliestDue));
+            }
+        }
     }
 
 </script>
@@ -37,7 +42,7 @@
 
             .item {
                 flex: 0 0 25%;
-                padding: 0 12px;
+                padding: 0 10px;
 
                 .project-card {
 

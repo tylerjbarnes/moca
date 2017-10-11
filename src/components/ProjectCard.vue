@@ -14,8 +14,10 @@
             </div>
         </div>
         <footer>
-            <person-tag v-if="show.manager" :person="project.manager"></person-tag>
-            <person-tag v-if="show.contractor && project.contractor" :person="project.contractor" :solid="true"></person-tag>
+            <div class="person-tags">
+                <person-tag v-if="show.manager" :person="project.manager"></person-tag>
+                <person-tag v-if="show.contractor && project.contractor" :person="project.contractor" :solid="true"></person-tag>
+            </div>
             <div class="meta">
                 <span class="estimate">{{ project.estimate | hours }}</span>
                 <span class="due" v-if="project.dueString">{{ project.dueString }}</span>
@@ -93,8 +95,9 @@
 
     .project-card {
         background: white;
-        border: 2px solid $gray;
+        border: 2px solid $light;
         border-radius: 5px;
+        box-sizing: border-box;
         cursor: default;
         margin: 20px 0;
         padding: 10px;
@@ -192,15 +195,22 @@
             display: flex;
             justify-content: space-between;
             width: 100%;
+            flex-flow: column;
 
-            .person-tag {
-                margin-right: 7.5px;
+            .person-tags {
+                display: flex;
+                width: 100%;
+                .person-tag {
+                    margin-right: 7.5px;
+                }
             }
 
             .meta {
                 justify-content: flex-end;
                 display: flex;
                 flex-wrap: wrap;
+                margin-top: 10px;
+                width: 100%;
 
                 span {
                     display: block;

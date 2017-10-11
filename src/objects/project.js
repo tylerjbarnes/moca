@@ -170,10 +170,11 @@ class Project extends MocaObject {
                     oldValue == 'do' && mutation.property_value == 'approve'
                 )
             ) ||
-            ( // Any Resource Mutation Except Datetime & Last Editor
+            ( // Any Resource Mutation Except Datetime & Last Editor, Or Original
                 mutation.object_type == 'resource' &&
                 mutation.property_name != 'datetime' &&
-                mutation.property_name != 'last_editor_id'
+                mutation.property_name != 'last_editor_id' &&
+                (mutation.action != 'create' || mutation.property_value.name != 'Overview')
             ) ||
             ( // Approve/Reject Time Request
                 mutation.object_type == 'message' &&

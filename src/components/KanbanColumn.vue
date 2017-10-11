@@ -4,7 +4,7 @@
         <header><span>{{ title }}</span></header>
         <div class="items">
             <!-- <transition-group name="list"> -->
-                <project-card v-for="project in items" :project="project" :show="{contractor: true, manager: false}" :key="project.id" :class="{pending: projectIsPending(project)}"></project-card>
+                <project-card v-for="project in items" :project="project" :show="tagsToShow" :key="project.id" :class="{pending: projectIsPending(project)}"></project-card>
             <!-- </transition-group> -->
         </div>
     </div>
@@ -28,6 +28,15 @@
             items () {
                 return [...this.pendingProjects, ...this.projects]
                     .sort((a,b) => new Date(a.earliestDue) > new Date(b.earliestDue));
+            },
+            tagsToShow () {
+                switch (this.person.role) {
+                    case 'administrator':
+                    case 'manager': return {contractor: true, manager: false};
+                    case 'contractor': return {contractor: false, manager: true};
+                    case 'client': return {contractor: true, manager: true};
+                    default: break;
+                }
             }
         },
         methods: {
