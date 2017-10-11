@@ -23,6 +23,7 @@ class MocaMutationSet {
                     null,
                     this.delta
                 )];
+                if (!mutations.length) { return; }
                 this.notifyProjectOfMutations(mutations);
                 store.dispatch('exportMutations', mutations);
                 break;
@@ -40,6 +41,7 @@ class MocaMutationSet {
                         ));
                     }
                 }
+                if (!mutations.length) { return; }
                 this.notifyProjectOfMutations(mutations);
                 store.dispatch('exportMutations', mutations);
                 break;
@@ -51,6 +53,7 @@ class MocaMutationSet {
                     null,
                     null
                 )];
+                if (!mutations.length) { return; }
                 this.notifyProjectOfMutations(mutations);
                 store.dispatch('exportMutations', mutations);
                 break;

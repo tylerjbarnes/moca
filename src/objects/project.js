@@ -144,10 +144,12 @@ class Project extends MocaObject {
 
     move (backward) {
         new MocaMutationSet(
-            'update',
-            'project',
-            this.id,
-            {'status': backward ? this.previousStatus : this.nextStatus}
+            'update', 'project', /// implement proper recycle or archive function
+            this.id, {
+                'status': backward ? this.previousStatus : this.nextStatus,
+                'cycle': !backward && this.status == 'send' ? this.cycle + 1 : this.cycle,
+                'archived': this.autocycle ? false : true
+            }
         ).commit();
     }
     moveForward () { this.move(false); }

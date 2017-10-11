@@ -49,7 +49,12 @@
                 }
             },
             input () {
-                this.selectedPerson = this.searchTerm ? this.persons[0] : null;
+                if (this.searchTerm == '') {
+                    this.selectedPerson = null;
+                    this.commitSelection();
+                    return;
+                }
+                this.selectedPerson = this.persons[0];
             },
             leavePanel () {
                 this.selectedPerson = this.searchTerm ? this.persons[0] : null;

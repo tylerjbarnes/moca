@@ -66,16 +66,21 @@
                 if (!this.canAcceptProject(project)) { return; }
                 let changingManager = this.person.role == 'manager' && this.person.id != project.manager_id;
                 let changingContractor = this.person.role == 'contractor' && this.person.id != project.contractor_id;
-                this.inviteDrop = false;
-                this.pendingProjects = [];
-                new MocaMutationSet(
-                    'update', 'project',
-                    project.id, {
-                        status: this.title,
-                        manager_id: changingManager ? this.person.id : project.manager_id,
-                        contractor_id: changingContractor ? this.person.id : project.contractor_id
-                    }
-                ).commit();
+
+                if (!changingContractor && this.title == 'do' && !project.contractor_id) {
+                    console.log('get fancy');
+                } else {
+                    this.inviteDrop = false;
+                    this.pendingProjects = [];
+                    new MocaMutationSet(
+                        'update', 'project',
+                        project.id, {
+                            status: this.title,
+                            manager_id: changingManager ? this.person.id : project.manager_id,
+                            contractor_id: changingContractor ? this.person.id : project.contractor_id
+                        }
+                    ).commit();
+                }
 
             }
         }
@@ -89,7 +94,6 @@
 
     .kanban-column {
         flex: 0 0 25%;
-        height: 100%;
         padding-top: 5px; padding-bottom: 5px;
 
         &.inviteDrop {
@@ -114,27 +118,6 @@
             min-height: 100px;
 
         }
-
-        // .list-enter-active, .list-leave-active {
-        //     transition: all 1s;
-        // }
-        // .list-enter, .list-leave-to /* .list-leave-active below version 2.1.8 */ {
-        //     opacity: 0;
-        //     transform: translateY(30px);
-        // }
-        //
-        // .list-move {
-        //     transition: transform 1s;
-        //
-        // }
-        //
-        // .list-complete-item {
-        //     transition: all 1s;
-        // }
-        // .list-complete-enter, .list-complete-leave-to {
-        //     opacity: 0;
-        //     transform: translateY(30px);
-        // }
 
     }
 

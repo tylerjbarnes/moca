@@ -6,6 +6,7 @@
             <div class="titles">
                 <div class="subtitles">
                     <h2 class="client-name">{{ project.client ? project.client.name : 'No Client' }}<template class="manager-name" v-if="!$store.state.user.canManage"> • {{ project.manager.firstName }}</template></h2>
+                    <span class="cycle" v-if="$store.state.user.canManage">{{ project.cycle + 1 }}</span>
                     <span class="flagged" v-if="project.flagged"><ceri-icon name="fa-flag" size="14" hcenter></ceri-icon></span>
                 </div>
                 <h1 class="project-name">{{ project.name }}</h1>
@@ -81,6 +82,21 @@
                 .subtitles {
                     align-items: center;
                     display: flex;
+
+                    .cycle {
+                        background: $light;
+                        border-radius: 0.7em;
+                        color: $medium-dark !important;
+                        display: inline-block;
+                        height: 1.4em;
+                        line-height: 1.4em;
+                        min-width: 1.4em;
+                        color: $medium-dark;
+                        font-size: 0.75em;
+                        font-weight: 700;
+                        margin-left: 4px;
+                        text-align: center;
+                    }
 
                     .flagged {
                         color: $orange;

@@ -54,6 +54,7 @@
         .columns {
             display: flex;
 
+
         }
 
     }
