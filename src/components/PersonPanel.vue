@@ -23,14 +23,14 @@
             </header>
             <template v-if="person.projectsAssigned && person.projectsAssigned.length">
                 <h2 class="collection-title" v-if="person.canManage">Assigned</h2>
-                <project-collection :projects="person.projectsAssigned"></project-collection>
+                <project-collection :projects="person.projectsAssigned" :person="person"></project-collection>
             </template>
-            <template v-if="person.projectsManaged && person.projectsManaged.length">
+            <template v-if="person.canManage">
                 <h2 class="collection-title">Managing</h2>
-                <project-collection :projects="person.projectsManaged" :kanban="true"></project-collection>
+                <project-collection :projects="person.projectsManaged" :kanban="true" :person="person"></project-collection>
             </template>
             <template v-if="person.projectsOwned">
-                <project-collection :projects="person.projectsOwned"></project-collection>
+                <project-collection :projects="person.projectsOwned" :kanban="true" :person="person"></project-collection>
             </template>
         </div>
     </div>

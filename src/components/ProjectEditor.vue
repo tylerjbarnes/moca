@@ -19,7 +19,7 @@
                             <div class="field-column">
                                 <label>Project Name</label>
                                 <div class="moca-input">
-                                    <input type="text" v-model="projectPrimitive.name" autofocus>
+                                    <input type="text" v-model="projectPrimitive.name" ref="nameEditor" autofocus>
                                 </div>
                             </div>
                             <div class="field-column">
@@ -196,6 +196,9 @@
             if (this.id) {
                 Object.assign(this.projectPrimitive, this.project);
             }
+        },
+        mounted () {
+            this.$refs.nameEditor.focus();
         }
     }
 

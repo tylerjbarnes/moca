@@ -68,7 +68,7 @@ function hpm_objects( $type ) {
                 break;
             case 'package': $where = "WHERE 0 = 1"; break;
             case 'project':
-                $where = "WHERE contractor_id = '$user_id'";
+                // $where = "WHERE contractor_id = '$user_id'";
                 break;
             case 'time':
                 $where = "WHERE worker_id = '$user_id'";

@@ -99,11 +99,12 @@
         margin: 20px 0;
         padding: 10px;
         position: relative;
+        transition: 0.3s ease;
         width: 100%;
-        @include lifts;
         @include unselectable;
         &:hover {
             border-color: white;
+            @include shadow;
             .flag, .unresolved {
                 // border-top: 1px solid white;
             }
@@ -191,6 +192,10 @@
             display: flex;
             justify-content: space-between;
             width: 100%;
+
+            .person-tag {
+                margin-right: 7.5px;
+            }
 
             .meta {
                 justify-content: flex-end;

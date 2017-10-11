@@ -36,6 +36,10 @@ class Project extends MocaObject {
 
     // Dates
 
+    get earliestDue () {
+        return this.target ? this.target : this.due;
+    }
+
     get dueString () {
         var hasNone = !this.target && !this.due;
         var hasBoth = this.target && this.due;
@@ -200,7 +204,8 @@ class Project extends MocaObject {
         if (
             this.lastMutationMessage &&
             this.lastMutationMessage.content.object_id == messagePrimitive.content.object_id &&
-            this.lastMutationMessage.author_id == store.state.user.id
+            this.lastMutationMessage.author_id == store.state.user.id &&
+            this.lastMutationMessage.content.property_name != 'status'
         ) {
             delete messagePrimitive.id;
             new MocaMutationSet(

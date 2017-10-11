@@ -58,6 +58,7 @@
         height: 40px;
         justify-content: center;
         margin: 0 -5px;
+        padding: 0 7.5px;
 
         > * {
             margin: 0 5px;

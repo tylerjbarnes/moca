@@ -155,7 +155,7 @@ const actions = {
                 store.dispatch('persistMutations', mutations);
                 store.dispatch('setLastMutationId', response.mutation_id);
             } else {
-                console.log('Out of sync.');
+                console.log('Out of sync. Last mutation should be ' + response.integrity[store.state.user.id] + ', but is ' + store.state.lastMutationId + '.');
                 alert("Hmm... looks like you're out of sync. Refresh to make sure you have the latest.");
             }
         }, response => {
@@ -170,7 +170,7 @@ const actions = {
             store.dispatch('setLastMutationId', data.mutation_id);
             store.dispatch('persistMutations', data.mutations);
         } else {
-            console.log('Out of sync.');
+            console.log('Out of sync. Last mutation should be ' + data.integrity[store.state.user.id] + ', but is ' + store.state.lastMutationId + '.');
             alert("Hmm... looks like you're out of sync. Refresh to make sure you have the latest.");
         }
     },

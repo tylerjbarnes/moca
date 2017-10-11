@@ -6,7 +6,7 @@
             <ceri-icon size="16" name="fa-times" hcenter></ceri-icon>
         </div>
         <div class="actions">
-            <router-link v-if="['team','clients'].includes($store.state.route.view)" tag="button" class="big primary button" :to="{name: this.$store.state.route.view + '-new-project'}">+ New Project</router-link>
+            <router-link v-if="['team','clients'].includes($store.state.route.view)" tag="button" class="big primary button" :to="{name: this.$store.state.route.view + '-new-project'}">Create Project</router-link>
         </div>
     </div>
 </template>

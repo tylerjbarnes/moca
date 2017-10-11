@@ -73,6 +73,18 @@ const routes = [
             }
         },
         {
+            path: '/projects/:id',
+            name: 'projects-project',
+            components: {
+                default: ProjectsView,
+                modal: require('./components/ProjectView.vue')
+            },
+            props: {
+                default: false,
+                modal: true
+            }
+        },
+        {
             path: '/team/:id',
             name: 'team-project',
             components: {

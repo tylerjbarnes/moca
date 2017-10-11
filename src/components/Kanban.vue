@@ -2,10 +2,10 @@
 
     <div class="kanban">
         <div class="columns">
-            <kanban-column :title="'delegate'" :projects="projectsToDelegate"></kanban-column>
-            <kanban-column :title="'do'" :projects="projectsToDo"></kanban-column>
-            <kanban-column :title="'approve'" :projects="projectsToApprove"></kanban-column>
-            <kanban-column :title="'send'" :projects="projectsToSend"></kanban-column>
+            <kanban-column :title="'delegate'" :projects="projectsToDelegate" :person="person"></kanban-column>
+            <kanban-column :title="'do'" :projects="projectsToDo" :person="person"></kanban-column>
+            <kanban-column :title="'approve'" :projects="projectsToApprove" :person="person"></kanban-column>
+            <kanban-column :title="'send'" :projects="projectsToSend" :person="person"></kanban-column>
         </div>
     </div>
 
@@ -17,7 +17,7 @@
 
     export default {
         name: 'kanban',
-        props: ['projects'],
+        props: ['projects','person'],
         components: {KanbanColumn},
         computed: {
             projectsToDelegate () {

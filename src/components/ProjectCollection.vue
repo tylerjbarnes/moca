@@ -1,9 +1,11 @@
 <template>
 
     <div class="project-collection">
-        <kanban :projects="projects" v-if="kanban"></kanban>
+        <kanban :projects="projects" v-if="kanban" :person="person"></kanban>
         <div class="items" v-else>
-            <project-card v-for="project in projects" :project="project" :key="project.id"></project-card>
+            <div class="item" v-for="project in projects">
+                <project-card :project="project" :key="project.id"></project-card>
+            </div>
         </div>
     </div>
 
@@ -16,7 +18,7 @@
 
     export default {
         name: 'project-collection',
-        props: ['projects','kanban'],
+        props: ['projects','kanban','person'],
         components: {Kanban,ProjectCard}
     }
 
@@ -31,12 +33,16 @@
         > .items {
             display: flex;
             flex-wrap: wrap;
-            justify-content: space-between;
-            margin-bottom: 10px;
+            margin: -10px;
 
-            .project-card {
-                flex: 0 0 calc(25% - 20px);
-                margin-top: 10px; margin-bottom: 10px;
+            .item {
+                flex: 0 0 25%;
+                padding: 0 12px;
+
+                .project-card {
+
+                }
+
             }
 
         }
