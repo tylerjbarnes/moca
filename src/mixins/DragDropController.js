@@ -6,8 +6,7 @@ export default {
         previousDropzoneEls: [],
         payload: null,
         mousePosition: {x:0, y:0},
-        delta: {x:0, y:0},
-        debounce: null
+        delta: {x:0, y:0}
     }},
     methods: {
         startDrag (e, dragDelegate) {
@@ -29,13 +28,6 @@ export default {
             this.delta.y = this.mousePosition.y - this.dragStart.y - offset(this.$el).top;
         },
         moveDrag (e) {
-
-            // Debounce
-            if (this.debounce) {
-                return;
-            } else {
-                this.debounce = setTimeout(function () {}, 1000/60);
-            }
 
             // Update Drag Delta
             this.dragDelegate.dragDelta = this.delta;
@@ -69,7 +61,6 @@ export default {
             this.dragDelegate = null;
             this.dragStart = null;
             this.delta = {x:0, y:0};
-            this.debounce = null;
             bus.$emit('didEndDrag', e);
 
             if (this.dropDelegateEl) {
