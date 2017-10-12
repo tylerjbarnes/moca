@@ -1,7 +1,7 @@
 <template>
 
     <div class="project-actions">
-        <button class="button" @click="edit" v-if="$store.state.user.canManage" :style="{backgroundColor: project.manager.color}">Edit Project</button>
+        <button class="button" @click="edit(false)" v-if="$store.state.user.canManage" :style="{backgroundColor: project.manager.color}">Edit Project</button>
         <button class="button" :style="{backgroundImage: gradientString()}" @click="$emit('addResource')">Add Resource</button>
         <div class="request-time" v-if="!$store.state.user.canManage && project.status == 'do'">
             <button class="button" :class="{dangerous: !requesting}" @click="toggleRequesting" :disabled="this.project.hasPendingTimeRequest">{{ requesting ? 'Cancel Request' : 'Request Time'}}</button>
@@ -29,10 +29,14 @@
             toggleRequesting () {
                 this.requesting = this.requesting ? false : true;
             },
-            edit () {
-                this.$router.push({ name: this.$store.state.route.view + '-project-editor', params: { id: this.project.id }});
+            edit (focusContractor) {
+                this.$router.push({ name: this.$store.state.route.view + '-project-editor', params: { id: this.project.id, focusContractor }});
             },
-            moveProjectForward () { this.project.moveForward(); },
+            moveProjectForward () {
+                this.project.status == 'delegate' ?
+                    this.edit(true) :
+                    this.project.moveForward();
+            },
             moveProjectBackward () { this.project.moveBackward(); },
             gradientString () {
                 return 'linear-gradient(20deg,' +

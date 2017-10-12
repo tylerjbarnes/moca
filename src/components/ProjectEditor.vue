@@ -52,7 +52,7 @@
                             </div>
                             <div class="field-column">
                                 <label>Contractor</label>
-                                <person-input roles="['contractor']" v-model="projectPrimitive.contractor_id"></person-input>
+                                <person-input ref="contractorInput" roles="['contractor']" v-model="projectPrimitive.contractor_id"></person-input>
                             </div>
                         </div>
                     </div>
@@ -133,7 +133,7 @@
 
     export default {
         name: 'project-editor',
-        props: ['id'],
+        props: ['id','focusContractor'],
         components: {HoursInput,PersonInput,DateInput,AutocycleInput,FlaggedInput},
         data () {
             return {
@@ -190,6 +190,9 @@
                 let currentTab = router.currentRoute.path.split("/")[1];
                 router.push({ name: currentTab + '-project', params: {id: this.projectPrimitive.id} });
 
+            },
+            focusOnContractor () {
+                this.$refs.contractorInput.focus();
             }
         },
         created () {
@@ -198,7 +201,10 @@
             }
         },
         mounted () {
-            this.$refs.nameEditor.focus();
+            console.log(this.focusContractor);
+            this.focusContractor ?
+                this.focusOnContractor() :
+                this.$refs.nameEditor.focus();
         }
     }
 

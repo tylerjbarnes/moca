@@ -67,6 +67,7 @@
                     this.clearSelection();
             },
             focus () {
+                this.$refs.input.focus();
                 this.isFocused = true;
             },
             softSelect (index) {
