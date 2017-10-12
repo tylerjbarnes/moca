@@ -32,8 +32,8 @@
             </div>
         </div>
     </div>
-    <div class="message-view mutation" v-else>
-        <div class="description">{{ message.mutationDescription }} <span class="time">{{ message.datetime | time }} ago</span></div>
+    <div class="message-view mutation" :class="[message.mutationDescription.style]" v-else>
+        <div class="description">{{ message.mutationDescription.string }} <span class="time">{{ message.datetime | time }} ago</span></div>
     </div>
 
 </template>
@@ -88,6 +88,19 @@
 
         &.mutation {
             margin-left: 20px;
+            &.section-heading {
+                border-bottom: 1px solid darken($gray,5%);
+                margin: 0 10px;
+                padding: 5px 10px;
+
+                .time { display: none; }
+                .description {
+                    color: $dark;
+                    font-size: 1em;
+                    text-transform: none;
+                }
+            }
+
             .description {
                 color: $medium-dark;
                 font-size: 0.9em;

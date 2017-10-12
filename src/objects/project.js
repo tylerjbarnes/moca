@@ -145,9 +145,9 @@ class Project extends MocaObject {
     recycleDate (date) {
         if (!date) { return null; }
         switch (this.autocycle) {
-            case 'daily': return moment(date).add(1, 'd');
-            case 'weekly': return moment(date).add(1, 'w');
-            case 'monthly': return moment(date).add(1, 'M');
+            case 'daily': return moment(date).add(1, 'd').format('YYYY-MM-DD');
+            case 'weekly': return moment(date).add(1, 'w').format('YYYY-MM-DD');
+            case 'monthly': return moment(date).add(1, 'M').format('YYYY-MM-DD');
             default: return date;
         }
     }
@@ -222,6 +222,10 @@ class Project extends MocaObject {
                 mutation.action == 'update' &&
                 mutation.property_name == 'resolved' &&
                 this.messages.find(message => message.id == mutation.object_id).type == 'request'
+            ) ||
+            ( // Recycle or Archive
+                mutation.object_type == 'project' &&
+                mutation.property_name == 'cycle'
             )
         )) { return; }
 
@@ -247,7 +251,8 @@ class Project extends MocaObject {
             this.lastMutationMessage &&
             this.lastMutationMessage.content.object_id == messagePrimitive.content.object_id &&
             this.lastMutationMessage.author_id == store.state.user.id &&
-            this.lastMutationMessage.content.property_name != 'status'
+            this.lastMutationMessage.content.property_name != 'status' &&
+            this.lastMutationMessage.content.property_name != 'cycle'
         ) {
             delete messagePrimitive.id;
             new MocaMutationSet(

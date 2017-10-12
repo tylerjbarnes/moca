@@ -17,23 +17,30 @@ class Message extends MocaObject {
         if (this.type !== 'mutation') { return; }
 
         let string = '';
+        let style = 'simple';
         let name = this.author.id == store.state.user.id ? 'You' : this.author.firstName;
         switch (this.content.object_type) {
             case 'project':
-                let action = [
-                    this.content.property_name,
-                    this.content.old_value,
-                    this.content.new_value
-                ].join();
-                switch (action) {
-                    case 'status,do,approve':
-                        string = this.author.canManage ?
-                            name + ' marked this complete' :
-                            name + ' submitted for approval';
-                        break;
-                    case 'status,approve,do': string = name + ' rejected this'; break;
-                    case 'status,approve,send': string = name + ' approved this'; break;
-                    default: break;
+                if (this.content.property_name == 'cycle') {
+                    string = 'Cycle ' + (this.content.new_value + 1);
+                    style = 'section-heading';
+                } else {
+                    // Status
+                    let action = [
+                        this.content.property_name,
+                        this.content.old_value,
+                        this.content.new_value
+                    ].join();
+                    switch (action) {
+                        case 'status,do,approve':
+                            string = this.author.canManage ?
+                                name + ' marked this complete' :
+                                name + ' submitted for approval';
+                            break;
+                        case 'status,approve,do': string = name + ' rejected this'; break;
+                        case 'status,approve,send': string = name + ' approved this'; break;
+                        default: break;
+                    }
                 }
                 break;
             case 'resource':
@@ -54,7 +61,10 @@ class Message extends MocaObject {
             default: break;
         }
 
-        return string ? string : 'Unrecognized Activity';
+        return {
+            string: string || 'Unrecognized Activity',
+            style
+        };
 
     }
 
