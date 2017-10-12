@@ -68,6 +68,8 @@ export default {
             this.dragDelegate.surrenderDragDelegacy();
             this.dragDelegate = null;
             this.dragStart = null;
+            this.delta = {x:0, y:0};
+            this.debounce = null;
             bus.$emit('didEndDrag', e);
 
             if (this.dropDelegateEl) {
