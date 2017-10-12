@@ -24,7 +24,7 @@ export default {
                 if (this.previousDropDelegateEl !== this.dropDelegateEl) {
 
                     // release old
-                    if (this.previousDropDelegateEl) {
+                    if (this.previousDropDelegateEl && !this.previousDropDelegateEl.contains(this.dropDelegateEl)) {
                         dragexitEvent = new CustomEvent('dragexit');
                         this.previousDropDelegateEl.dispatchEvent(dragexitEvent);
                     }

@@ -21,19 +21,24 @@
                 <router-view name="modal"></router-view>
             </div>
         </transition>
+        <transition name="slide-up">
+            <delegator v-if="showDelegator"></delegator>
+        </transition>
     </div>
 </template>
 
 
 <script>
     import Toolbar from './components/Toolbar.vue';
+    import Delegator from './components/Delegator.vue';
     import DragDropController from './mixins/DragDropController.js';
 
     export default {
         name: 'app',
-        components: {Toolbar},
+        components: {Toolbar,Delegator},
         data () { return {
-            appReady: false
+            appReady: false,
+            showDelegator: false
         }},
         computed: {
             modalOpen () {
@@ -56,6 +61,14 @@
                         router.replace({name: 'projects'});
                 }
                 this.appReady = true;
+            });
+            bus.$on('setDragStart', (x, y, project) => {
+                if (!project.contractor_id) {
+                    this.showDelegator = true;
+                }
+            });
+            bus.$on('endDrag', () => {
+                this.showDelegator = false;
             });
         }
     }
@@ -164,6 +177,17 @@
                 opacity: 0;
                 transform: scale(0.925);
             }
+        }
+
+        // Delegator Transition
+        .slide-up-enter-active {
+            transition: transform 0.2s ease-out;
+        }
+        .slide-up-leave-active {
+            transition: transform 0.2s ease-in;
+        }
+        .slide-up-enter, .slide-up-leave-to {
+            transform: translateY(100%);
         }
 
     }

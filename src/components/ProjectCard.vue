@@ -1,6 +1,6 @@
 <template>
 
-    <div @mousedown="considerDragDelegacy" @mouseup="cancelDragDelegacy" @click="open" tag="div" class="project-card" :class="{dragging}" :style="{transform:'translate(' + dragDelta.x + 'px,' + dragDelta.y + 'px)'}">
+    <div @mousedown="considerDragDelegacy" @mouseup="cancelDragDelegacy" @click="open" tag="div" class="project-card" :class="{dragging, delegating}" :style="{transform:'translate(' + dragDelta.x + 'px,' + dragDelta.y + 'px)'}">
         <div class="flag" :class="{ active: project.flagged }">
             <ceri-icon name="fa-flag" size="10" hcenter></ceri-icon>
         </div>
@@ -46,6 +46,7 @@
         },
         data () { return {
             dragging: false,
+            delegating: false,
             dragDelta: {x:0, y:0},
             visible: true,
             dragTimeout: null
@@ -81,8 +82,10 @@
                     bus.$off('updateDragDelta');
                     bus.$off('clearDrag');
                     bus.$off('setDragDelegateVisibility');
-                    setTimeout(function () { me.dragging = false; }, 0);
+                    setTimeout(function () { me.dragging = false; me.delegating = false; bus.$emit('endDrag'); }, 0);
                 });
+                bus.$on('delegationInvite', () => { if (this.dragging) {this.delegating = true; } });
+                bus.$on('delegationUninvite', () => { this.delegating = false; });
             }
         }
     }
@@ -121,6 +124,18 @@
             border: 2px dashed $medium;
             margin: 19px -1px !important;
             opacity: 0.5;
+            * {
+                visibility: hidden;
+            }
+        }
+        &.delegating {
+            background: none;
+            border: 2px dashed $medium;
+            height: 40px; width: 40px;
+            margin: 19px -1px !important;
+            opacity: 0.5;
+            top: calc(20px);
+            left: calc(50% - 20px);
             * {
                 visibility: hidden;
             }

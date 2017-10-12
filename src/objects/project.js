@@ -168,7 +168,7 @@ class Project extends MocaObject {
                 mutation.object_type == 'project' &&
                 mutation.property_name == 'status' &&
                 (
-                    oldValue == 'approve' ||
+                    oldValue == 'approve' && (mutation.property_value == 'do' || mutation.property_value == 'send') ||
                     oldValue == 'do' && mutation.property_value == 'approve'
                 )
             ) ||

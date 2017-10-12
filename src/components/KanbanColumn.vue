@@ -27,7 +27,11 @@
         computed: {
             items () {
                 return [...this.pendingProjects, ...this.projects]
-                    .sort((a,b) => new Date(a.earliestDue) > new Date(b.earliestDue));
+                    .sort((a,b) => {
+                        let dateA = a.earliestDue ? a.earliestDue : null;
+                        let dateB = b.earliestDue ? b.earliestDue : null;
+                        return dateA == dateB ? a.name > b.name : dateA > dateB || dateA == null;
+                    });
             },
             tagsToShow () {
                 switch (this.person.role) {
@@ -50,7 +54,7 @@
                 let changingClient = this.person.role == 'client' && this.person.id != project.client_id;
                 let changingManager = this.person.role == 'manager' && this.person.id != project.manager_id;
                 let changingContractor = this.person.role == 'contractor' && this.person.id != project.contractor_id;
-                let changingStatus = this.title != project.status;
+                let changingStatus = this.title != project.status && (this.title != 'do' || project.contractor_id);
                 return (changingManager || changingContractor || changingStatus) && !changingClient;
             },
             dragover ({detail:project}) {
@@ -77,7 +81,7 @@
                         project.id, {
                             status: this.title,
                             manager_id: changingManager ? this.person.id : project.manager_id,
-                            contractor_id: changingContractor ? this.person.id : project.contractor_id
+                            contractor_id: this.title == 'delegate' ? null : (changingContractor ? this.person.id : project.contractor_id)
                         }
                     ).commit();
                 }
