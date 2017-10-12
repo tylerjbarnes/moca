@@ -31,7 +31,7 @@
 <script>
     import Toolbar from './components/Toolbar.vue';
     import Delegator from './components/Delegator.vue';
-    import DragDropController from './mixins/DragDropController.js';
+    import Project from './objects/project.js';
 
     export default {
         name: 'app',
@@ -45,7 +45,6 @@
                 return this.$store.state.route.itemId !== null;
             }
         },
-        mixins: [DragDropController],
         watch: {
             modalOpen: (newVal) => {
                 newVal ?
@@ -62,12 +61,12 @@
                 }
                 this.appReady = true;
             });
-            bus.$on('setDragStart', (x, y, project) => {
-                if (!project.contractor_id) {
+            bus.$on('didStartDrag', (payload) => {
+                if (payload instanceof Project && !payload.contractor_id) {
                     this.showDelegator = true;
                 }
             });
-            bus.$on('endDrag', () => {
+            bus.$on('didEndDrag', (e) => {
                 this.showDelegator = false;
             });
         }

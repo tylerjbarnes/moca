@@ -1,6 +1,6 @@
 <template>
 
-    <div @mousedown="considerDragDelegacy" @mouseup="cancelDragDelegacy" @click="open" tag="div" class="project-card" :class="{dragging, delegating}" :style="{transform:'translate(' + dragDelta.x + 'px,' + dragDelta.y + 'px)'}">
+    <div @click="open" tag="div" class="project-card" :class="{dragging: isDragDelegate, delegating}" :style="{transform:'translate(' + dragDelta.x + 'px,' + dragDelta.y + 'px)'}">
         <div class="flag" :class="{ active: project.flagged }">
             <ceri-icon name="fa-flag" size="10" hcenter></ceri-icon>
         </div>
@@ -30,6 +30,7 @@
 
 <script>
     import PersonTag from './PersonTag.vue';
+    import Draggable from '../mixins/Draggable.js';
 
     export default {
         name: 'project-card',
@@ -44,48 +45,31 @@
                 }
             }
         },
+        computed: {
+            payload () {
+                return this.project;
+            }
+        },
         data () { return {
             dragging: false,
             delegating: false,
             dragDelta: {x:0, y:0},
-            visible: true,
-            dragTimeout: null
+            visible: true
         }},
         components: {PersonTag},
+        mixins: [Draggable],
         methods: {
             open () {
-                if (this.dragging) { return; }
+                // if (this.isDragDelegate) { return; }
                 this.$router.push({ name: this.$store.state.route.view + '-project', params: { id: this.project.id }});
             },
-            considerDragDelegacy (event) {
-                this.dragTimeout = setTimeout(() => {
-                    this.becomeDragDelegate(event);
-                }, 200);
-            },
-            cancelDragDelegacy () {
-                if (this.dragTimeout) {
-                    clearTimeout(this.dragTimeout);
-                }
-            },
-            becomeDragDelegate (event) {
-                this.dragging = true;
-                bus.$emit('setDragStart', event.clientX, event.clientY, this.project)
-                let me = this;
-                bus.$on('updateDragDelta', (dragDelta) => {
-                    me.dragDelta = dragDelta;
-                });
-                bus.$on('setDragDelegateVisibility', (visible) => {
-                    this.$el.style.visibility = visible ? 'visible': 'hidden';
-                });
-                bus.$on('clearDrag', (dragDelta) => {
-                    me.dragDelta = {x:0,y:0};
-                    bus.$off('updateDragDelta');
-                    bus.$off('clearDrag');
-                    bus.$off('setDragDelegateVisibility');
-                    setTimeout(function () { me.dragging = false; me.delegating = false; bus.$emit('endDrag'); }, 0);
-                });
-                bus.$on('delegationInvite', () => { if (this.dragging) {this.delegating = true; } });
+            didAssumeDragDelegacy () {
+                bus.$on('delegationInvite', () => { this.delegating = true; });
                 bus.$on('delegationUninvite', () => { this.delegating = false; });
+            },
+            didSurrenderDragDelegacy () {
+                bus.$off('delegationInvite');
+                bus.$off('delegationUninvite');
             }
         }
     }
@@ -129,16 +113,17 @@
             }
         }
         &.delegating {
-            background: none;
-            border: 2px dashed $medium;
-            height: 40px; width: 40px;
-            margin: 19px -1px !important;
-            opacity: 0.5;
-            top: calc(20px);
-            left: calc(50% - 20px);
-            * {
-                visibility: hidden;
-            }
+            opacity: 0;
+            // background: none;
+            // border: 2px dashed $medium;
+            // height: 40px; width: 40px;
+            // margin: 19px -1px !important;
+            // opacity: 0.5;
+            // top: calc(20px);
+            // left: calc(50% - 20px);
+            // * {
+            //     visibility: hidden;
+            // }
         }
 
         // Badges

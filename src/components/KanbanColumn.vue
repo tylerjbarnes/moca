@@ -1,6 +1,6 @@
 <template>
 
-    <div class="kanban-column column dropzone" @dragover="dragover" @dragexit="dragexit" @drop="drop" :class="{inviteDrop}">
+    <div class="kanban-column column dropzone" @dragenter="dragenter" @dragexit="dragexit" @drop="drop" :class="{inviteDrop}">
         <header><span>{{ title }}</span></header>
         <div class="items">
             <!-- <transition-group name="list"> -->
@@ -57,7 +57,7 @@
                 let changingStatus = this.title != project.status && (this.title != 'do' || project.contractor_id);
                 return (changingManager || changingContractor || changingStatus) && !changingClient;
             },
-            dragover ({detail:project}) {
+            dragenter ({detail:project}) {
                 if (!this.canAcceptProject(project)) { return; }
                 this.inviteDrop = true;
                 this.pendingProjects.push(project);
@@ -71,21 +71,16 @@
                 let changingManager = this.person.role == 'manager' && this.person.id != project.manager_id;
                 let changingContractor = this.person.role == 'contractor' && this.person.id != project.contractor_id;
 
-                if (!changingContractor && this.title == 'do' && !project.contractor_id) {
-                    console.log('get fancy');
-                } else {
-                    this.inviteDrop = false;
-                    this.pendingProjects = [];
-                    new MocaMutationSet(
-                        'update', 'project',
-                        project.id, {
-                            status: this.title,
-                            manager_id: changingManager ? this.person.id : project.manager_id,
-                            contractor_id: this.title == 'delegate' ? null : (changingContractor ? this.person.id : project.contractor_id)
-                        }
-                    ).commit();
-                }
-
+                this.inviteDrop = false;
+                this.pendingProjects = [];
+                new MocaMutationSet(
+                    'update', 'project',
+                    project.id, {
+                        status: this.title,
+                        manager_id: changingManager ? this.person.id : project.manager_id,
+                        contractor_id: this.title == 'delegate' ? null : (changingContractor ? this.person.id : project.contractor_id)
+                    }
+                ).commit();
             }
         }
     }

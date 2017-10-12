@@ -41,6 +41,7 @@
 <script>
     import ProjectCollection from '../components/ProjectCollection.vue';
     import TimeBar from '../components/TimeBar.vue';
+    import DragDropController from '../mixins/DragDropController.js';
 
     export default {
         name: 'person-panel',
@@ -52,7 +53,8 @@
                     capitalizeFirstLetter(this.person.role);
             }
         },
-        components: {ProjectCollection, TimeBar}
+        components: {ProjectCollection, TimeBar},
+        mixins: [DragDropController]
     }
 
 </script>

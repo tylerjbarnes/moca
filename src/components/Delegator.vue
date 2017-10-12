@@ -2,8 +2,8 @@
 
     <div class="delegator">
         <div class="card">
-            <div ref="generalDropzone" class="contractors dropzone" @dragover="generalDragover" @dragexit="generalDragexit">
-                <div class="contractor dropzone" v-for="contractor in sortedContractors" @dragover="dragover($event,contractor)" @dragexit="dragexit($event,contractor)" @drop="drop($event,contractor)">
+            <div class="contractors dropzone" @dragenter="generalDragenter" @dragexit="generalDragexit">
+                <div class="contractor dropzone" v-for="contractor in sortedContractors" @dragenter="dragenter($event,contractor)" @dragexit="dragexit($event,contractor)" @drop="drop($event,contractor)">
                     <div class="avatar-wrapper">
                         <div class="avatar">
                             <img :src="contractor.avatar">
@@ -34,7 +34,7 @@
             }
         },
         methods: {
-            dragover (e,contractor) {
+            dragenter (e,contractor) {
                 e.target.classList.add('selected');
             },
             dragexit (e,contractor) {
@@ -43,7 +43,7 @@
             generalDragexit () {
                 bus.$emit('delegationUninvite');
             },
-            generalDragover () {
+            generalDragenter () {
                 bus.$emit('delegationInvite');
             },
             drop ({detail:project}, contractor) {

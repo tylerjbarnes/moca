@@ -1,76 +1,101 @@
 export default {
     data () { return {
         dragStart: null,
+        dragDelegate: null,
         dropDelegateEl: null,
-        previousDropDelegateEl: null,
+        previousDropzoneEls: [],
         payload: null
     }},
     methods: {
-        updateDragDelta (event) {
-            if (!this.dragStart) { return; }
-            let x = event.pageX - this.dragStart.x;``
+        startDrag (e, dragDelegate) {
+            this.dragStart = {
+                x: e.clientX,
+                y: e.clientY
+            }
+            this.dragDelegate = dragDelegate;
+            this.payload = dragDelegate.payload;
+            bus.$emit('didStartDrag', dragDelegate.payload);
+        },
+        moveDrag (e) {
+
+            // Update Drag Delta
+            let x = event.pageX - this.dragStart.x;
             let y = event.pageY - this.dragStart.y;
-            bus.$emit('updateDragDelta', {x, y});
+            this.dragDelegate.dragDelta = {x,y};
 
-            let dragexitEvent = new CustomEvent('dragexit');
+            // "Pass-Through" Drag Delegate (temporarily hide)
+            this.dragDelegate.$el.style.display = 'none';
 
+            // Find Current Dropzone Elements
+            let dropzoneEls = dropzonesForElement(document.elementFromPoint(event.pageX,event.pageY));
 
-            bus.$emit('setDragDelegateVisibility', false); /////////////////
+            // Dispatch "Enter" to Added Dropzone Elements
+            let addedDropzoneEls = dropzoneEls.filter(el => !this.previousDropzoneEls.includes(el));
+            for (let el of addedDropzoneEls) { el.dispatchEvent(new CustomEvent('dragenter', {detail:this.payload})); }
 
-            // console.log(document.elementFromPoint(event.pageX,event.pageY));
+            // Dispatch "Exit" to Removed Dropzone Elements
+            let removedDropzoneEls = this.previousDropzoneEls.filter(el => !dropzoneEls.includes(el));
+            for (let el of removedDropzoneEls) { el.dispatchEvent(new CustomEvent('dragexit')); }
 
-                this.dropDelegateEl = closestDropZone(document.elementFromPoint(event.pageX,event.pageY));
+            // Set Drop Delegate
+            this.dropDelegateEl = dropzoneEls.length ? dropzoneEls[0] : null;
 
-                if (this.previousDropDelegateEl !== this.dropDelegateEl) {
+            // Update "Previous" Set of Dropzone Elements
+            this.previousDropzoneEls = dropzoneEls;
 
-                    // release old
-                    if (this.previousDropDelegateEl && !this.previousDropDelegateEl.contains(this.dropDelegateEl)) {
-                        dragexitEvent = new CustomEvent('dragexit');
-                        this.previousDropDelegateEl.dispatchEvent(dragexitEvent);
-                    }
-
-                    // attach new
-                    if (this.dropDelegateEl) {
-                        let dragoverEvent = new CustomEvent('dragover',{detail:this.payload});
-                        this.dropDelegateEl.dispatchEvent(dragoverEvent);
-                    }
-                }
-
-                this.previousDropDelegateEl = this.dropDelegateEl;
-
-            bus.$emit('setDragDelegateVisibility', true); //////////////////
+            // Remove Pass-Through
+            this.dragDelegate.$el.style.display = null;
 
         },
-        endDrag () {
-            if (!this.dragStart) {return}
+        endDrag (e) {
+            this.dragDelegate.surrenderDragDelegacy();
+            this.dragDelegate = null;
             this.dragStart = null;
-            bus.$emit('clearDrag');
+            bus.$emit('didEndDrag', e);
+
             if (this.dropDelegateEl) {
-                let dropEvent = new CustomEvent('drop', {detail:this.payload});
-                this.dropDelegateEl.dispatchEvent(dropEvent);
+                this.dropDelegateEl.dispatchEvent(
+                    new CustomEvent('drop', {detail:this.payload})
+                );
+                this.dropDelegateEl = null;
             }
+
         }
     },
     created () {
-        bus.$on('setDragStart', (x, y, payload) => {
-            this.dragStart = {x,y};
-            this.payload = payload;
+
+        // Start Drag
+        bus.$on('startDrag', (e, dragDelegate) => {
+            if (!this.$el.contains(e.target)) { return; }
+            this.startDrag(e, dragDelegate);
         });
 
-        let me = this;
+        // Move Drag
         document.addEventListener('mousemove', (e) => {
-            me.updateDragDelta(e);
+            if (!this.dragDelegate) { return; }
+            this.moveDrag(e);
         });
+
+        // End Drag
+        document.addEventListener("mouseup", (e) => {
+            if (!this.dragDelegate) { return; }
+            let me = this;
+            setTimeout(function () { me.endDrag(e); }, 0);
+        });
+
+        // Cancel Drag
         document.addEventListener('mouseout', (e) => {
+            if (!this.dragDelegate) { return; }
             let from = e.relatedTarget || e.toElement;
-            if (!from || from.nodeName == "HTML") {
-                me.endDrag();
-            }
+            if (!from || from.nodeName == "HTML") { this.endDrag(e); }
         });
-        document.addEventListener("mouseup", function(e) {
-            if (me.dragStart) {
-                me.endDrag();
-            }
+
+        // If Dragging, Cancel Click
+        document.addEventListener("click", (e) => {
+            if (!this.$el.contains(e.target)) { return; }
+            if (!this.dragDelegate) { return; }
+            e.stopPropagation();
         }, true);
+
     }
 }
