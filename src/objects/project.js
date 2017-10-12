@@ -142,19 +142,57 @@ class Project extends MocaObject {
 
     // Status
 
-    move (backward) {
+    recycleDate (date) {
+        if (!date) { return null; }
+        switch (this.autocycle) {
+            case 'daily': return moment(date).add(1, 'd');
+            case 'weekly': return moment(date).add(1, 'w');
+            case 'monthly': return moment(date).add(1, 'M');
+            default: return date;
+        }
+    }
+
+    recycleOrArchive () {
+        this.autocycle ?
+            new MocaMutationSet(
+                'update', 'project',
+                this.id, {
+                    'contractor_id': null,
+                    'status': this.nextStatus,
+                    'cycle': this.cycle + 1,
+                    'start': this.recycleDate(this.start),
+                    'target': this.recycleDate(this.target),
+                    'due': this.recycleDate(this.due)
+                }
+            ).commit() :
+            new MocaMutationSet(
+                'update', 'project',
+                this.id, {
+                    'status': this.nextStatus,
+                    'archived': true
+                }
+            ).commit();
+    }
+
+    moveForward () {
+        this.status == 'send' ?
+            this.recycleOrArchive() :
+            new MocaMutationSet(
+                'update', 'project',
+                this.id, {
+                    'status': this.nextStatus
+                }
+            ).commit();
+    }
+    moveBackward () {
         new MocaMutationSet(
-            'update', 'project', /// implement proper recycle or archive function
+            'update', 'project',
             this.id, {
-                'status': backward ? this.previousStatus : this.nextStatus,
-                'cycle': !backward && this.status == 'send' ? this.cycle + 1 : this.cycle,
-                'archived': this.autocycle ? false : true,
+                'status': this.previousStatus,
                 'contractor_id': this.previousStatus == 'delegate' ? null : this.contractor_id
             }
         ).commit();
     }
-    moveForward () { this.move(false); }
-    moveBackward () { this.move(true); }
 
 
     ///////////////////////

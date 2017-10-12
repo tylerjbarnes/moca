@@ -82,6 +82,7 @@
     textarea {
         display: block;
         height: 90px;
+        min-height: calc(1em + 20px);
         padding: 10px;
         resize: vertical;
         width: 100%;

@@ -98,7 +98,7 @@
                     <div class="fields">
                         <div class="field-columns">
                             <div class="field-column single">
-                                <label>Autocycle</label>
+                                <label>Recycle</label>
                                 <autocycle-input v-model="projectPrimitive.autocycle"></autocycle-input>
                             </div>
                         </div>
