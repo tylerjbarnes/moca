@@ -4,24 +4,41 @@ export default {
         dragDelegate: null,
         dropDelegateEl: null,
         previousDropzoneEls: [],
-        payload: null
+        payload: null,
+        mousePosition: {x:0, y:0},
+        delta: {x:0, y:0},
+        debounce: null
     }},
     methods: {
         startDrag (e, dragDelegate) {
             this.dragStart = {
                 x: e.clientX,
-                y: e.clientY
+                y: e.clientY - offset(this.$el).top
             }
             this.dragDelegate = dragDelegate;
             this.payload = dragDelegate.payload;
             bus.$emit('didStartDrag', dragDelegate.payload);
         },
+        updateDeltaViaMove (e) {
+            this.mousePosition.x = e.pageX;
+            this.mousePosition.y = e.pageY;
+            this.delta.x = this.mousePosition.x - this.dragStart.x;
+            this.delta.y = this.mousePosition.y - this.dragStart.y - offset(this.$el).top;
+        },
+        updateDeltaViaScroll () {
+            this.delta.y = this.mousePosition.y - this.dragStart.y - offset(this.$el).top;
+        },
         moveDrag (e) {
 
+            // Debounce
+            if (this.debounce) {
+                return;
+            } else {
+                this.debounce = setTimeout(function () {}, 1000/60);
+            }
+
             // Update Drag Delta
-            let x = event.pageX - this.dragStart.x;
-            let y = event.pageY - this.dragStart.y;
-            this.dragDelegate.dragDelta = {x,y};
+            this.dragDelegate.dragDelta = this.delta;
 
             // "Pass-Through" Drag Delegate (temporarily hide)
             this.dragDelegate.$el.style.display = 'none';
@@ -62,7 +79,7 @@ export default {
 
         }
     },
-    created () {
+    mounted () {
 
         // Start Drag
         bus.$on('startDrag', (e, dragDelegate) => {
@@ -73,6 +90,13 @@ export default {
         // Move Drag
         document.addEventListener('mousemove', (e) => {
             if (!this.dragDelegate) { return; }
+            this.updateDeltaViaMove(e);
+            this.moveDrag(e);
+        });
+        document.body.addEventListener('scroll', (e) => {
+            if (!this.dragDelegate) { return; }
+            if (!this.$el.contains(this.dragDelegate.$el)) { return; }
+            this.updateDeltaViaScroll();
             this.moveDrag(e);
         });
 
