@@ -161,7 +161,7 @@
             save () {
 
                 // Logic Checks
-                if (this.projectPrimitive.contractor_id && !this.id) {
+                if (this.projectPrimitive.contractor_id && (!this.id || this.projectPrimitive.status == 'delegate')) {
                     this.projectPrimitive.status = 'do';
                 }
                 if (!this.projectPrimitive.contractor_id) {
