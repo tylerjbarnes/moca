@@ -148,7 +148,8 @@ class Project extends MocaObject {
             this.id, {
                 'status': backward ? this.previousStatus : this.nextStatus,
                 'cycle': !backward && this.status == 'send' ? this.cycle + 1 : this.cycle,
-                'archived': this.autocycle ? false : true
+                'archived': this.autocycle ? false : true,
+                'contractor_id': this.previousStatus == 'delegate' ? null : this.contractor_id
             }
         ).commit();
     }
