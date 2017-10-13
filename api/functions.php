@@ -41,9 +41,11 @@ function hpm_object( $type, $id ) {
 
     // Add Type-Specific Transformations & Return
     switch ( $type ) {
-        case 'person': return hpm_attach_avatar( $primitive );
-        default: return $primitive;
+        case 'person': $primitive = hpm_attach_avatar( $primitive );
+        default: break;
     }
+
+    return $primitive;
 
 }
 

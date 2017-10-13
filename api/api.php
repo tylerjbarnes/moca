@@ -390,7 +390,9 @@ function hpm_set_last_mutation_ids( $channels, $mutation_id ) {
  */
 function hpm_channels( $mutations ) {
     $mutation = $mutations[0];
-    $object = hpm_object( $mutation->object_type, $mutation->object_id );
+    $object = $mutation->action == 'create' ?
+        $mutation->property_value :
+        hpm_object( $mutation->object_type, $mutation->object_id );
     $channels = [];
     switch ($mutation->object_type) {
         case 'message':
@@ -415,7 +417,8 @@ function hpm_channels( $mutations ) {
         case 'time':
             $channels = ['private-managers'];
             $worker = hpm_object( 'person', $object->worker_id );
-            if ( $worker->role === 'contractor' ) {
+        error_log( $object->id );
+            if ( $worker->role == 'contractor' ) {
                 $channels[] = 'private-contractor-' . $object->worker_id;
             }
             break;
