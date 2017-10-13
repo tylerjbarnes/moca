@@ -51,6 +51,9 @@
             },
             resources () {
                 return this.project.resources.reverse();
+            },
+            contractorId () {
+                return this.project.contractor_id;
             }
         },
         methods: {
@@ -67,6 +70,13 @@
                 this.draftResource = null;
                 let el = this.$refs.resources;
                 setTimeout(function () { el.scrollTop = 0; }, 0);
+            }
+        },
+        watch: {
+            contractorId: (newValue) => {
+                if (!store.state.user.canManage && newValue != store.state.user.id) {
+                    router.replace({name: store.state.route.view});
+                }
             }
         }
     }

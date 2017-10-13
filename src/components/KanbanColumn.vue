@@ -52,7 +52,7 @@
             canAcceptProject (project) {
                 // Must have same client and either a different person or different status
                 let changingClient = this.person.role == 'client' && this.person.id != project.client_id;
-                let changingManager = this.person.role == 'manager' && this.person.id != project.manager_id;
+                let changingManager = this.person.canManage && this.person.id != project.manager_id;
                 let changingContractor = this.person.role == 'contractor' && this.person.id != project.contractor_id;
                 let changingStatus = this.title != project.status && (this.title != 'do' || project.contractor_id);
                 return (changingManager || changingContractor || changingStatus) && !changingClient;
@@ -68,7 +68,7 @@
             },
             drop ({detail:project}) {
                 if (!this.canAcceptProject(project)) { return; }
-                let changingManager = this.person.role == 'manager' && this.person.id != project.manager_id;
+                let changingManager = this.person.canManage && this.person.id != project.manager_id;
                 let changingContractor = this.person.role == 'contractor' && this.person.id != project.contractor_id;
 
                 this.inviteDrop = false;

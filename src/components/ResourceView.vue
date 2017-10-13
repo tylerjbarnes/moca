@@ -103,7 +103,6 @@
                     ).commit();
                     this.closeEditor();
                 } else {
-                    console.log(this.primitive);
                     new MocaMutationSet(
                         'create', 'resource',
                         this.primitive.id, this.primitive

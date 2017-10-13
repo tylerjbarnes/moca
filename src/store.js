@@ -115,10 +115,16 @@ const mutations = {
             'resource',
             'time'
         ]) {
-            state[type + 's'] = data[type + 's'].map(
+            if (!data[type + 's']) { continue; }
+            state[type + 's'] = [...state[type + 's'], ...data[type + 's'].map(
                 primitive => MocaFactory.constructObject(type, primitive)
-            );
+            )];
         }
+    },
+
+    loseProject (state, id) {
+        state.messages = state.messages.filter(message => message.project_id != id);
+        state.resources = state.resources.filter(resource => resource.project_id != id);
     },
 
     // Interface
@@ -155,7 +161,7 @@ const actions = {
                 store.dispatch('persistMutations', mutations);
                 store.dispatch('setLastMutationId', response.mutation_id);
             } else {
-                console.log('Out of sync. Last mutation should be ' + response.integrity[store.state.user.id] + ', but is ' + store.state.lastMutationId + '.');
+                console.log('Out of sync. Last mutation should be ' + response.integrity[store.state.user.id] + ', but is ' + store.state.lastMutationId + '.', response);
                 alert("Hmm... looks like you're out of sync. Refresh to make sure you have the latest.");
             }
         }, response => {
@@ -180,14 +186,57 @@ const actions = {
         forager.setLastMutationId(mutationId);
     },
 
+    // Object Gain
+
+    gainObject (context, object) {
+
+        hpmAPI('object_dependents', [object.object_type, object.object_id]).then(data => {
+            console.log('Gained Object Dependents', data);
+
+            // Add to Local Store
+            context.commit('importObjects', data);
+
+            // Add to IndexedDB
+            for (let type of [
+                'message',
+                'resource'
+            ]) {
+                for (let primitive of data[type + 's']) {
+                    forager.setObject(type, primitive.id, primitive);
+                }
+            }
+
+        });
+
+    },
+
+    loseObject (context, object) {
+
+        // Only Support Projects for Now
+        console.log('Losing Access to Project', object);
+
+        // Remove from IndexedDB
+        for (let type of [
+            'message',
+            'resource'
+        ]) {
+            for (let primitive of store.state[type + 's'].filter(dep => dep.project_id == object.object_id)) {
+                forager.removeObject(type, primitive.id);
+            }
+        }
+
+        // Remove from Local Store
+        context.commit('loseProject', object.object_id);
+
+    },
+
     // Static Objects
 
     importObjects (context, data) {
 
+        console.log('Objects Imported:', data);
+
         // Add to Local Store
-        let objectCount = data.messages.length + data.packages.length + data.persons.length
-            + data.projects.length + data.resources.length + data.times.length;
-        console.log(objectCount + ' Existing Objects Imported');
         context.commit('importObjects', data);
 
         // Add to IndexedDB

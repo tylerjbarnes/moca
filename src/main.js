@@ -33,7 +33,7 @@ window.moca = new Vue({
 });
 
 // Fetch Objects & Mutations...
-let forceRemoteLoad = true;
+let forceRemoteLoad = false;
 function getMocaObjects() {
     return new Promise(function(resolve, reject) {
         forager.exists().then(exists => {

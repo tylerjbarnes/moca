@@ -201,10 +201,12 @@
             }
         },
         mounted () {
-            console.log(this.focusContractor);
-            this.focusContractor ?
-                this.focusOnContractor() :
-                this.$refs.nameEditor.focus();
+            let me = this;
+            setTimeout(function () {
+                me.focusContractor ?
+                    me.focusOnContractor() :
+                    me.$refs.nameEditor.focus();
+            }, 0);
         }
     }
 

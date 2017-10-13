@@ -23,7 +23,41 @@ function hpm_api_objects() {
     $response->resources = hpm_objects('resource');
     $response->times = hpm_objects('time');
 
-    $response->last_mutation_id = hpm_last_mutation_id();
+    $user_id = hpm_user_id();
+    $response->last_mutation_id = ((array) hpm_last_mutation_ids())[$user_id];
+
+    return $response;
+
+}
+
+/**
+ * Get Static Object Dependents from DB
+ * @param  String $object_type
+ * @param  String $object_id
+ * @return Object
+ */
+function hpm_api_object_dependents( $object_type, $object_id ) {
+
+    // Only Projects Supported for Now
+    if ( $object_type !== 'project' ) { return; }
+
+    $response = new stdClass();
+    global $wpdb;
+
+    // Get Each Dependent Type
+    foreach ( ['messages', 'resources'] as $type ) {
+        $table = $wpdb->prefix . 'hpm_' . $type;
+
+        // Get Rows from DB
+        $results = $wpdb->get_results( "SELECT * FROM $table WHERE project_id = '$object_id';" );
+
+        // Typify into Primitives
+        $primitives = array_map( function( $result ) {
+            return hpm_typify_data_from_db( $result );
+        }, $results );
+
+        $response->$type = $primitives;
+    }
 
     return $response;
 
@@ -246,6 +280,36 @@ function hpm_api_mutate ( $mutations, $socket_id ) {
         }
     }
 
+    // Push Lose Prompt
+    $pusher = hpm_get_pusher();
+    foreach ( $mutations as $mutation ) {
+        if ( $mutation->object_type == 'project' && $mutation->property_name == 'contractor_id' ) {
+            $previous_contractor_id = hpm_object( 'project', $mutation->object_id )->contractor_id;
+            if ( $previous_contractor_id ) {
+                $pusher->trigger(
+                    'private-contractor-' . $previous_contractor_id, 'lose',
+                    (object) ['object_type' => $mutation->object_type, 'object_id' => $mutation->object_id],
+                    $socket_id
+                );
+            }
+        }
+    }
+
+    // Store Mutations
+    $table = $wpdb->prefix . "hpm_mutations";
+    foreach( $mutations as $mutation ) {
+        $flattened_mutation = clone $mutation;
+        $flattened_mutation->property_value = json_encode( $flattened_mutation->property_value );
+        $wpdb->insert( $table, (array) $flattened_mutation, array("%s","%s","%s","%s","%s","%s") );
+    }
+    $mutation_id = $wpdb->insert_id;
+
+    // Push Mutations
+    $data = (object) ['mutations' => $mutations, 'mutation_id' => $mutation_id, 'integrity' => hpm_last_mutation_ids()];
+    $channels = hpm_channels( $mutations );
+    hpm_set_last_mutation_ids( $channels, $mutation_id );
+    $pusher->trigger($channels, 'mutate', $data, $socket_id);
+
     // Apply Mutations
     foreach( $mutations as $mutation ) {
         $table = $wpdb->prefix . 'hpm_' . $mutation->object_type . 's';
@@ -263,21 +327,18 @@ function hpm_api_mutate ( $mutations, $socket_id ) {
         }
     }
 
-    // Store Mutations
-    $table = $wpdb->prefix . "hpm_mutations";
-    foreach( $mutations as $mutation ) {
-        $flattened_mutation = clone $mutation;
-        $flattened_mutation->property_value = json_encode( $flattened_mutation->property_value );
-        $wpdb->insert( $table, (array) $flattened_mutation, array("%s","%s","%s","%s","%s","%s") );
+    // Push Gain Prompt
+    foreach ( $mutations as $mutation ) {
+        if ( $mutation->object_type == 'project' && $mutation->property_name == 'contractor_id' ) {
+            if ( $mutation->property_value ) {
+                $pusher->trigger(
+                    'private-contractor-' . $mutation->property_value, 'gain',
+                    (object) ['object_type' => $mutation->object_type, 'object_id' => $mutation->object_id],
+                    $socket_id
+                );
+            }
+        }
     }
-    $mutation_id = $wpdb->insert_id;
-
-    // Push Mutations
-    $pusher = hpm_get_pusher();
-    $data = (object) ['mutations' => $mutations, 'mutation_id' => $mutation_id, 'integrity' => hpm_last_mutation_ids()];
-    $channels = hpm_channels( $mutations );
-    hpm_set_last_mutation_ids( $channels, $mutation_id );
-    $pusher->trigger($channels, 'mutate', $data, $socket_id);
 
     // Respond
     $response = new stdClass();

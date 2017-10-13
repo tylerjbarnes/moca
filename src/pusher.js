@@ -21,6 +21,7 @@ class MocaPusher {
         this.bindPresenceEvents();
         this.bindMutationEvents();
         this.bindStateEvents();
+        this.bindSyncEvents();
     }
 
     subscribeToChannels () {
@@ -51,6 +52,15 @@ class MocaPusher {
     bindMutationEvents () {
         this.pusher.bind('mutate', mutations => {
             store.dispatch('importMutations', mutations);
+        });
+    }
+
+    bindSyncEvents () {
+        this.pusher.bind('gain', object => {
+            store.dispatch('gainObject', object);
+        });
+        this.pusher.bind('lose', object => {
+            store.dispatch('loseObject', object);
         });
     }
 

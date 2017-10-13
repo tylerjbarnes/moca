@@ -89,9 +89,9 @@
         &.mutation {
             margin-left: 20px;
             &.section-heading {
-                border-bottom: 1px solid darken($gray,5%);
-                margin: 0 10px;
-                padding: 5px 10px;
+                // border-bottom: 1px solid darken($gray,5%);
+                // margin: 0 10px;
+                // padding: 5px 10px;
 
                 .time { display: none; }
                 .description {
