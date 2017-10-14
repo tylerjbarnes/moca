@@ -91,6 +91,7 @@
         align-self: flex-start;
         margin: 40px;
         max-height: calc(750px - 80px);
+        max-width: 1000px;
         width: 100%; height: calc(100vh - 80px);
         z-index: 2;
 
@@ -100,7 +101,7 @@
             display: flex;
             overflow: hidden;
             margin: 0 auto;
-            max-height: 750px; max-width: 1000px;
+            max-height: 750px;
             overflow: hidden;
             width: 100%; height: 100%;
             @include shadow;

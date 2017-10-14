@@ -1,7 +1,7 @@
 <template>
 
     <div class="autocycle-input">
-        <div class="container">
+        <div class="autocycle-container">
             <template v-for="option in options">
                 <input type="radio" name="autocycle" :id="option.name" :value="option.value" :checked="option.value == value" @change="updateValue($event.target.value)">
                 <label :for="option.name">{{ option.name | capitalize }}</label>
@@ -44,7 +44,7 @@
     .autocycle-input {
         display: inline-block;
 
-        .container {
+        .autocycle-container {
             background: $light;
             border-radius: 5px;
             display: flex;

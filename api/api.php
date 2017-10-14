@@ -417,7 +417,6 @@ function hpm_channels( $mutations ) {
         case 'time':
             $channels = ['private-managers'];
             $worker = hpm_object( 'person', $object->worker_id );
-        error_log( $object->id );
             if ( $worker->role == 'contractor' ) {
                 $channels[] = 'private-contractor-' . $object->worker_id;
             }
