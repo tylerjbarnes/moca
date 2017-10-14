@@ -1,11 +1,11 @@
 <template>
 
-    <div class="person-input">
+    <div class="project-input">
         <input ref="input" role="text" v-model="searchTerm" @focus="focus" @blur="isFocused = false" @keydown="handleKey" @input="input" :disabled="disabled">
         <div class="panel" v-show="isFocused || panelIsFocused" @mouseover="panelIsFocused = true" @mouseleave="leavePanel();panelIsFocused = false">
-            <span class="empty" v-if="!persons.length">No Matches Found</span>
+            <span class="empty" v-if="!projects.length">No Matches Found</span>
             <div class="items">
-                <div class="item" v-for="(person,index) in persons" @mouseover="softSelect(index)" @click="select(person)" :class="{selected:isSelected(person)}">{{ person.name }}</div>
+                <div class="item" v-for="(project,index) in projects" @mouseover="softSelect(index)" @click="select(project)" :class="{selected:isSelected(project)}">{{ project.name }}</div>
             </div>
         </div>
     </div>
@@ -16,25 +16,24 @@
 <script>
 
     export default {
-        name: 'person-input',
-        props: ['roles','value','disabled'],
+        name: 'project-input',
+        props: ['allProjects','value','disabled'],
         data () {
             return {
                 searchTerm: '',
                 displayValue: '',
                 isFocused: false,
                 panelIsFocused: false,
-                selectedPerson: null
+                selectedProject: null
             }
         },
         computed: {
-            persons () {
-                let options = {extract: (person) => person.name};
-                let allPersons = this.$store.getters.personsByRoles(this.roles);
-                return fuzzy.filter(this.searchTerm, allPersons, options).map(result => result.original);
+            projects () {
+                let options = {extract: (project) => project.name};
+                return fuzzy.filter(this.searchTerm, this.allProjects, options).map(result => result.original);
             },
             placeholderText () {
-                return 'Select a ' + capitalizeFirstLetter(this.role);
+                return 'Select a Project';
             }
         },
         methods: {
@@ -50,19 +49,19 @@
             },
             input () {
                 if (this.searchTerm == '') {
-                    this.selectedPerson = null;
+                    this.selectedProject = null;
                     this.commitSelection();
                     return;
                 }
-                this.selectedPerson = this.persons[0];
+                this.selectedProject = this.projects[0];
             },
             leavePanel () {
-                this.selectedPerson = this.searchTerm ? this.persons[0] : null;
+                this.selectedProject = this.searchTerm ? this.projects[0] : null;
             },
             blur () {
                 this.panelIsFocused = false;
                 this.isFocused = false;
-                this.persons.length && this.searchTerm.length ?
+                this.projects.length && this.searchTerm.length ?
                     this.commitSelection() :
                     this.clearSelection();
             },
@@ -72,20 +71,20 @@
                 this.isFocused = true;
             },
             softSelect (index) {
-                this.selectedPerson = this.persons[index];
+                this.selectedProject = this.projects[index];
             },
-            select (person) {
-                this.selectedPerson = person;
+            select (project) {
+                this.selectedProject = project;
                 this.commitSelection();
                 this.inputIsFocused = false;
                 this.panelIsFocused = false;
             },
-            isSelected (person) {
-                return this.selectedPerson && person.id === this.selectedPerson.id;
+            isSelected (project) {
+                return this.selectedProject && project.id === this.selectedProject.id;
             },
             commitSelection () {
-                this.searchTerm = this.selectedPerson ? this.selectedPerson.name : '';
-                this.$emit('input', this.selectedPerson ? this.selectedPerson.id : null);
+                this.searchTerm = this.selectedProject ? this.selectedProject.name : '';
+                this.$emit('input', this.selectedProject ? this.selectedProject.id : null);
                 this.panelIsFocused = false;
             },
             clearSelection () {
@@ -94,8 +93,8 @@
             }
         },
         created () {
-            let person = this.persons.find(person => person.id === this.value);
-            this.searchTerm = person ? person.name : '';
+            let project = this.projects.find(project => project.id === this.value);
+            this.searchTerm = project ? project.name : '';
         }
     }
 
@@ -105,7 +104,7 @@
 <style lang="scss">
     @import '~styles/settings.scss';
 
-    .person-input {
+    .project-input {
         @include moca-input;
         position: relative;
 

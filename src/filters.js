@@ -7,11 +7,15 @@ Vue.filter('capitalize', (value) => {
 });
 
 Vue.filter('hours', (value) => {
-    return value.toFixed(2);
+    return value !== null ? value.toFixed(2) : '';
 });
 
 Vue.filter('date', (value) => {
     return new moment(value).format('MMM D');
+});
+
+Vue.filter('year', (value) => {
+    return new moment(value).format('YYYY');
 });
 
 Vue.filter('time', (value) => {

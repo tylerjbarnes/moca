@@ -91,7 +91,7 @@
     @import '~styles/settings.scss';
 
     .date-input {
-        min-width: 100px;
+        min-width: 80px;
         position: relative;
         @include moca-input;
 

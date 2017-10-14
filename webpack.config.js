@@ -50,7 +50,10 @@ module.exports = {
             "fa-minus",
             "fa-paper-plane",
             "ma-reply",
-            "fa-check"
+            "fa-check",
+            "fa-pencil",
+            "fa-cube",
+            "fa-calendar-times-o"
           ]
       }
       }

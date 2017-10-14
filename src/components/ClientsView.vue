@@ -36,11 +36,16 @@
     @import '~styles/settings.scss';
 
     #clients-view {
-        overflow-y: auto;
+        align-items: center;
+        display: flex;
+        flex-flow: column;
+        padding: 0 40px 20px 40px;
 
         h1 {
+            align-self: flex-start;
             font-weight: 700;
-            padding: 40px 40px 0 40px;
+            margin: 0;
+            padding: 40px 0 0 0;
 
             &.missing {
                 font-size: 2em;

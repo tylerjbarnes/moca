@@ -66,7 +66,9 @@
     .person-panel {
         border-radius: 5px;
         box-shadow: 0px 0px 15px 0px $gray;
-        margin: 40px;
+        margin: 40px 40px 0 40px;
+        max-width: 800px;
+        width: 100%;
 
         .card-content {
 

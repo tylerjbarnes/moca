@@ -5,6 +5,14 @@ class Time extends MocaObject {
         return this.project_id ? store.getters.project(this.project_id) : null;
     }
 
+    get worker () {
+        return store.getters.person(this.worker_id);
+    }
+
+    get client () {
+        return store.getters.person(this.client_id);
+    }
+
     get isCurrent() {
         return this.project && this.project.isCurrent;
     }
