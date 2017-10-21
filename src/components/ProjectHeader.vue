@@ -136,6 +136,7 @@
                     font-size: 0.9em;
                     font-weight: 700;
                     padding: 4px 14px;
+                    white-space: nowrap;
                 }
 
             }

@@ -1,29 +1,22 @@
 <template>
 
-    <table class="time-table" :class="{locked}">
-        <colgroup>
-            <col width="27">
-            <col width="120">
-            <col width="auto">
-            <col>
-            <col>
-            <col>
-            <col width="65">
-            <col width="65">
-        </colgroup>
-        <tbody>
-            <tr ref="measure">
-                <th class="time-icon"></th>
-                <th>Date</th>
-                <th>Worker</th>
-                <th>Client</th>
-                <th colspan="2">Project or Details</th>
-                <th colspan="2">Hours</th>
-            </tr>
-        </tbody>
-        <time-row v-for="time in times" :initialTime="time" :key="time.id"></time-row>
-        <!-- <time-row :initialTime="timePrimitive" :isDraft="true"></time-row> -->
-    </table>
+    <div class="time-table">
+        <div class="time-row">
+            <div class="header cell time-icon"></div>
+            <div class="header cell date">Date</div>
+            <div class="header cell worker">Worker</div>
+            <div class="header cell client">Client</div>
+            <div class="header cell project">Project or Details</div>
+            <div class="header cell hours">Hours</div>
+        </div>
+        <time-row v-for="time in times" :key="time.id"
+            :time="time"
+            :locked="hasOpenEditor"
+            @startedEditing="hasOpenEditor = true"
+            @stoppedEditing="hasOpenEditor = false;"
+        ></time-row>
+        <time-row v-if="timePrimitive" :_primitive_="timePrimitive" @stoppedEditing="timePrimitive = null"></time-row>
+    </div>
 
 </template>
 
@@ -36,38 +29,18 @@
         name: 'time-table',
         props: ['times'],
         data () { return {
-            locked: false
+            hasOpenEditor: false,
+            timePrimitive:  MocaFactory.constructObject('time', MocaFactory.constructPrimitive('time', {
+                            worker_id: store.state.user.id
+                        }))
         }},
         components: {TimeRow},
         computed: {
-            timePrimitive () {
-                return MocaFactory.constructPrimitive('time', {
-                    worker_id: store.state.user.id
-                });
+            preparedTimes () {
+                return this.draftTime ? [...this.times, this.draftTime] : this.times;
             }
         },
-        methods: {
-            lockLayout () {
-
-                // Measure & Set Cell Widths
-                let measureCells = Array.from(this.$refs.measure.childNodes).filter(node => node.tagName == 'TD');
-                let measures = measureCells.map(cell => cell.offsetWidth / this.$el.offsetWidth * 100);
-
-                let colgroup = Array.from(this.$el.childNodes).filter(node => node.tagName == 'COLGROUP')[0];
-                let cols = Array.from(colgroup.childNodes).filter(node => node.tagName == 'COL');
-
-                for (const [i, col] of cols.entries()) {
-                    col.style.width = measures[i] + '%';
-                }
-
-                // Set Table Locked
-                this.locked = true;
-
-            }
-        },
-        mounted () {
-            this.lockLayout();
-        }
+        methods: {},
     }
 
 </script>
@@ -81,10 +54,6 @@
         border-radius: 5px;
         font-size: 0.9em;
         width: 100%;
-
-        &.locked {
-            table-layout: fixed;
-        }
 
         th {
             padding: 5px 10px;

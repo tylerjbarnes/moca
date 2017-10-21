@@ -3,7 +3,7 @@
     <div class="person-tag" :class="{solid:solid}" :style="{
         backgroundColor: !solid ? '' : person.lightColor,
         borderColor: solid ? 'transparent' : person.color,
-        color: person.darkColor
+        color: solid ? person.darkColor : person.color
     }">
         {{ person.firstName }}
     </div>

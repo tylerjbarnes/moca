@@ -13,6 +13,10 @@ class Time extends MocaObject {
         return store.getters.person(this.client_id);
     }
 
+    get package () {
+        return store.getters.mocaPackage(this.package_id);
+    }
+
     get isCurrent() {
         return this.project && this.project.isCurrent;
     }

@@ -74,6 +74,10 @@
                     default: break;
                 }
             },
+            focus () {
+                this.picker = new moment(this.value).format();
+                this.$refs.input.focus();
+            },
             blur () {
                 this.panelIsFocused = false;
                 this.isFocused = false;

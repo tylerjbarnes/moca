@@ -41,7 +41,7 @@
         padding: 0 40px;
         position: fixed;
             top: 0; right: 0; left: $header-size;
-        z-index: 1;
+        z-index: 3;
 
         ceri-icon {
             opacity: 0.25;

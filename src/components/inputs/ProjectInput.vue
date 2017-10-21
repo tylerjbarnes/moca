@@ -1,7 +1,7 @@
 <template>
 
     <div class="project-input">
-        <input ref="input" role="text" v-model="searchTerm" @focus="focus" @blur="isFocused = false" @keydown="handleKey" @input="input" :disabled="disabled">
+        <input ref="input" role="text" v-model="searchTerm" @focus="focus" @blur="isFocused = false" @keydown="handleKey" @input="input" :disabled="disabled" placeholder="No Project">
         <div class="panel" v-show="isFocused || panelIsFocused" @mouseover="panelIsFocused = true" @mouseleave="leavePanel();panelIsFocused = false">
             <span class="empty" v-if="!projects.length">No Matches Found</span>
             <div class="items">

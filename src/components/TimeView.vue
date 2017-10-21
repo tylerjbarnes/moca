@@ -18,7 +18,7 @@
         components: {TimeTable},
         computed: {
             times () {
-                return store.state.times;
+                return store.getters.times;
             }
         }
     }

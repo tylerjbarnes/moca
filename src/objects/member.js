@@ -11,11 +11,11 @@ class Member extends Person {
     }
 
     get lightColor () {
-        return tinycolor(this.color).lighten(30).toString();
+        return tinycolor(this.color).lighten(32).toString();
     }
 
     get darkColor () {
-        return tinycolor(this.color).darken(20).saturate(20).toString();
+        return tinycolor(this.color).darken(25).saturate(20).toString();
     }
 
     // Projects

@@ -44,6 +44,7 @@ const getters = {
     },
 
     // Packages
+    mocaPackage: (state, getters) => (id) => state.packages.find(mocaPackage => mocaPackage.id === id),
     packagesByClient: (state, getters) => (id) => {
         return state.packages.filter(mocaPackage => mocaPackage.client_id === id);
     },
@@ -69,7 +70,9 @@ const getters = {
     resourcesByProject: (state, getters) => (id) => state.resources.filter(resource => resource.project_id === id),
 
     // Times
-    logsByProject: (state, getters) => (id) => state.times.filter(time => time.project_id === id && time.cycle === time.project.cycle),
+    time: (state, getters) => (id) => state.times.find(time => time.id === id),
+    times: (state, getters) => state.times.sort((a,b) => a.date < b.date || (a.date == b.date && a.cycle < b.cycle)),
+    logsByProject: (state, getters) => (id) => state.times.filter(time => time.project_id === id),
     timesByContractor: (state, getters) => (id) => state.times.filter(time => time.worker_id === id),
     timesByClient: (state, getters) => (id) => state.times.filter(time => time.client_id === id),
     purchaseForPackage: (state, getters) => (id) => state.times.find(time => time.package_id === id)

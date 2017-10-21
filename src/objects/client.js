@@ -30,7 +30,6 @@ class Client extends Person {
     }
     get timesLoggedSinceLastPurchase () {
         if ( !this.lastPackage ) { return []; }
-        console.log(this.lastPackage);
         return this.timesLogged.filter(time => time.date >= this.lastPackage.time.date);
     }
     get hoursSpentSinceLastPurchase () {
