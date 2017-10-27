@@ -8,6 +8,11 @@
             </div>
         </template>
         <template v-if="['team','clients'].includes($store.state.route.view)">
+            <div class="filter" @click="future = !future">
+                <ceri-icon v-if="future" size="16" name="fa-eye" hcenter></ceri-icon>
+                <ceri-icon v-else        size="16" name="fa-eye-slash" hcenter></ceri-icon>
+                <span>Future</span>
+            </div>
             <div class="actions">
                 <router-link tag="button" class="big primary button" :to="{name: this.$store.state.route.view + '-new-project'}">Create Project</router-link>
             </div>
@@ -26,7 +31,7 @@
         name: 'toolbar',
         props: ['person'],
         data () {return {
-            archive: false
+            future: false
         }},
         computed: {
             searchTerm: {
@@ -44,8 +49,8 @@
             }
         },
         watch: {
-            archive: (val) => {
-                bus.$emit('toolbar-archive', val);
+            future: (val) => {
+                bus.$emit('toolbar-future', val);
             }
         }
     }
@@ -56,6 +61,7 @@
     @import '~styles/settings.scss';
 
     #toolbar {
+        align-items: center;
         background: white;
         border-bottom: 1px solid $gray;
         display: flex;
@@ -100,6 +106,21 @@
                 &::placeholder {
                     opacity: 0;
                 }
+            }
+
+        }
+
+        .filter {
+            align-items: center;
+            cursor: pointer;
+            display: flex;
+            margin: 0 40px;
+            @include unselectable;
+
+            span {
+                color: black;
+                opacity: 0.25;
+
             }
 
         }

@@ -23,14 +23,14 @@
             </header>
             <template v-if="person.projectsAssigned && person.activeProjectsAssigned.length">
                 <h2 class="collection-title" v-if="person.canManage">Assigned</h2>
-                <project-collection :projects="person.activeProjectsAssigned" :person="person"></project-collection>
+                <project-collection :projects="filterProjects(person.activeProjectsAssigned)" :person="person"></project-collection>
             </template>
             <template v-if="person.canManage">
                 <h2 class="collection-title">Managing</h2>
-                <project-collection :projects="person.activeProjectsManaged" :kanban="true" :person="person"></project-collection>
+                <project-collection :projects="filterProjects(person.activeProjectsManaged)" :kanban="true" :person="person"></project-collection>
             </template>
             <template v-if="person.activeProjectsOwned">
-                <project-collection :projects="person.activeProjectsOwned" :kanban="true" :person="person"></project-collection>
+                <project-collection :projects="filterProjects(person.activeProjectsOwned)" :kanban="true" :person="person"></project-collection>
             </template>
         </div>
     </div>
@@ -46,6 +46,11 @@
     export default {
         name: 'person-panel',
         props: ['person'],
+        data () { return {
+            filters: {
+                future: false
+            }
+        }},
         computed: {
             subtitle () {
                 return this.person.role == 'client' ?
@@ -53,8 +58,24 @@
                     capitalizeFirstLetter(this.person.role);
             }
         },
+        methods: {
+            filterProjects (projects) {
+                return this.filters.future ?
+                    projects :
+                    projects.filter(project => !project.future);
+            }
+        },
         components: {ProjectCollection, TimeBar},
-        mixins: [DragDropController]
+        mixins: [DragDropController],
+        mounted () {
+            let vm = this;
+            bus.$on('toolbar-future', (val) => {
+                this.filters.future = val;
+            });
+        },
+        beforeDestroy () {
+            bus.$off('toolbar-future');
+        }
     }
 
 </script>

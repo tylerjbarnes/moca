@@ -53,7 +53,9 @@ module.exports = {
             "fa-check",
             "fa-pencil",
             "fa-cube",
-            "fa-calendar-times-o"
+            "fa-calendar-times-o",
+            "fa-eye",
+            "fa-eye-slash"
           ]
       }
       }

@@ -66,6 +66,10 @@ class Project extends MocaObject {
         return this.autocycle ? this.autocycle : 'never';
     }
 
+    get future () {
+        return moment(this.start).diff(moment()) >= 0;
+    }
+
     // Messages
 
     get messages () {
