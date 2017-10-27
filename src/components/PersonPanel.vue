@@ -46,12 +46,10 @@
     export default {
         name: 'person-panel',
         props: ['person'],
-        data () { return {
-            filters: {
-                future: false
-            }
-        }},
         computed: {
+            filters () {
+                return this.$store.state.filters;
+            },
             subtitle () {
                 return this.person.role == 'client' ?
                     this.person.expirationDescription :
@@ -60,22 +58,13 @@
         },
         methods: {
             filterProjects (projects) {
-                return this.filters.future ?
-                    projects :
-                    projects.filter(project => !project.future);
+                return this.filters.started ?
+                    projects.filter(project => !project.future) :
+                    projects;
             }
         },
         components: {ProjectCollection, TimeBar},
-        mixins: [DragDropController],
-        mounted () {
-            let vm = this;
-            bus.$on('toolbar-future', (val) => {
-                this.filters.future = val;
-            });
-        },
-        beforeDestroy () {
-            bus.$off('toolbar-future');
-        }
+        mixins: [DragDropController]
     }
 
 </script>

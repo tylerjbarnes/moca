@@ -26,6 +26,9 @@ const state = {
     times:  [],
     //
     searchTerm: '',
+    filters: {
+        started: false
+    },
     route: { view: null, item: null },
     lastMutationId: 0
 };
@@ -134,6 +137,7 @@ const mutations = {
     // Interface
 
     setSearchTerm(state, searchTerm) { state.searchTerm = searchTerm; },
+    setFilter(state, filterData) { state.filters[filterData.name] = filterData.value; },
     setUser(state, wpId) { state.user = state.persons.find(person => person.wp_id == wpId); },
     setLastMutationId(state, mutationId) { state.lastMutationId = mutationId; },
     updateRoute(state, route) { state.route = route; },
@@ -262,6 +266,7 @@ const actions = {
     // Interface
 
     setSearchTerm (context, searchTerm) { context.commit('setSearchTerm', searchTerm); },
+    setFilter (context, filterData) { context.commit('setFilter', filterData); },
     setUser (context, wpId) { context.commit('setUser', wpId); },
     updateRoute (context, route) { context.commit('updateRoute', route); },
     ready (context) { context.commit('ready'); }

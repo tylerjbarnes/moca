@@ -8,9 +8,9 @@
             </div>
         </template>
         <template v-if="['team','clients'].includes($store.state.route.view)">
-            <div class="filter" @click="future = !future">
-                <ceri-icon v-if="future" size="16" name="fa-eye" hcenter></ceri-icon>
-                <ceri-icon v-else        size="16" name="fa-eye-slash" hcenter></ceri-icon>
+            <div class="filter" @click="toggleStartedFilter">
+                <ceri-icon v-if="filters.started" size="16" name="fa-eye-slash" hcenter></ceri-icon>
+                <ceri-icon v-else                 size="16" name="fa-eye" hcenter></ceri-icon>
                 <span>Future</span>
             </div>
             <div class="actions">
@@ -30,10 +30,10 @@
     export default {
         name: 'toolbar',
         props: ['person'],
-        data () {return {
-            future: false
-        }},
         computed: {
+            filters () {
+                return this.$store.state.filters;
+            },
             searchTerm: {
                 get () {
                     return this.$store.state.searchTerm;
@@ -46,11 +46,9 @@
         methods: {
             logTime() {
                 bus.$emit('logTime');
-            }
-        },
-        watch: {
-            future: (val) => {
-                bus.$emit('toolbar-future', val);
+            },
+            toggleStartedFilter() {
+                this.$store.dispatch('setFilter', {name: 'started', value: !this.filters.started})
             }
         }
     }
