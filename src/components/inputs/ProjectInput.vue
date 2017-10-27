@@ -3,7 +3,7 @@
     <div class="project-input">
         <input ref="input" role="text" v-model="searchTerm" @focus="focus" @blur="isFocused = false" @keydown="handleKey" @input="input" :disabled="disabled" placeholder="No Project">
         <div class="panel" v-show="isFocused || panelIsFocused" @mouseover="panelIsFocused = true" @mouseleave="leavePanel();panelIsFocused = false">
-            <span class="empty" v-if="!projects.length">No Matches Found</span>
+            <span class="empty" v-if="!projects.length">No Matches</span>
             <div class="items">
                 <div class="item" v-for="(project,index) in projects" @mouseover="softSelect(index)" @click="select(project)" :class="{selected:isSelected(project)}">{{ project.name }}</div>
             </div>
@@ -129,6 +129,14 @@
                     }
 
                 }
+
+            }
+
+            .empty {
+                color: $medium-dark;
+                font-size: 0.75em;
+                font-weight: 700;
+                padding: 5px 10px;
 
             }
 

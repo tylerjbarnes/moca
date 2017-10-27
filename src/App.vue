@@ -7,6 +7,7 @@
                 <router-link :to="{name:'team'}" class="navbar-item" v-if="$store.state.user.canManage">Team</router-link>
                 <router-link :to="{name:'clients'}" class="navbar-item" v-if="$store.state.user.canManage">Clients</router-link>
                 <router-link :to="{name:'time'}" class="navbar-item">Time</router-link>
+                <router-link :to="{name:'archive'}" class="navbar-item" v-if="$store.state.user.canManage">Archive</router-link>
             </nav>
         </header>
         <div class="main-container">

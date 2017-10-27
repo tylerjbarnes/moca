@@ -112,6 +112,7 @@
                 </section>
             </section>
             <footer class="modal-card-foot">
+                <button class="button dangerous" v-if="this.id" @click="archive" tabindex="-1">Archive</button>
                 <button class="button" @click="$router.go(-1)" tabindex="-1">Cancel</button>
                 <button class="button primary" @click="save" :disabled="!validates">Save</button>
             </footer>
@@ -157,6 +158,10 @@
             },
             newResourcePrimitive () {
                 return MocaFactory.constructPrimitive('resource',{name:'Overview'});
+            },
+            archive () {
+                this.project.archive();
+                router.replace({name: store.state.route.view});
             },
             save () {
 

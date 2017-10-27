@@ -22,7 +22,7 @@
             <template v-if="editing && (isDraft || !primitive.project_id)">
                 <!-- editing a draft -->
                 <template v-if="isDraft">
-                    <div class="cell project"><project-input v-model="primitive.project_id" :allProjects="$store.state.projects"></project-input></div>
+                    <div class="cell project"><project-input v-model="primitive.project_id" :allProjects="availableProjects"></project-input></div>
                 </template>
                 <!-- no project is set -->
                 <template v-if="!primitive.project_id">
@@ -52,8 +52,8 @@
 
         <!-- Actions -->
         <div class="actions" v-if="editing">
-            <button class="button dangerous" v-if="!isDraft" @click="deleteTime">Delete</button>
-            <button class="button" @click="stopEditing">Cancel</button>
+            <button tabindex="-1" class="button dangerous" v-if="!isDraft" @click="deleteTime">Delete</button>
+            <button tabindex="-1" class="button" @click="stopEditing">Cancel</button>
             <button class="button primary" @click="save">Save</button>
         </div>
 
@@ -86,8 +86,14 @@
             }
         }},
         computed: {
-            availableProjectes () {
-                // IMPLEMENT
+            availableProjects () {
+                let allProjects = store.state.user.canManage ?
+                    store.state.projects :
+                    store.getters.projectsByContractor(store.state.user.id);
+                let projectsForClient = this.object.client_id ?
+                    allProjects.filter(project => project.client_id == this.object.client_id) :
+                    [];
+                return projectsForClient;
             },
             worker () {
                 return this.time ?
@@ -167,6 +173,12 @@
             if (this._primitive_) {
                 this.editing = true;
                 Object.assign(this.primitive, this._primitive_);
+            }
+        },
+        mounted () {
+            if (this.editing) {
+                let me = this;
+                setTimeout(function () { me.$refs.initialInput.focus(); }, 0);
             }
         }
     }

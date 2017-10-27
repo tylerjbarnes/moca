@@ -62,10 +62,10 @@ class Project extends MocaObject {
         return this.start >= currentPeriod.start && this.start <= currentPeriod.end;
     }
 
-    get isCurrent () {
-        return (this.status === 'do' && this.start < currentPeriod.start ) ||
-            this.startsInCurrentPeriod;
-    }
+    // get isCurrent () {
+    //     return (this.status === 'do' && this.start < currentPeriod.start ) ||
+    //         this.startsInCurrentPeriod;
+    // }
 
     get autocycleString () {
         return this.autocycle ? this.autocycle : 'never';
@@ -172,6 +172,39 @@ class Project extends MocaObject {
                     'archived': true
                 }
             ).commit();
+    }
+
+    archive () {
+        new MocaMutationSet(
+            'update', 'project',
+            this.id, {
+                'archived' : true,
+            }
+        ).commit();
+    }
+
+    unarchive () {
+        new MocaMutationSet(
+            'update', 'project',
+            this.id, {
+                'archived' : false,
+            }
+        ).commit();
+    }
+
+    recycle () {
+        new MocaMutationSet(
+            'update', 'project',
+            this.id, {
+                'archived' : false,
+                'contractor_id': null,
+                'status': 'delegate',
+                'cycle': this.cycle + 1,
+                'start': moment().format('YYYY-MM-DD'),
+                'target': this.target ? moment().add(moment(this.target).diff(moment(this.start), 'days'),'d').format('YYYY-MM-DD') : null,
+                'due': this.due ? moment().add(moment(this.due).diff(moment(this.start), 'days'),'d').format('YYYY-MM-DD') : null
+            }
+        ).commit();
     }
 
     moveForward () {

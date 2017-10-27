@@ -11,13 +11,13 @@
                 </div>
                 <h1 class="project-name">{{ project.name }}</h1>
             </div>
-            <div v-if="managing" class="meta">
+            <div v-if="managing && !project.archived" class="meta">
                 <span class="logged">{{ project.hoursLogged | hours }} Logged</span>
                 <person-tag :person="project.manager"></person-tag>
                 <person-tag v-if="project.contractor" :person="project.contractor" :solid="true"></person-tag>
             </div>
             <div v-else class="logging">
-                <quick-log :project="project"></quick-log>
+                <quick-log v-if="!project.archived" :project="project"></quick-log>
             </div>
         </div>
 

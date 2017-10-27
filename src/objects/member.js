@@ -25,11 +25,15 @@ class Member extends Person {
     }
 
     get currentProjectsAssigned () {
-        return store.getters.projectsByContractor(this.id).filter(project => project.isCurrent);
+        return this.projectsAssigned.filter(project => !project.archived);
     }
 
     get projectsManaged () {
         return store.getters.projectsByManager(this.id);
+    }
+
+    get currentProjectsManaged () {
+        return this.projectsManaged.filter(project => !project.archived);
     }
 
     // Times

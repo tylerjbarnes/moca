@@ -1,14 +1,16 @@
 <template>
 
     <div class="project-actions">
-        <button class="button" @click="edit(false)" v-if="$store.state.user.canManage" :style="{backgroundColor: project.manager.color}">Edit Project</button>
-        <button class="button" :style="{backgroundImage: gradientString()}" @click="$emit('addResource')">Add Resource</button>
+        <button class="button" @click="edit(false)" v-if="$store.state.user.canManage && !project.archived" :style="{backgroundColor: project.manager.color}">Edit Project</button>
+        <button class="button" v-if="!project.archived" :style="{backgroundImage: gradientString()}" @click="$emit('addResource')">Add Resource</button>
         <div class="request-time" v-if="!$store.state.user.canManage && project.status == 'do'">
             <button class="button" :class="{dangerous: !requesting}" @click="toggleRequesting" :disabled="this.project.hasPendingTimeRequest">{{ requesting ? 'Cancel Request' : 'Request Time'}}</button>
             <request-view :project="project" v-if="requesting" @closeRequest="requesting = false"></request-view>
         </div>
-        <button @click="moveProjectBackward" v-if="$store.state.user.canManage && project.canMoveBackward" class="button dangerous">{{ project.previousStatusActionName }}</button>
-        <button v-if="$store.state.user.canManage || project.status == 'do'" @click="moveProjectForward" class="button primary">{{ project.nextStatusActionName }}</button>
+        <button @click="moveProjectBackward" v-if="$store.state.user.canManage && project.canMoveBackward  && !project.archived" class="button dangerous">{{ project.previousStatusActionName }}</button>
+        <button v-if="($store.state.user.canManage || project.status == 'do')  && !project.archived" @click="moveProjectForward" class="button primary">{{ project.nextStatusActionName }}</button>
+        <button v-if="$store.state.user.canManage && project.archived" @click="unarchive" class="button">Unarchive</button>
+        <button v-if="$store.state.user.canManage && project.archived" @click="recycle" class="button primary">Recycle</button>
     </div>
 
 </template>
@@ -36,6 +38,14 @@
                 this.project.status == 'delegate' ?
                     this.edit(true) :
                     this.project.moveForward();
+            },
+            unarchive () {
+                this.project.unarchive();
+                router.replace({name: 'team-project', params: { id: this.project.id }});
+            },
+            recycle () {
+                this.project.recycle();
+                router.replace({name: 'team-project', params: { id: this.project.id }});
             },
             moveProjectBackward () { this.project.moveBackward(); },
             gradientString () {

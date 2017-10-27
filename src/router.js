@@ -1,6 +1,7 @@
 import VueRouter from 'vue-router';
 import TeamView from './components/TeamView.vue';
 import ProjectsView from './components/ProjectsView.vue';
+import ArchiveView from './components/ArchiveView.vue';
 
 const routes = [
         {
@@ -23,6 +24,11 @@ const routes = [
             path: '/time',
             name: 'time',
             component: require('./components/TimeView.vue')
+        },
+        {
+            path: '/archive',
+            name: 'archive',
+            component: require('./components/ArchiveView.vue')
         },
         {
             path: '/team/new-project',
@@ -101,6 +107,18 @@ const routes = [
             name: 'clients-project',
             components: {
                 default: require('./components/ClientsView.vue'),
+                modal: require('./components/ProjectView.vue')
+            },
+            props: {
+                default: false,
+                modal: true
+            }
+        },
+        {
+            path: '/archive/:id',
+            name: 'archive-project',
+            components: {
+                default: ArchiveView,
                 modal: require('./components/ProjectView.vue')
             },
             props: {

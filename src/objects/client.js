@@ -8,7 +8,7 @@ class Client extends Person {
     }
 
     get currentProjectsOwned () {
-        return store.getters.projectsByClient(this.id).filter(project => project.isCurrent);
+        return this.projectsOwned.filter(project => !project.archived);
     }
 
     // Times

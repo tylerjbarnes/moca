@@ -2,7 +2,7 @@
 
     <div id="time-view">
         <div class="time-panel">
-            <time-table :times="times"></time-table>
+            <time-table ref="timeTable" :times="times"></time-table>
 
         </div>
     </div>
@@ -20,6 +20,15 @@
             times () {
                 return store.getters.times;
             }
+        },
+        mounted () {
+            let vm = this;
+            bus.$on('logTime', () => {
+                vm.$refs.timeTable.newLog();
+            });
+        },
+        beforeDestroy () {
+            bus.$off('logTime');
         }
     }
 

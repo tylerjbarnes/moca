@@ -64,6 +64,7 @@ const getters = {
     projectsByContractor: (state, getters) => (id) => state.projects.filter(project => project.contractor_id === id),
     projectsByManager: (state, getters) => (id) => state.projects.filter(project => project.manager_id === id),
     projectsByClient: (state, getters) => (id) => state.projects.filter(project => project.client_id === id),
+    projectsByStatus: (state, getters) => (status) => state.projects.filter(project => project.status === status),
 
     // Resources
     resource: (state, getters) => (id) => state.resources.find(resource => resource.id === id),

@@ -1,13 +1,22 @@
 <template>
     <div id="toolbar">
-        <ceri-icon size="16" name="fa-search" hcenter></ceri-icon>
-        <input v-model="searchTerm" type="text" id="search" placeholder="Find a person, project, resource...">
-        <div v-if="searchTerm.length" @click="searchTerm = '';" class="clear">
-            <ceri-icon size="16" name="fa-times" hcenter></ceri-icon>
-        </div>
-        <div class="actions">
-            <router-link v-if="['team','clients'].includes($store.state.route.view)" tag="button" class="big primary button" :to="{name: this.$store.state.route.view + '-new-project'}">Create Project</router-link>
-        </div>
+        <template v-if="['team','clients','archive'].includes($store.state.route.view)">
+            <ceri-icon size="16" name="fa-search" hcenter></ceri-icon>
+            <input v-model="searchTerm" type="text" id="search" placeholder="Find a person, project, resource...">
+            <div v-if="searchTerm.length" @click="searchTerm = '';" class="clear">
+                <ceri-icon size="16" name="fa-times" hcenter></ceri-icon>
+            </div>
+        </template>
+        <template v-if="['team','clients'].includes($store.state.route.view)">
+            <div class="actions">
+                <router-link tag="button" class="big primary button" :to="{name: this.$store.state.route.view + '-new-project'}">Create Project</router-link>
+            </div>
+        </template>
+        <template v-if="$store.state.route.view == 'time'">
+            <div class="actions">
+                <button class="big primary button" @click="logTime">Log Time</button>
+            </div>
+        </template>
     </div>
 </template>
 
@@ -16,6 +25,9 @@
     export default {
         name: 'toolbar',
         props: ['person'],
+        data () {return {
+            archive: false
+        }},
         computed: {
             searchTerm: {
                 get () {
@@ -24,6 +36,16 @@
                 set (value) {
                     this.$store.commit('setSearchTerm', value);
                 }
+            }
+        },
+        methods: {
+            logTime() {
+                bus.$emit('logTime');
+            }
+        },
+        watch: {
+            archive: (val) => {
+                bus.$emit('toolbar-archive', val);
             }
         }
     }

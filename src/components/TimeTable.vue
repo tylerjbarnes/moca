@@ -9,13 +9,13 @@
             <div class="header cell project">Project or Details</div>
             <div class="header cell hours">Hours</div>
         </div>
+        <time-row v-if="timePrimitive" :_primitive_="timePrimitive" @stoppedEditing="timePrimitive = null"></time-row>
         <time-row v-for="time in times" :key="time.id"
             :time="time"
             :locked="hasOpenEditor"
             @startedEditing="hasOpenEditor = true"
             @stoppedEditing="hasOpenEditor = false;"
         ></time-row>
-        <time-row v-if="timePrimitive" :_primitive_="timePrimitive" @stoppedEditing="timePrimitive = null"></time-row>
     </div>
 
 </template>
@@ -30,9 +30,7 @@
         props: ['times'],
         data () { return {
             hasOpenEditor: false,
-            timePrimitive:  MocaFactory.constructObject('time', MocaFactory.constructPrimitive('time', {
-                            worker_id: store.state.user.id
-                        }))
+            timePrimitive: null
         }},
         components: {TimeRow},
         computed: {
@@ -40,7 +38,11 @@
                 return this.draftTime ? [...this.times, this.draftTime] : this.times;
             }
         },
-        methods: {},
+        methods: {
+            newLog () {
+                this.timePrimitive = MocaFactory.constructPrimitive('time', {worker_id: store.state.user.id});
+            }
+        },
     }
 
 </script>
