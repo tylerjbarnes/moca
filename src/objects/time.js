@@ -17,10 +17,6 @@ class Time extends MocaObject {
         return store.getters.mocaPackage(this.package_id);
     }
 
-    get isCurrent() {
-        return this.project && this.project.isCurrent;
-    }
-
     get isInCurrentPeriod() {
         return this.date >= currentPeriod.start && this.date <= currentPeriod.end;
     }

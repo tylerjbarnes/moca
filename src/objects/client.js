@@ -7,7 +7,7 @@ class Client extends Person {
         return store.getters.projectsByClient(this.id);
     }
 
-    get currentProjectsOwned () {
+    get activeProjectsOwned () {
         return this.projectsOwned.filter(project => !project.archived);
     }
 
@@ -36,8 +36,8 @@ class Client extends Person {
         return this.timesLoggedSinceLastPurchase.map(time => time.hours).reduce((a,b) => a + b, 0);
     }
 
-    get hoursBudgetedOnCurrentProjects () {
-        return this.currentProjectsOwned.map(project => project.estimate).reduce((a,b) => a + b, 0);
+    get hoursBudgetedOnActiveProjects () {
+        return this.activeProjectsOwned.map(project => project.estimate).reduce((a,b) => a + b, 0);
     }
 
     get timeBarData () {
@@ -49,7 +49,7 @@ class Client extends Person {
             },
             {
                 color: tinycolor(this.color).setAlpha(0.5).toString(),
-                number: this.hoursBudgetedOnCurrentProjects,
+                number: this.hoursBudgetedOnActiveProjects,
                 label: 'Budgeted'
             },
             {

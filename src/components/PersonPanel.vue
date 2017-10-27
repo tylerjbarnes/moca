@@ -21,16 +21,16 @@
                 </div>
                 <time-bar :person="person"></time-bar>
             </header>
-            <template v-if="person.projectsAssigned && person.currentProjectsAssigned.length">
+            <template v-if="person.projectsAssigned && person.activeProjectsAssigned.length">
                 <h2 class="collection-title" v-if="person.canManage">Assigned</h2>
-                <project-collection :projects="person.currentProjectsAssigned" :person="person"></project-collection>
+                <project-collection :projects="person.activeProjectsAssigned" :person="person"></project-collection>
             </template>
             <template v-if="person.canManage">
                 <h2 class="collection-title">Managing</h2>
-                <project-collection :projects="person.currentProjectsManaged" :kanban="true" :person="person"></project-collection>
+                <project-collection :projects="person.activeProjectsManaged" :kanban="true" :person="person"></project-collection>
             </template>
-            <template v-if="person.currentProjectsOwned">
-                <project-collection :projects="person.currentProjectsOwned" :kanban="true" :person="person"></project-collection>
+            <template v-if="person.activeProjectsOwned">
+                <project-collection :projects="person.activeProjectsOwned" :kanban="true" :person="person"></project-collection>
             </template>
         </div>
     </div>

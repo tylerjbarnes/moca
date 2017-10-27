@@ -24,7 +24,7 @@ class Member extends Person {
         return store.getters.projectsByContractor(this.id);
     }
 
-    get currentProjectsAssigned () {
+    get activeProjectsAssigned () {
         return this.projectsAssigned.filter(project => !project.archived);
     }
 
@@ -32,7 +32,7 @@ class Member extends Person {
         return store.getters.projectsByManager(this.id);
     }
 
-    get currentProjectsManaged () {
+    get activeProjectsManaged () {
         return this.projectsManaged.filter(project => !project.archived);
     }
 
@@ -42,28 +42,28 @@ class Member extends Person {
         return store.getters.timesByContractor(this.id);
     }
 
-    get timesLoggedOnCurrentProjects () {
-        return this.timesLogged.filter(time => time.isCurrent);
+    get timesLoggedOnActiveProjects () {
+        return this.timesLogged.filter(time => time.project && !time.project.archived);
     }
 
-    get hoursLoggedOnCurrentProjects () {
-        return this.timesLoggedOnCurrentProjects.map(time => time.hours).reduce((a,b) => a + b, 0);
+    get hoursLoggedOnActiveProjects () {
+        return this.timesLoggedOnActiveProjects.map(time => time.hours).reduce((a,b) => a + b, 0);
     }
 
-    get hoursAssignedOnCurrentProjects () {
-        return this.currentProjectsAssigned.map(project => project.estimate).reduce((a,b) => a + b, 0);
+    get hoursAssignedOnActiveProjects () {
+        return this.activeProjectsAssigned.map(project => project.estimate).reduce((a,b) => a + b, 0);
     }
 
     get timeBarData () {
         return [
             {
                 color: this.color,
-                number: this.hoursLoggedOnCurrentProjects,
+                number: this.hoursLoggedOnActiveProjects,
                 label: 'Logged'
             },
             {
                 color: tinycolor(this.color).setAlpha(0.5).toString(),
-                number: this.hoursAssignedOnCurrentProjects - this.hoursLoggedOnCurrentProjects,
+                number: this.hoursAssignedOnActiveProjects - this.hoursLoggedOnActiveProjects,
                 label: 'Remaining'
             }
         ];

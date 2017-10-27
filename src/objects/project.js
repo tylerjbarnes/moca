@@ -62,11 +62,6 @@ class Project extends MocaObject {
         return this.start >= currentPeriod.start && this.start <= currentPeriod.end;
     }
 
-    // get isCurrent () {
-    //     return (this.status === 'do' && this.start < currentPeriod.start ) ||
-    //         this.startsInCurrentPeriod;
-    // }
-
     get autocycleString () {
         return this.autocycle ? this.autocycle : 'never';
     }
