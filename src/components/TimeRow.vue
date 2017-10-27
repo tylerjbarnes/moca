@@ -37,7 +37,7 @@
         </template>
 
         <!-- Details -->
-        <template v-if="object.type == 'purchase'">
+        <template v-if="object.type == 'credit'">
             <div v-if="!editing" class="cell project">Expires on {{ time.package.expiration_date | date }}</div>
             <div v-else         class="cell project">Expiration Picker</div>
         </template>
@@ -109,14 +109,14 @@
                 return !this.time;
             },
             inflow () {
-                return this.object.type == 'purchase' ? this.object.hours : null;
+                return this.object.type == 'credit' ? this.object.hours : null;
             },
             outflow () {
-                return this.object.type != 'purchase' ? this.object.hours : null;
+                return this.object.type != 'credit' ? this.object.hours : null;
             },
             iconName () {
                 switch (this.object.type) {
-                    case 'purchase': return 'fa-cube';
+                    case 'credit': return 'fa-cube';
                     case 'expiration': return 'fa-calendar-times-o';
                     default: return 'fa-pencil';
                 }
@@ -221,7 +221,7 @@
             &.time-icon {
                 flex: 0 0 32px;
                 &.log { color: $orange; }
-                &.purchase { color: $dark; }
+                &.credit { color: $dark; }
             }
             &.date {
                 flex: 0 0 110px;

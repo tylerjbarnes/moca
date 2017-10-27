@@ -2,7 +2,7 @@ import MocaObject from './mocaObject.js';
 class Package extends MocaObject {
 
     get time () {
-        return store.getters.purchaseForPackage(this.id);
+        return store.getters.creditForPackage(this.id);
     }
 
 }

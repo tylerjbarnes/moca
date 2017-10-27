@@ -191,7 +191,7 @@ function hpm_typify_data_from_js( $data ) {
             case 'max':
             case 'notification_time':
                 $typified[$key] = abs((float) $value);
-                if (array_key_exists('type', $data) && $data['type'] !== 'purchase') {
+                if (array_key_exists('type', $data) && $data['type'] !== 'credit') {
                     $typified[$key] = $typified[$key] * -1;
                 }
                 break;
@@ -582,10 +582,10 @@ function hpm_import() {
                     $current_package->hours = $transaction->hours;
                     $current_package->expiration_date = $transaction->expiration_date;
 
-                    // - create the purchase
+                    // - create the credit
                     $time = new stdClass();
                     $time->id = get_cuid();
-                    $time->type = 'purchase';
+                    $time->type = 'credit';
                     $time->hours = $transaction->hours;
                     $time->client_id = $person_map[$transaction->client_id];
                     $time->cycle = 0;
@@ -606,14 +606,14 @@ function hpm_import() {
                     $activity->author_id = 1;
                     $activity->datetime = date_create($time->date)->format("Y-m-d H:i:s");
                     $activities[] = $activity;
-                    // - purchase time log activity
+                    // - credit time log activity
                     $activity = new stdClass();
                     $activity->activity_type = 'create';
                     $activity->object_type = 'times';
                     $activity->object_id = $time->id;
                     $activity->property_value = new stdClass();
                         $activity->property_value->id = $time->id;
-                        $activity->property_value->type = 'purchase';
+                        $activity->property_value->type = 'credit';
                         $activity->property_value->hours = $time->hours;
                         $activity->property_value->client_id = $time->client_id;
                         $activity->property_value->package_id = $time->package_id;

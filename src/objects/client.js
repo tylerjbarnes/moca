@@ -13,8 +13,8 @@ class Client extends Person {
 
     // Times
 
-    get hoursPurchased() {
-        return store.getters.timesByClient(this.id).filter(time => time.type === 'purchase').map(time => time.hours).reduce((a,b) => a + b, 0);
+    get hoursCredited() {
+        return store.getters.timesByClient(this.id).filter(time => time.type === 'credit').map(time => time.hours).reduce((a,b) => a + b, 0);
     }
 
     get hoursLogged() {
@@ -22,18 +22,11 @@ class Client extends Person {
     }
 
     get balance () {
-        return this.hoursPurchased - this.hoursLogged;
+        return this.hoursCredited - this.hoursLogged;
     }
 
     get timesLogged () {
         return store.getters.timesByClient(this.id).filter(time => time.type === 'log');
-    }
-    get timesLoggedSinceLastPurchase () {
-        if ( !this.lastPackage ) { return []; }
-        return this.timesLogged.filter(time => time.date >= this.lastPackage.time.date);
-    }
-    get hoursSpentSinceLastPurchase () {
-        return this.timesLoggedSinceLastPurchase.map(time => time.hours).reduce((a,b) => a + b, 0);
     }
 
     get hoursBudgetedOnActiveProjects () {
@@ -42,11 +35,6 @@ class Client extends Person {
 
     get timeBarData () {
         return [
-            {
-                color: this.color,
-                number: this.hoursSpentSinceLastPurchase,
-                label: 'Spent'
-            },
             {
                 color: tinycolor(this.color).setAlpha(0.5).toString(),
                 number: this.hoursBudgetedOnActiveProjects,

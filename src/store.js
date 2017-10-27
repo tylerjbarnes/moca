@@ -76,7 +76,7 @@ const getters = {
     logsByProject: (state, getters) => (id) => state.times.filter(time => time.project_id === id),
     timesByContractor: (state, getters) => (id) => state.times.filter(time => time.worker_id === id),
     timesByClient: (state, getters) => (id) => state.times.filter(time => time.client_id === id),
-    purchaseForPackage: (state, getters) => (id) => state.times.find(time => time.package_id === id)
+    creditForPackage: (state, getters) => (id) => state.times.find(time => time.package_id === id)
 
 };
 

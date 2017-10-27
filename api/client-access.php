@@ -18,7 +18,7 @@ function hpm_client_data() {
         SELECT * FROM $project_table
         WHERE client_id = '$client_id'
     " );
-    $purchases = $wpdb->get_results( "
+    $packages = $wpdb->get_results( "
         SELECT * FROM $packages_table
         WHERE client_id = '$client_id'
     " );
@@ -47,28 +47,28 @@ function hpm_client_data() {
 
     usort($project_data, "projectSorter");
 
-    $purchase_data = array_map( function( $purchase ) {
+    $credit_data = array_map( function( $package ) {
 
         $datum = new stdClass();
-        $datum->hours = $purchase->hours;
-        $datum->expiration_date = $purchase->expiration_date;
+        $datum->hours = $package->hours;
+        $datum->expiration_date = $package->expiration_date;
 
         global $wpdb;
         $time_table = $wpdb->prefix . 'hpm_times';
         $time = $wpdb->get_row("
             SELECT * from $time_table
-            WHERE package_id = '$purchase->id'
-            AND type = 'purchase'
+            WHERE package_id = '$package->id'
+            AND type = 'credit'
         ");
         $datum->date = $time ? $time->date : NULL;
 
         return $datum;
 
-    }, $purchases);
+    }, $packages);
 
     $response = new stdClass();
     $response->projects = $project_data;
-    $response->purchases = $purchase_data;
+    $response->credits = $credit_data;
     $response->balance = $balance;
 
     return $response;
