@@ -32,7 +32,9 @@ const state = {
             started: false,
         },
         times: {
-            period: new Period()
+            period: new Period(),
+            clientId: null,
+            workerId: null
         }
     },
     route: { view: null, item: null },

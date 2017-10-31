@@ -25,11 +25,11 @@
                 </div>
                 <div class="blurb">
                     <span>Client</span>
-                    <person-input roles="['client']"></person-input>
+                    <person-input v-model="timeClientFilter" roles="['client']"></person-input>
                 </div>
                 <div class="blurb">
                     <span>Worker</span>
-                    <person-input roles="['contractor','administrator','manager']"></person-input>
+                    <person-input v-model="timeWorkerFilter" roles="['contractor','administrator','manager']"></person-input>
                 </div>
             </div>
             <div class="actions">
@@ -54,20 +54,20 @@
                 return this.$store.state.uiFilters.projects;
             },
             periodFilter: {
-                get () {
-                    return this.$store.state.uiFilters.times.period;
-                },
-                set (value) {
-                    this.$store.dispatch('setUiFilter', {type: 'times', name: 'period', value: value});
-                }
+                get () { return this.$store.state.uiFilters.times.period; },
+                set (value) { this.$store.dispatch('setUiFilter', {type: 'times', name: 'period', value: value}); }
+            },
+            timeClientFilter: {
+                get () { return this.$store.state.uiFilters.times.clientId; },
+                set (value) { this.$store.dispatch('setUiFilter', {type: 'times', name: 'clientId', value: value}); }
+            },
+            timeWorkerFilter: {
+                get () { return this.$store.state.uiFilters.times.workerId; },
+                set (value) { this.$store.dispatch('setUiFilter', {type: 'times', name: 'workerId', value: value}); }
             },
             searchTerm: {
-                get () {
-                    return this.$store.state.searchTerm;
-                },
-                set (value) {
-                    this.$store.commit('setSearchTerm', value);
-                }
+                get () { return this.$store.state.searchTerm; },
+                set (value) { this.$store.commit('setSearchTerm', value); }
             }
         },
         methods: {
