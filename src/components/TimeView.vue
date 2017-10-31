@@ -3,7 +3,6 @@
     <div id="time-view">
         <div class="time-panel">
             <time-table ref="timeTable" :times="times"></time-table>
-
         </div>
     </div>
 
@@ -18,7 +17,7 @@
         components: {TimeTable},
         computed: {
             times () {
-                return store.getters.times;
+                return store.getters.timesInPeriod;
             }
         },
         mounted () {

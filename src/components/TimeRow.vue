@@ -193,6 +193,7 @@
         align-items: stretch;
         border-top: 1px solid $gray;
         display: flex;
+        flex-flow: row;
         position: relative;
         &.editing {
             background: white;

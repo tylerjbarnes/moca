@@ -2,6 +2,8 @@
 
     <div class="person-panel card">
         <div class="card-content">
+
+            <!-- Header -->
             <header>
                 <div class="avatar">
                     <img :src="person.avatar">
@@ -17,21 +19,54 @@
                             <div class="online-label" v-if="person.online">Online</div>
                         </transition>
                     </div>
-
                 </div>
-                <time-bar :person="person"></time-bar>
+                <template v-if="person.role == 'client'">
+                    <div class="blurbs">
+                        <div class="blurb">
+                            <label>Balance</label>
+                            <span :class="{negative: person.balance < 0}">{{ person.balance | hours }}</span>
+                        </div>
+                        <div class="blurb">
+                            <label>Budgeted</label>
+                            <span :class="{negative: person.hoursBudgetedOnActiveProjects < 0}">{{ person.hoursBudgetedOnActiveProjects | hours }}</span>
+                        </div>
+                        <div class="blurb">
+                            <label>Available</label>
+                            <span :class="{negative: person.hoursAvailable < 0}">{{ person.hoursAvailable | hours }}</span>
+                        </div>
+                    </div>
+                </template>
             </header>
-            <template v-if="person.projectsAssigned && person.activeProjectsAssigned.length">
-                <h2 class="collection-title" v-if="person.canManage">Assigned</h2>
-                <project-collection :projects="filterProjects(person.activeProjectsAssigned)" :person="person"></project-collection>
+
+            <!-- Members -->
+            <template v-if="person.role != 'client'">
+                <template v-if="person.projectsAssigned && person.activeProjectsAssigned.length">
+                    <h2 class="collection-title" v-if="person.canManage">Assigned</h2>
+                    <project-collection :projects="filterProjects(person.activeProjectsAssigned)" :person="person"></project-collection>
+                </template>
+                <template v-if="person.canManage">
+                    <h2 class="collection-title">Managing</h2>
+                    <project-collection :projects="filterProjects(person.activeProjectsManaged)" :kanban="true" :person="person"></project-collection>
+                </template>
             </template>
-            <template v-if="person.canManage">
-                <h2 class="collection-title">Managing</h2>
-                <project-collection :projects="filterProjects(person.activeProjectsManaged)" :kanban="true" :person="person"></project-collection>
+
+            <!-- Clients -->
+            <template v-else>
+                <template v-if="person.activeProjectsOwned.length">
+                    <h2 class="collection-title">{{ person.activeProjectsOwned.length }} Active Projects</h2>
+                    <project-collection :projects="filterProjects(person.activeProjectsOwned)" :kanban="true" :person="person"></project-collection>
+                </template>
+
+                <h2 class="collection-title">Files</h2>
+                <button class="button primary">Add File</button>
+
+                <template v-if="!person.activeProjectsOwned.length">
+                    <div class="actions">
+                        <button class="button" @click="archiveClient">Archive Client</button>
+                    </div>
+                </template>
             </template>
-            <template v-if="person.activeProjectsOwned">
-                <project-collection :projects="filterProjects(person.activeProjectsOwned)" :kanban="true" :person="person"></project-collection>
-            </template>
+
         </div>
     </div>
 
@@ -40,15 +75,19 @@
 
 <script>
     import ProjectCollection from '../components/ProjectCollection.vue';
-    import TimeBar from '../components/TimeBar.vue';
+    import ResourceView from '../components/ResourceView.vue';
     import DragDropController from '../mixins/DragDropController.js';
 
     export default {
         name: 'person-panel',
         props: ['person'],
+        data () { return {
+            mode: 'projects',
+            draftResource: null
+        }},
         computed: {
             filters () {
-                return this.$store.state.filters;
+                return this.$store.state.uiFilters.projects;
             },
             subtitle () {
                 return this.person.role == 'client' ?
@@ -61,9 +100,12 @@
                 return this.filters.started ?
                     projects.filter(project => !project.future) :
                     projects;
+            },
+            archiveClient () {
+                this.person.archive();
             }
         },
-        components: {ProjectCollection, TimeBar},
+        components: {ProjectCollection, ResourceView},
         mixins: [DragDropController]
     }
 
@@ -148,11 +190,57 @@
 
                 }
 
+                .blurbs {
+                    display: flex;
+                    flex: 1 1;
+
+                    .blurb {
+                        align-items: center;
+                        border-right: 2px solid $light;
+                        display: flex;
+                        flex: 1 1;
+                        flex-flow: column;
+                        text-align: center;
+                        &:first-of-type {
+                            border-left: 2px solid $light;
+                        }
+
+                        label {
+                            color: $medium;
+                            font-size: 0.75em;
+                            font-weight: 700;
+                            text-transform: uppercase;
+
+                        }
+
+                        span {
+                            font-weight: 700;
+                            padding: 0 10px;
+                            white-space: nowrap;
+
+                            &.negative {
+                                color: $red;
+                                font-weight: 900;
+
+                            }
+
+                        }
+
+                    }
+
+                } // blurbs
+
             } // header
 
             .collection-title {
                 font-weight: 700;
+                padding: 10px 0;
+            }
 
+            .actions {
+                display: flex;
+                flex-flow: row-reverse;
+                margin-top: 20px;
             }
 
         }

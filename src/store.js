@@ -14,6 +14,7 @@ import Time from './objects/time.js';
 
 import axios from 'axios';
 import qs from 'qs';
+import Period from './period.js';
 
 import forager from './forager.js';
 
@@ -26,8 +27,13 @@ const state = {
     times:  [],
     //
     searchTerm: '',
-    filters: {
-        started: false
+    uiFilters: {
+        projects: {
+            started: false,
+        },
+        times: {
+            period: new Period()
+        }
     },
     route: { view: null, item: null },
     lastMutationId: 0
@@ -54,9 +60,11 @@ const getters = {
 
     // Persons
     clients: (state, getters) => state.persons.filter(person => person.role === 'client'),
+    activeClients: (state, getters) => state.persons.filter(person => person.role === 'client' && !person.archived),
     management: (state, getters) => getters.members.filter(person => person.canManage),
     contractors: (state, getters) => state.persons.filter(person => person.role === 'contractor'),
     members: (state, getters) => state.persons.filter(person => person.role !== 'client'),
+    activeMembers: (state, getters) => state.persons.filter(person => person.role !== 'client' && !person.archived),
     personsByRoles: (state, getters) => (roles) => state.persons.filter(person => roles.includes(person.role)),
     person: (state, getters) => (id) => {
         return state.persons.find(person => person.id === id);
@@ -72,14 +80,16 @@ const getters = {
     // Resources
     resource: (state, getters) => (id) => state.resources.find(resource => resource.id === id),
     resourcesByProject: (state, getters) => (id) => state.resources.filter(resource => resource.project_id === id),
+    resourcesByClient: (state, getters) => (id) => state.resources.filter(resource => resource.client_id === id),
 
     // Times
     time: (state, getters) => (id) => state.times.find(time => time.id === id),
     times: (state, getters) => state.times.sort((a,b) => a.date < b.date || (a.date == b.date && a.cycle < b.cycle)),
+    timesInPeriod: (state, getters) => state.times.filter(time => time.date >= state.uiFilters.times.period.start && time.date <= state.uiFilters.times.period.end).sort((a,b) => a.date < b.date || (a.date == b.date && a.cycle < b.cycle)),
     logsByProject: (state, getters) => (id) => state.times.filter(time => time.project_id === id),
     timesByContractor: (state, getters) => (id) => state.times.filter(time => time.worker_id === id),
     timesByClient: (state, getters) => (id) => state.times.filter(time => time.client_id === id),
-    creditForPackage: (state, getters) => (id) => state.times.find(time => time.package_id === id)
+    creditForPackage: (state, getters) => (id) => state.times.find(time => time.package_id === id),
 
 };
 
@@ -137,7 +147,7 @@ const mutations = {
     // Interface
 
     setSearchTerm(state, searchTerm) { state.searchTerm = searchTerm; },
-    setFilter(state, filterData) { state.filters[filterData.name] = filterData.value; },
+    setUiFilter(state, filterData) { state.uiFilters[filterData.type][filterData.name] = filterData.value; },
     setUser(state, wpId) { state.user = state.persons.find(person => person.wp_id == wpId); },
     setLastMutationId(state, mutationId) { state.lastMutationId = mutationId; },
     updateRoute(state, route) { state.route = route; },
@@ -266,7 +276,7 @@ const actions = {
     // Interface
 
     setSearchTerm (context, searchTerm) { context.commit('setSearchTerm', searchTerm); },
-    setFilter (context, filterData) { context.commit('setFilter', filterData); },
+    setUiFilter (context, filterData) { context.commit('setUiFilter', filterData); },
     setUser (context, wpId) { context.commit('setUser', wpId); },
     updateRoute (context, route) { context.commit('updateRoute', route); },
     ready (context) { context.commit('ready'); }

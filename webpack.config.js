@@ -55,7 +55,9 @@ module.exports = {
             "fa-cube",
             "fa-calendar-times-o",
             "fa-eye",
-            "fa-eye-slash"
+            "fa-eye-slash",
+            "fa-chevron-right",
+            "fa-chevron-left"
           ]
       }
       }

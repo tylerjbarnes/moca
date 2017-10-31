@@ -17,7 +17,7 @@
         name: 'team-view',
         computed: {
             allPersons () {
-                return this.$store.getters.members;
+                return this.$store.getters.activeMembers;
             }
         },
         components: {
@@ -40,7 +40,7 @@
         flex-flow: column;
         padding: 0 40px 20px 40px;
 
-        h1 {
+        > h1 {
             align-self: flex-start;
             font-weight: 700;
             margin: 0;

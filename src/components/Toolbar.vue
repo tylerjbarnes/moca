@@ -18,6 +18,20 @@
             </div>
         </template>
         <template v-if="$store.state.route.view == 'time'">
+            <div class="blurbs">
+                <div class="blurb">
+                    <span>Pay Period</span>
+                    <period-input v-model="periodFilter"></period-input>
+                </div>
+                <div class="blurb">
+                    <span>Client</span>
+                    <person-input roles="['client']"></person-input>
+                </div>
+                <div class="blurb">
+                    <span>Worker</span>
+                    <person-input roles="['contractor','administrator','manager']"></person-input>
+                </div>
+            </div>
             <div class="actions">
                 <button class="big primary button" @click="logTime">Log Time</button>
             </div>
@@ -27,12 +41,25 @@
 
 
 <script>
+    import DateInput from './inputs/DateInput.vue';
+    import PersonInput from './inputs/PersonInput.vue';
+    import PeriodInput from './inputs/PeriodInput.vue';
+
     export default {
         name: 'toolbar',
         props: ['person'],
+        components: {DateInput,PersonInput,PeriodInput},
         computed: {
             filters () {
-                return this.$store.state.filters;
+                return this.$store.state.uiFilters.projects;
+            },
+            periodFilter: {
+                get () {
+                    return this.$store.state.uiFilters.times.period;
+                },
+                set (value) {
+                    this.$store.dispatch('setUiFilter', {type: 'times', name: 'period', value: value});
+                }
             },
             searchTerm: {
                 get () {
@@ -48,7 +75,7 @@
                 bus.$emit('logTime');
             },
             toggleStartedFilter() {
-                this.$store.dispatch('setFilter', {name: 'started', value: !this.filters.started})
+                this.$store.dispatch('setUiFilter', {type: 'projects', name: 'started', value: !this.filters.started})
             }
         }
     }
@@ -64,12 +91,13 @@
         border-bottom: 1px solid $gray;
         display: flex;
         height: $header-size;
+        justify-content: space-between;
         padding: 0 40px;
         position: fixed;
             top: 0; right: 0; left: $header-size;
         z-index: 3;
 
-        ceri-icon {
+        > ceri-icon, .filter ceri-icon {
             opacity: 0.25;
             padding-right: 10px;
 
@@ -129,6 +157,32 @@
             flex: 0 1;
             flex-flow: row;
             justify-content: flex-end;
+            padding-left: 10px;
+
+        }
+
+        .blurbs {
+            display: flex;
+
+            .blurb {
+                align-items: center;
+                display: flex;
+                flex-flow: column;
+
+                &:not(:first-of-type) {
+                    margin-left: 10px;
+                }
+
+                > span {
+                    color: $medium;
+                    font-size: 0.75em;
+                    font-weight: 700;
+                    padding-bottom: 4px;
+                    text-transform: uppercase;
+
+                }
+
+            }
 
         }
 

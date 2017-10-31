@@ -16,7 +16,7 @@
         name: 'clients-view',
         computed: {
             allPersons () {
-                return this.$store.getters.clients;
+                return this.$store.getters.activeClients;
             }
         },
         components: {
@@ -41,7 +41,7 @@
         flex-flow: column;
         padding: 0 40px 20px 40px;
 
-        h1 {
+        > h1 {
             align-self: flex-start;
             font-weight: 700;
             margin: 0;

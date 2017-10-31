@@ -11,6 +11,12 @@ class Client extends Person {
         return this.projectsOwned.filter(project => !project.archived);
     }
 
+    // Resources
+
+    get resources () {
+        return store.getters.resourcesByClient(this.id).filter(resource => !resource.project_id);
+    }
+
     // Times
 
     get hoursCredited() {
@@ -33,19 +39,8 @@ class Client extends Person {
         return this.activeProjectsOwned.map(project => project.estimate).reduce((a,b) => a + b, 0);
     }
 
-    get timeBarData () {
-        return [
-            {
-                color: tinycolor(this.color).setAlpha(0.5).toString(),
-                number: this.hoursBudgetedOnActiveProjects,
-                label: 'Budgeted'
-            },
-            {
-                color: 'transparent',
-                number: this.balance,
-                label: 'Available'
-            }
-        ];
+    get hoursAvailable () {
+        return this.balance - this.hoursBudgetedOnActiveProjects;
     }
 
     // Packages

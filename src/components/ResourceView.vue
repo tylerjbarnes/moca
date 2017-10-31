@@ -56,6 +56,9 @@
                     (this.isDraft || updated);
             },
             gradientString () {
+                if (!this.resource.project) {
+                    return 'linear-gradient(20deg, #333 20%, #777 100%';
+                }
                 return 'linear-gradient(20deg,' +
                 this.resource.project.manager.color + ' 20%,' +
                 (this.resource.project.contractor ?
