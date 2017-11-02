@@ -54,7 +54,7 @@
         <div class="actions" v-if="editing">
             <button tabindex="-1" class="button dangerous" v-if="!isDraft" @click="deleteTime">Delete</button>
             <button tabindex="-1" class="button" @click="stopEditing">Cancel</button>
-            <button class="button primary" @click="save">Save</button>
+            <button class="button primary" @click="save" :disabled="!validates">Save</button>
         </div>
 
     </div>
@@ -135,6 +135,9 @@
                 return this.time ?
                     project.max - project.hoursLogged + this.time.hours :
                     project.max - project.hoursLogged;
+            },
+            validates () {
+                return this.object.project_id || this.object.memo.length;
             }
         },
         methods: {

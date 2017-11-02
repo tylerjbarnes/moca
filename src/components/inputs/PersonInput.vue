@@ -1,7 +1,7 @@
 <template>
 
     <div class="person-input">
-        <button class="delete" @click="clearSelection" v-if="searchTerm.length"></button>
+        <button class="delete" @click="clearSelection" v-if="searchTerm.length" tabindex="-1"></button>
         <input ref="input" role="text" v-model="searchTerm" @focus="focus" @blur="isFocused = false" @keydown="handleKey" @input="input" :disabled="disabled || !persons.length">
         <div class="panel" v-show="isFocused || panelIsFocused" @mouseover="panelIsFocused = true" @mouseleave="leavePanel();panelIsFocused = false">
             <div class="items">
