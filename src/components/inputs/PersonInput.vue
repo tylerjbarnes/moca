@@ -1,9 +1,9 @@
 <template>
 
     <div class="person-input">
-        <input ref="input" role="text" v-model="searchTerm" @focus="focus" @blur="isFocused = false" @keydown="handleKey" @input="input" :disabled="disabled">
+        <button class="delete" @click="clearSelection" v-if="searchTerm.length"></button>
+        <input ref="input" role="text" v-model="searchTerm" @focus="focus" @blur="isFocused = false" @keydown="handleKey" @input="input" :disabled="disabled || !persons.length">
         <div class="panel" v-show="isFocused || panelIsFocused" @mouseover="panelIsFocused = true" @mouseleave="leavePanel();panelIsFocused = false">
-            <span class="empty" v-if="!persons.length">No Matches</span>
             <div class="items">
                 <div class="item" v-for="(person,index) in persons" @mouseover="softSelect(index)" @click="select(person)" :class="{selected:isSelected(person)}">{{ person.name }}</div>
             </div>
@@ -36,6 +36,9 @@
             placeholderText () {
                 return 'Select a ' + capitalizeFirstLetter(this.role);
             }
+        },
+        watch: {
+            value: function(val) { val ? this.select(store.getters.person(val)) : this.select(null); }
         },
         methods: {
             handleKey (event) {
@@ -108,6 +111,17 @@
     .person-input {
         @include moca-input;
         position: relative;
+
+        button.delete {
+            position: absolute;
+                top: 5px;
+                right: 5px;
+            transform: scale(0.75);
+            transition: 0.2s;
+            &:not(:hover) {
+                opacity: 0.5;
+            }
+        }
 
         .panel {
             background: white;

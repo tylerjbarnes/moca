@@ -22,6 +22,10 @@
             min: { default: 0.25 },
             max: { default: 24 }
         },
+        watch: {
+            min: function (val) { this.clipCurrentValue(); },
+            max: function (val) { this.clipCurrentValue(); }
+        },
         data () {
             return {
                 isFocused: false,
@@ -58,6 +62,10 @@
                 this.$emit('input', this.clipValue(this.value - 0.25));
                 this.stringValue = this.clipValue(this.value - 0.25).toFixed(2);
             },
+            clipCurrentValue () {
+                this.$emit('input', this.clipValue(this.value));
+                this.stringValue = this.clipValue(this.value).toFixed(2);
+            },
             updateValue (value) {
                 this.stringValue = value;
                 this.$emit('input', this.convertValue(value));
@@ -86,8 +94,8 @@
                 return result;
             },
             clipValue (value) {
-                value = value > this.max ? this.max : value;
-                value = value < this.min ? this.min : value;
+                value = this.max && value > this.max ? this.max : value;
+                value = this.min && value < this.min ? this.min : value;
                 return value;
             }
         }

@@ -1,9 +1,9 @@
 <template>
 
     <div class="project-input">
-        <input ref="input" role="text" v-model="searchTerm" @focus="focus" @blur="isFocused = false" @keydown="handleKey" @input="input" :disabled="disabled" placeholder="No Project">
+        <button class="delete" @click="clearSelection" v-if="searchTerm.length"></button>
+        <input ref="input" role="text" v-model="searchTerm" @focus="focus" @blur="isFocused = false" @keydown="handleKey" @input="input" :disabled="disabled || !projects.length" placeholder="No Project">
         <div class="panel" v-show="isFocused || panelIsFocused" @mouseover="panelIsFocused = true" @mouseleave="leavePanel();panelIsFocused = false">
-            <span class="empty" v-if="!projects.length">No Matches</span>
             <div class="items">
                 <div class="item" v-for="(project,index) in projects" @mouseover="softSelect(index)" @click="select(project)" :class="{selected:isSelected(project)}">{{ project.name }}</div>
             </div>
@@ -26,6 +26,9 @@
                 panelIsFocused: false,
                 selectedProject: null
             }
+        },
+        watch: {
+            value: function(val) { val ? this.select(store.getters.project(val)) : this.select(null); }
         },
         computed: {
             projects () {
@@ -107,6 +110,17 @@
     .project-input {
         @include moca-input;
         position: relative;
+
+        button.delete {
+            position: absolute;
+                top: 5px;
+                right: 5px;
+            transform: scale(0.75);
+            transition: 0.2s;
+            &:not(:hover) {
+                opacity: 0.5;
+            }
+        }
 
         .panel {
             background: white;
