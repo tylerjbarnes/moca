@@ -164,6 +164,9 @@
             deleteTime () {
                 this.$emit('stoppedEditing');
                 if (confirm("Are you sure you want to delete this entry?")) {
+                    if (this.time.package) {
+                        new MocaMutationSet('delete', 'package', this.time.package.id).commit();
+                    }
                     new MocaMutationSet('delete', 'time', this.time.id).commit();
                 }
             },
