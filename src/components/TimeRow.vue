@@ -31,7 +31,7 @@
             </template>
             <!-- else -->
             <template v-else>
-                <div v-if="time.project_id" class="cell project">{{ time.project ? time.project.name : '' }}<span class="cycle" v-if="time.project">{{ time.cycle + 1 }}</span></div>
+                <div v-if="time.project_id" class="cell project">{{ time.project ? time.project.name : '' }}<span class="cycle" v-if="time.project && time.cycle != time.project.cycle">{{ time.cycle + 1 }}</span></div>
                 <div v-else                      class="cell memo">{{ time.memo }}</div>
             </template>
         </template>
@@ -39,7 +39,9 @@
         <!-- Details -->
         <template v-if="object.type == 'credit'">
             <div v-if="!editing" class="cell project">Expires on {{ time.package.expiration_date | date }}</div>
-            <div v-else         class="cell project">Expiration Picker</div>
+            <div v-else         class="cell project">
+                <date-input v-model="packagePrimitive.expiration_date"></date-input>
+            </div>
         </template>
 
         <!-- Hours -->
@@ -83,6 +85,9 @@
                 project_id: null,
                 memo: '',
                 hours: null
+            },
+            packagePrimitive: {
+                expiration_date: null
             }
         }},
         computed: {
@@ -137,7 +142,9 @@
                     project.max - project.hoursLogged;
             },
             validates () {
-                return this.object.project_id || this.object.memo.length;
+                return this.object.type == 'log' ?
+                    this.object.project_id || this.object.memo.length :
+                    this.object.client_id && this.packagePrimitive.expiration_date;
             }
         },
         methods: {
@@ -162,6 +169,9 @@
             },
             setPrimitiveFromTime() {
                 Object.assign(this.primitive, this.time);
+                if (this.time.package) {
+                    this.packagePrimitive.expiration_date = this.time.package.expiration_date;
+                }
             },
             save () {
                 if (!this.isDraft) {
@@ -169,12 +179,28 @@
                         'update', 'time',
                         this.primitive.id, this.primitive
                     ).commit();
+                    if (this.primitive.type == 'credit') {
+                        this.packagePrimitive.client_id = this.primitive.client_id;
+                        this.packagePrimitive.hours = this.primitive.hours;
+                        new MocaMutationSet(
+                            'update', 'package',
+                            this.time.package.id, this.packagePrimitive
+                        ).commit();
+                    }
                     this.stopEditing();
                 } else {
                     new MocaMutationSet(
                         'create', 'time',
                         this.primitive.id, this.primitive
                     ).commit();
+                    if (this.primitive.type == 'credit') {
+                        this.packagePrimitive.client_id = this.primitive.client_id;
+                        this.packagePrimitive.hours = this.primitive.hours;
+                        new MocaMutationSet(
+                            'create', 'package',
+                            this.packagePrimitive.id, this.packagePrimitive
+                        ).commit();
+                    }
                     this.stopEditing();
                 }
             }
@@ -191,6 +217,10 @@
             if (this._primitive_) {
                 this.editing = true;
                 Object.assign(this.primitive, this._primitive_);
+                if (this.primitive.type == 'credit'){
+                    this.packagePrimitive = MocaFactory.constructPrimitive('package');
+                    this.primitive.package_id = this.packagePrimitive.id;
+                }
             }
         },
         mounted () {

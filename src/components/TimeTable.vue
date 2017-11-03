@@ -40,7 +40,14 @@
         },
         methods: {
             newLog () {
-                this.timePrimitive = MocaFactory.constructPrimitive('time', {worker_id: store.state.user.id});
+                this.timePrimitive = MocaFactory.constructPrimitive('time', {
+                    worker_id: store.state.user.id
+                });
+            },
+            newPackage () {
+                this.timePrimitive = MocaFactory.constructPrimitive('time', {
+                    type: 'credit'
+                });
             }
         },
     }

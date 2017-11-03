@@ -1,6 +1,10 @@
 <template>
 
     <div id="time-view">
+        <div class="actions">
+            <button class="button" @click="logTime">Log Time</button>
+            <button class="button" @click="addPackage">Add Package</button>
+        </div>
         <div class="time-panel">
             <time-table ref="timeTable" :times="filterTimes(times)"></time-table>
         </div>
@@ -30,16 +34,13 @@
                     times = times.filter(time => time.worker_id == timeFilters.workerId);
                 }
                 return times;
+            },
+            logTime() {
+                this.$refs.timeTable.newLog();
+            },
+            addPackage() {
+                this.$refs.timeTable.newPackage();
             }
-        },
-        mounted () {
-            let vm = this;
-            bus.$on('logTime', () => {
-                vm.$refs.timeTable.newLog();
-            });
-        },
-        beforeDestroy () {
-            bus.$off('logTime');
         }
     }
 
@@ -52,7 +53,17 @@
     #time-view {
         display: flex;
         flex-flow: column;
-        padding: 40px;
+        padding: 20px 40px 40px 40px;
+
+        .actions {
+            display: flex;
+            // justify-content: left;
+            margin-bottom: 20px;
+
+            .button:not(:first-of-type) {
+                margin-left: 10px;
+            }
+        }
 
         .time-panel {
             flex-shrink: 1;

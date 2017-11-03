@@ -32,9 +32,9 @@
                     <person-input v-model="timeWorkerFilter" roles="['contractor','administrator','manager']"></person-input>
                 </div>
             </div>
-            <div class="actions">
+            <!-- <div class="actions">
                 <button class="big primary button" @click="logTime">Log Time</button>
-            </div>
+            </div> -->
         </template>
     </div>
 </template>
@@ -163,6 +163,8 @@
 
         .blurbs {
             display: flex;
+            flex-grow: 1;
+            justify-content: center;
 
             .blurb {
                 align-items: center;

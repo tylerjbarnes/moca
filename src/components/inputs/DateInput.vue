@@ -1,7 +1,7 @@
 <template>
 
     <div class="date-input">
-        <input type="text" ref="input" :value="inputReadout" @input="updateStringValue($event.target.value)" @keydown="handleKey" @focus="updateStringValueFromValue();isFocused = true" @blur="isFocused = false" :placeholder="placeholder">
+        <input type="text" ref="input" :value="inputReadout" @input="updateStringValue($event.target.value)" @keydown="handleKey" @focus="updateStringValueFromValue();focus();isFocused = true" @blur="isFocused = false" :placeholder="placeholder">
         <div class="panel" v-show="isFocused || panelIsFocused" @mouseover="panelIsFocused = true" @mouseleave="leavePanel();panelIsFocused = false" :class="[align,{upward:upward}]">
             <datepicker :inline="true" v-model="picker" @selected="pickerSelected" @changedMonth="keepFocus" @changedYear="keepFocus" @changedDecade="keepFocus" :highlighted="{dates:[new Date()]}" :disabled="this.disabledDates"></datepicker>
         </div>

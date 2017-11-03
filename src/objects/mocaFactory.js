@@ -40,6 +40,13 @@ class MocaFactory {
                     resolved: false,
                     datetime: null
                 }; break;
+            case 'package':
+                primitive = {
+                    id: cuid(),
+                    client_id: null,
+                    hours: 0,
+                    expiration_date: null
+                }; break;
             case 'project':
                 primitive = {
                     id: cuid(),
