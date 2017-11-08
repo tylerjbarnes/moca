@@ -99,7 +99,7 @@
                     }
 
                     .flagged {
-                        color: $orange;
+                        color: $red;
                         display: block;
                         text-align: center;
                         line-height: 1em;

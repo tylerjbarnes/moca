@@ -12,7 +12,7 @@ import Period from './period.js'; window.currentPeriod = new Period();
 import CeriIcon from 'ceri-icon'; window.customElements.define("ceri-icon", CeriIcon);
 
 // Vue & Plugins
-import Vue from 'vue';
+import Vue from 'vue'; window.Vue = Vue;
 import VueRouter from 'vue-router';
 Vue.use(VueRouter);
 

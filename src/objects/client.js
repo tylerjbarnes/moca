@@ -23,12 +23,12 @@ class Client extends Person {
         return store.getters.timesByClient(this.id).filter(time => time.type === 'credit').map(time => time.hours).reduce((a,b) => a + b, 0);
     }
 
-    get hoursLogged() {
-        return store.getters.timesByClient(this.id).filter(time => time.type === 'log').map(time => time.hours).reduce((a,b) => a + b, 0);
+    get hoursDebited() {
+        return store.getters.timesByClient(this.id).filter(time => time.type !== 'credit').map(time => time.hours).reduce((a,b) => a + b, 0);
     }
 
     get balance () {
-        return this.hoursCredited - this.hoursLogged;
+        return this.hoursCredited - this.hoursDebited;
     }
 
     get timesLogged () {
@@ -54,10 +54,15 @@ class Client extends Person {
         return this.packages[0];
     }
 
+    get expired () {
+        if (!this.lastPackage) { return false; }
+        return this.lastPackage.expiration_date < new moment().format('YYYY-MM-DD') && this.balance > 0;
+    }
+
     get expirationDescription () {
         if (!this.lastPackage) { return 'No Packages'; }
         let expirationDate = this.lastPackage.expiration_date;
-        let prettyExpiration = moment(expirationDate).format('MMMM DD');
+        let prettyExpiration = moment(expirationDate).format('MMM D');
         return expirationDate < new moment().format('YYYY-MM-DD') ?
             'Expired ' + prettyExpiration :
             'Expires ' + prettyExpiration;

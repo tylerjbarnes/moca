@@ -1,6 +1,6 @@
 <template>
 
-    <div class="time-row" :class="{editing}" @dblclick="edit">
+    <div class="time-row" :class="{editing, pending: time && time.pending}" @dblclick="edit">
 
         <!-- Icon -->
         <div class="cell time-icon" :class="object.type"><ceri-icon size="12" :name="iconName"></ceri-icon></div>
@@ -43,6 +43,9 @@
                 <date-input v-model="packagePrimitive.expiration_date"></date-input>
             </div>
         </template>
+        <template v-else-if="object.type == 'expiration'">
+            <div class="cell project"></div>
+        </template>
 
         <!-- Hours -->
         <template v-if="!editing">
@@ -54,9 +57,11 @@
 
         <!-- Actions -->
         <div class="actions" v-if="editing">
-            <button tabindex="-1" class="button dangerous" v-if="!isDraft" @click="deleteTime">Delete</button>
+            <button tabindex="-1" class="button dangerous" v-if="!isDraft" @click="deleteTime">{{ time && time.pending ? 'Reject' : 'Delete' }}</button>
             <button tabindex="-1" class="button" @click="stopEditing">Cancel</button>
-            <button class="button primary" @click="save" :disabled="!validates">Save</button>
+            <button class="button primary" @click="approve" v-if="time && time.pending">Approve</button>
+            <button class="button primary" @click="save" v-else :disabled="!validates">Save</button>
+
         </div>
 
     </div>
@@ -162,12 +167,12 @@
                 this.$emit('stoppedEditing');
             },
             deleteTime () {
-                this.$emit('stoppedEditing');
                 if (confirm("Are you sure you want to delete this entry?")) {
-                    if (this.time.package) {
+                    if (this.type == 'credit' && this.time.package) {
                         new MocaMutationSet('delete', 'package', this.time.package.id).commit();
                     }
                     new MocaMutationSet('delete', 'time', this.time.id).commit();
+                    this.$emit('stoppedEditing');
                 }
             },
             setPrimitiveFromTime() {
@@ -177,6 +182,7 @@
                 }
             },
             save () {
+                this.primitive.pending = !store.state.user.canManage;
                 if (!this.isDraft) {
                     new MocaMutationSet(
                         'update', 'time',
@@ -206,6 +212,10 @@
                     }
                     this.stopEditing();
                 }
+            },
+            approve () {
+                this.primitive.pending = false;
+                this.save();
             }
         },
         watch: {

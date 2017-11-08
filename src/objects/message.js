@@ -3,6 +3,10 @@ import MocaMutationSet from '../objects/mocaMutationSet.js';
 
 class Message extends MocaObject {
 
+    get project () {
+        return store.getters.project(this.project_id);
+    }
+
     get author () {
         return store.getters.person(this.author_id);
     }

@@ -2,8 +2,14 @@ import VueRouter from 'vue-router';
 import TeamView from './components/TeamView.vue';
 import ProjectsView from './components/ProjectsView.vue';
 import ArchiveView from './components/ArchiveView.vue';
+import Inbox from './components/Inbox.vue';
 
 const routes = [
+        {
+            path: '/',
+            name: 'inbox',
+            component: Inbox
+        },
         {
             path: '/projects',
             name: 'projects',

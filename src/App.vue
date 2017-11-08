@@ -3,6 +3,7 @@
         <header>
             <div class="logo"></div>
             <nav>
+                <router-link :to="{name:'inbox'}" class="navbar-item">Inbox</router-link>
                 <router-link :to="{name:'projects'}" class="navbar-item" v-if="!$store.state.user.canManage">Projects</router-link>
                 <router-link :to="{name:'team'}" class="navbar-item" v-if="$store.state.user.canManage">Team</router-link>
                 <router-link :to="{name:'clients'}" class="navbar-item" v-if="$store.state.user.canManage">Clients</router-link>
@@ -30,13 +31,14 @@
 
 
 <script>
+    import Inbox from './components/Inbox.vue';
     import Toolbar from './components/Toolbar.vue';
     import Delegator from './components/Delegator.vue';
     import Project from './objects/project.js';
 
     export default {
         name: 'app',
-        components: {Toolbar,Delegator},
+        components: {Inbox,Toolbar,Delegator},
         data () { return {
             appReady: false,
             showDelegator: false
@@ -55,11 +57,6 @@
         },
         created () {
             bus.$on('storeLoaded', () => {
-                if (!store.state.route.view) {
-                    store.state.user.canManage ?
-                        router.replace({name: 'team'}) :
-                        router.replace({name: 'projects'});
-                }
                 this.appReady = true;
             });
             bus.$on('didStartDrag', (payload) => {
@@ -69,6 +66,10 @@
             });
             bus.$on('didEndDrag', (e) => {
                 this.showDelegator = false;
+            });
+            document.addEventListener("keydown", (e) => {
+                if (['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) { return; }
+                bus.$emit('keydown', e.keyCode);
             });
         }
     }
@@ -88,8 +89,9 @@
         > header {
             background-color: white;
             border-right: 1px solid $gray;
+            height: 100vh;
             position: fixed;
-            width: $header-size; height: 100vh;
+            width: $header-size;
             z-index: 2;
 
             nav {
@@ -103,9 +105,20 @@
                     }
 
                     &.is-active {
+                        background: inherit;
+                        color: inherit;
+                        &:hover {
+                            background: $light;
+                        }
+                    }
+
+                    &.router-link-exact-active {
                         background: white;
                         color: $primary;
                         font-weight: 900;
+                        &:hover {
+                            background: inherit;
+                        }
                     }
 
                 }

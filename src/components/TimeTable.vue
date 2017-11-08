@@ -78,6 +78,9 @@
                 z-index: 1;
                 @include shadow;
             }
+            &.pending:not(.editing) {
+                background-image: repeating-linear-gradient(45deg, white, white 10px, rgba($light,0.4) 10px, rgba($light,0.4)  20px);
+            }
 
             > .cell {
                 align-items: center;
@@ -96,8 +99,9 @@
 
                 &.time-icon {
                     flex: 0 0 32px;
-                    &.log { color: $orange; }
+                    &.log { color: $medium; }
                     &.credit { color: $dark; }
+                    &.expiration { color: $red; }
                 }
                 &.date {
                     flex: 0 0 110px;

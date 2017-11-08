@@ -78,6 +78,14 @@ class Project extends MocaObject {
         });
     }
 
+    get chatMessages () {
+        return this.messages.filter(message => message.type == 'chat');
+    }
+
+    get lastChatMessage () {
+        return this.chatMessages.length ? this.chatMessages[this.chatMessages.length - 1] : null;
+    }
+
     get unresolvedMessages () {
         return this.messages.filter( message => { return message.userCanResolve });
     }

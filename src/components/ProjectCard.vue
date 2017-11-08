@@ -148,9 +148,9 @@
             right: 10px;
 
             &.active {
-                background: lighten($orange, 35%);
+                background: lighten($red, 35%);
                 ceri-icon {
-                    color: $orange;
+                    color: $red;
                 }
             }
 

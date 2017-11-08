@@ -57,7 +57,9 @@ module.exports = {
             "fa-eye",
             "fa-eye-slash",
             "fa-chevron-right",
-            "fa-chevron-left"
+            "fa-chevron-left",
+            "fa-comments-o",
+            "fa-clock-o"
           ]
       }
       }

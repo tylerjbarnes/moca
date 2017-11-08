@@ -47,9 +47,9 @@ const getters = {
 
     // Messages
     message: (state, getters) => (id) => state.messages.find(message => message.id === id),
-    messagesByProject: (state, getters) => (id) => {
-        return state.messages.filter(message => message.project_id === id);
-    },
+    messagesByProject: (state, getters) => (id) => state.messages.filter(message => message.project_id === id),
+    messagesFromContractors: (state, getters) => state.messages.filter(message => message.author.role == 'contractor' && message.type == 'chat'),
+    messagesFromManagers: (state, getters) => state.messages.filter(message => message.author.canManage && message.type == 'chat'),
     mutationMessagesForObject: (state, getters) => (id) => {
         return state.messages.filter(message => message.content.object_id === id);
     },
@@ -63,6 +63,7 @@ const getters = {
     // Persons
     clients: (state, getters) => state.persons.filter(person => person.role === 'client'),
     activeClients: (state, getters) => state.persons.filter(person => person.role === 'client' && !person.archived),
+    expiredClients: (state, getters) => getters.activeClients.filter(client => client.expired),
     management: (state, getters) => getters.members.filter(person => person.canManage),
     contractors: (state, getters) => state.persons.filter(person => person.role === 'contractor'),
     members: (state, getters) => state.persons.filter(person => person.role !== 'client'),
@@ -87,6 +88,7 @@ const getters = {
     // Times
     time: (state, getters) => (id) => state.times.find(time => time.id === id),
     times: (state, getters) => state.times.sort((a,b) => a.date < b.date || (a.date == b.date && a.cycle < b.cycle)),
+    pendingTimes: (state, getters) => getters.times.filter(time => time.pending),
     timesInPeriod: (state, getters) => state.times.filter(time => time.date >= state.uiFilters.times.period.start && time.date <= state.uiFilters.times.period.end).sort((a,b) => a.date < b.date || (a.date == b.date && a.cycle < b.cycle)),
     logsByProject: (state, getters) => (id) => state.times.filter(time => time.project_id === id),
     timesByContractor: (state, getters) => (id) => state.times.filter(time => time.worker_id === id),

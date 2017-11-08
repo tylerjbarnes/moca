@@ -27,7 +27,7 @@
                     <span>Client</span>
                     <person-input v-model="timeClientFilter" roles="['client']"></person-input>
                 </div>
-                <div class="blurb">
+                <div class="blurb" v-if="$store.state.user.canManage">
                     <span>Worker</span>
                     <person-input v-model="timeWorkerFilter" roles="['contractor','administrator','manager']"></person-input>
                 </div>

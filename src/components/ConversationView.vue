@@ -2,7 +2,7 @@
 
     <div class="conversation-view">
         <div class="items" ref="items">
-            <message-view v-for="message in messages" key="message.id" :message="message" :replying="message.id == messagePrimitive.parent_id" v-on:toggleReplying="toggleReplying(message.id)"></message-view>
+            <message-view v-for="message in messages" key="message.id" :message="message" v-on:toggleReplying="toggleReplying(message.id)"></message-view>
         </div>
         <div class="create" ref="dynamicHeight">
             <div class="textarea-wrapper">
@@ -32,7 +32,7 @@
         components: {MessageView},
         computed: {
             messages () {
-                return this.project.messages.filter(message => !message.parent_id).reverse();
+                    return this.project.messages.reverse();
             },
             content () {
                 return this.messagePrimitive.content;
@@ -73,6 +73,9 @@
                 ).commit();
                 this.messagePrimitive = this.newMessagePrimitive();
                 this.resizeTextarea('');
+            },
+            focus () {
+                this.$refs.textarea.focus();
             }
         }
     }
