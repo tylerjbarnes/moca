@@ -228,6 +228,48 @@ function hpm_flatten_properties_for_db( $original ) {
     return $object;
 }
 
+/**
+ * Create Person After WP User Creation
+ * @param  Object $person_data
+ * @param  String $socket_id
+ */
+function hpm_api_create_person( $person_data ) {
+
+    // Secure
+    $role = hpm_user_role();
+    error_log($role);
+    if (!in_array($role, ["administrator", "manager"])) {
+        return null;
+    }
+
+    // Create WP User
+    $username = $person_data["name"];
+    $password = wp_generate_password( 12, false );
+    $wp_id = wp_create_user( $username, $password );
+    $user = new WP_User( $wp_id );
+    $user->set_role( $person_data["role"] );
+    $person_data["wp_id"] = $wp_id;
+
+    // Mutate
+    $mutations = [
+        (object) [
+            "action" => "create",
+            "object_type" => "person",
+            "object_id" => $person_data["id"],
+            "property_name" => NULL,
+            "property_value" => (object) [
+                "id" => $person_data["id"],
+                "wp_id" => $wp_id,
+                "name" => $username,
+                "role" => $person_data["role"],
+                "color" => "#777777"
+            ],
+            "author_id" => hpm_user_id()
+        ]
+    ];
+    hpm_api_mutate( $mutations, NULL );
+
+}
 
 
 
