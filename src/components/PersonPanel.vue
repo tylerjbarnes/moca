@@ -48,6 +48,11 @@
                     <h2 class="collection-title">Managing</h2>
                     <project-collection :projects="filterProjects(person.activeProjectsManaged)" :kanban="true" :person="person"></project-collection>
                 </template>
+                <template v-if="!person.canManage && !person.activeProjectsAssigned.length">
+                    <div class="actions">
+                        <button class="button" @click="archivePerson">Archive Contractor</button>
+                    </div>
+                </template>
             </template>
 
             <!-- Clients -->
@@ -57,12 +62,12 @@
                     <project-collection :projects="filterProjects(person.activeProjectsOwned)" :kanban="true" :person="person"></project-collection>
                 </template>
 
-                <h2 class="collection-title">Files</h2>
-                <button class="button primary">Add File</button>
+                <!-- <h2 class="collection-title">Files</h2>
+                <button class="button primary">Add File</button> -->
 
                 <template v-if="!person.activeProjectsOwned.length">
                     <div class="actions">
-                        <button class="button" @click="archiveClient">Archive Client</button>
+                        <button class="button" @click="archivePerson">Archive Client</button>
                     </div>
                 </template>
             </template>
@@ -101,7 +106,7 @@
                     projects.filter(project => !project.future) :
                     projects;
             },
-            archiveClient () {
+            archivePerson () {
                 this.person.archive();
             }
         },

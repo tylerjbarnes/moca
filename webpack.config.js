@@ -60,7 +60,8 @@ module.exports = {
             "fa-chevron-left",
             "fa-comments-o",
             "fa-clock-o",
-            "fa-recycle"
+            "fa-recycle",
+            "fa-wordpress"
           ]
         }
       }

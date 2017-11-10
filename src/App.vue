@@ -11,6 +11,9 @@
                 <router-link :to="{name:'archive'}" class="navbar-item">Archive</router-link>
             </nav>
             <nav class="secondary-nav">
+                <a href="/wp-admin">
+                    <ceri-icon name="fa-wordpress" size="30" h-center></ceri-icon>
+                </a>
                 <router-link :to="{name: 'profile'}" class="profile-link">
                     <img :src="$store.state.user.avatar">
                 </router-link>
@@ -106,6 +109,24 @@
                 &.primary-nav {
                     flex: 1 1 100vh;
                     padding-top: $header-size;
+
+                }
+
+                &.secondary-nav {
+                    align-items: center;
+                    display: flex;
+                    flex-flow: column;
+                    justify-content: center;
+                    padding-bottom: 15px;
+
+                    ceri-icon {
+                        color: $dark;
+                        opacity: 0.5;
+                        transition: 0.2s ease;
+                        &:hover {
+                            opacity: 1;
+                        }
+                    }
 
                 }
 

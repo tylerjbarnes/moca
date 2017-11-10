@@ -44,9 +44,10 @@ button.button {
 
     &.inverted {
         background-color: white;
-        color: $primary;
+        font-weight: 700;
+        color: $dark;
         &:hover, &.is-active, &:active, &:focus {
-            color: $primary;
+            color: $dark;
         }
     }
 

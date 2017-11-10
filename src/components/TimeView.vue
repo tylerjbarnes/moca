@@ -2,8 +2,8 @@
 
     <div id="time-view">
         <div class="actions">
-            <button class="button" @click="logTime">Log Time</button>
-            <button class="button" @click="addPackage">Add Package</button>
+            <button class="primary button" @click="logTime">Log Time</button>
+            <button class="inverted button" @click="addPackage">Add Package</button>
         </div>
         <div class="time-panel">
             <time-table ref="timeTable" :times="filterTimes(times)"></time-table>
