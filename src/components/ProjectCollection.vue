@@ -1,10 +1,10 @@
 <template>
 
-    <div class="project-collection">
-        <kanban :projects="projects" v-if="kanban" :person="person"></kanban>
+    <div class="project-collection" :class="{fluid}">
+        <kanban :projects="projects" v-if="kanban" :person="person" :show="show"></kanban>
         <div class="items" v-else>
             <div class="item" v-for="project in sortedProjects">
-                <project-card :project="project" :key="project.id"></project-card>
+                <project-card :project="project" :key="project.id" :show="show"></project-card>
             </div>
         </div>
     </div>
@@ -18,7 +18,7 @@
 
     export default {
         name: 'project-collection',
-        props: ['projects','kanban','person'],
+        props: ['projects','kanban','person','fluid','show'],
         components: {Kanban,ProjectCard},
         computed: {
             sortedProjects () {
@@ -51,6 +51,15 @@
                 .project-card {
 
                 }
+
+            }
+
+        }
+
+        &.fluid .items {
+
+            .item {
+                flex: 0 0 200px;
 
             }
 

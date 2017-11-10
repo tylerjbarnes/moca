@@ -60,7 +60,6 @@
         mixins: [Draggable],
         methods: {
             open () {
-                // if (this.isDragDelegate) { return; }
                 this.$router.push({ name: this.$store.state.route.view + '-project', params: { id: this.project.id }});
             },
             didAssumeDragDelegacy () {

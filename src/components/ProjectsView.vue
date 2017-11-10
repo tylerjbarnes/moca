@@ -11,9 +11,9 @@
         </template>
         <template v-else>
             <h1 class="title">Active</h1>
-            <project-collection :projects="activeProjects"></project-collection>
+            <project-collection :fluid="true" :projects="activeProjects"></project-collection>
             <h1 class="title">Pending Approval</h1>
-            <project-collection :projects="pendingProjects"></project-collection>
+            <project-collection :fluid="true" :projects="pendingProjects"></project-collection>
         </template>
     </div>
 
@@ -22,6 +22,7 @@
 
 <script>
     import ProjectCollection from './ProjectCollection.vue';
+    import CanSearchProjects from '../mixins/CanSearchProjects.js';
 
     export default {
         name: 'projects-view',
@@ -30,18 +31,22 @@
             statuses: ['delegate','do','approve','send']
         }},
         computed: {
+            allProjects () {
+                return store.state.user.projectsAssigned;
+            },
             activeProjects () {
-                return store.state.user.projectsAssigned.filter(project => project.status == 'do');
+                return this.projects.filter(project => project.status == 'do');
             },
             pendingProjects () {
-                return store.state.user.projectsAssigned.filter(project => project.status == 'approve');
+                return this.projects.filter(project => project.status == 'approve');
             }
         },
         methods: {
             projectsByStatus (status) {
                 return store.getters.projectsByStatus(status);
             }
-        }
+        },
+        mixins: [CanSearchProjects]
     }
 
 </script>

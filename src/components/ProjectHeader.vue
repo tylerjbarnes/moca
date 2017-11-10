@@ -5,7 +5,7 @@
         <div class="top">
             <div class="titles">
                 <div class="subtitles">
-                    <h2 class="client-name">{{ project.client ? project.client.name : 'No Client' }}<template class="manager-name" v-if="!$store.state.user.canManage"> • {{ project.manager.firstName }}</template></h2>
+                    <h2 class="client-name">{{ project.client ? project.client.name : 'No Client' }}</h2>
                     <span class="cycle" v-if="$store.state.user.canManage">{{ project.cycle + 1 }}</span>
                     <span class="flagged" v-if="project.flagged"><ceri-icon name="fa-flag" size="14" hcenter></ceri-icon></span>
                 </div>
@@ -19,6 +19,7 @@
             <div v-else class="logging">
                 <quick-log v-if="!project.archived" :project="project"></quick-log>
             </div>
+            <person-tag v-if="!managing || project.archived" :person="project.manager"></person-tag>
         </div>
 
         <div class="blurbs">
@@ -144,6 +145,10 @@
             .logged {
                 display: block;
                 text-align: right;
+            }
+
+            .person-tag {
+                margin-left: 10px;
             }
 
         }

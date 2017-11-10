@@ -1,6 +1,6 @@
 <template>
     <div id="toolbar">
-        <template v-if="['team','clients','archive'].includes($store.state.route.view)">
+        <template v-if="['team','clients','archive','projects'].includes($store.state.route.view)">
             <ceri-icon size="16" name="fa-search" hcenter></ceri-icon>
             <input v-model="searchTerm" type="text" id="search" placeholder="Find a person, project, resource...">
             <div v-if="searchTerm.length" @click="searchTerm = '';" class="clear">

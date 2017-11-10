@@ -21,6 +21,15 @@ class Person extends MocaObject {
         ).commit();
     }
 
+    unarchive () {
+        new MocaMutationSet(
+            'update', 'person',
+            this.id, {
+                'archived' : false,
+            }
+        ).commit();
+    }
+
 }
 
 export default Person;

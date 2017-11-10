@@ -73,7 +73,7 @@ class Message extends MocaObject {
     }
 
     get requestDescription () {
-        let hoursString = this.content.hours ? '<strong>' + this.content.hours + ' more hours</strong>' : '';
+        let hoursString = this.content.hours ? '<strong>' + this.content.hours + ' more hour' + (this.content.hours != 1 ? 's' : '') + '</strong>' : '';
         let dueString = this.content.due ? 'a later due date of <strong>' + moment(this.content.due).format("MMM D") + '</strong>': '';
         let both = hoursString && dueString;
         let name = this.author.id == store.state.user.id ? 'You' : this.author.firstName;

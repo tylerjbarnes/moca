@@ -2,13 +2,18 @@
     <div id="app" v-if="appReady">
         <header>
             <div class="logo"></div>
-            <nav>
+            <nav class="primary-nav">
                 <router-link :to="{name:'inbox'}" class="navbar-item">Inbox</router-link>
                 <router-link :to="{name:'projects'}" class="navbar-item" v-if="!$store.state.user.canManage">Projects</router-link>
                 <router-link :to="{name:'team'}" class="navbar-item" v-if="$store.state.user.canManage">Team</router-link>
                 <router-link :to="{name:'clients'}" class="navbar-item" v-if="$store.state.user.canManage">Clients</router-link>
                 <router-link :to="{name:'time'}" class="navbar-item">Time</router-link>
-                <router-link :to="{name:'archive'}" class="navbar-item" v-if="$store.state.user.canManage">Archive</router-link>
+                <router-link :to="{name:'archive'}" class="navbar-item">Archive</router-link>
+            </nav>
+            <nav class="secondary-nav">
+                <router-link :to="{name: 'profile'}" class="profile-link">
+                    <img :src="$store.state.user.avatar">
+                </router-link>
             </nav>
         </header>
         <div class="main-container">
@@ -89,13 +94,20 @@
         > header {
             background-color: white;
             border-right: 1px solid $gray;
+            display: flex;
+            flex-flow: column;
             height: 100vh;
             position: fixed;
             width: $header-size;
             z-index: 2;
 
             nav {
-                padding-top: $header-size;
+
+                &.primary-nav {
+                    flex: 1 1 100vh;
+                    padding-top: $header-size;
+
+                }
 
                 .navbar-item {
                     text-align: center;
@@ -119,6 +131,25 @@
                         &:hover {
                             background: inherit;
                         }
+                    }
+
+                }
+
+                .profile-link {
+
+                    img {
+                        border-radius: 25px;
+                        display: block;
+                        height: 50px;
+                        margin: 15px;
+                        transition: 0.3s ease;
+                        width: 50px;
+                        @include lifts;
+
+                    }
+
+                    &.router-link-exact-active img {
+                        border: 2px solid $primary !important;
                     }
 
                 }

@@ -37,6 +37,11 @@ const routes = [
             component: require('./components/ArchiveView.vue')
         },
         {
+            path: '/profile',
+            name: 'profile',
+            component: require('./components/ProfileEditor.vue')
+        },
+        {
             path: '/team/new-project',
             name: 'team-new-project',
             components: {

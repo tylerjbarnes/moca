@@ -48,8 +48,8 @@ const getters = {
     // Messages
     message: (state, getters) => (id) => state.messages.find(message => message.id === id),
     messagesByProject: (state, getters) => (id) => state.messages.filter(message => message.project_id === id),
-    messagesFromContractors: (state, getters) => state.messages.filter(message => message.author.role == 'contractor' && message.type == 'chat'),
-    messagesFromManagers: (state, getters) => state.messages.filter(message => message.author.canManage && message.type == 'chat'),
+    messagesFromContractors: (state, getters) => state.messages.filter(message => message.author.role == 'contractor' && message.type != 'activity'),
+    messagesFromManagers: (state, getters) => state.messages.filter(message => message.author.canManage && message.type != 'activity'),
     mutationMessagesForObject: (state, getters) => (id) => {
         return state.messages.filter(message => message.content.object_id === id);
     },

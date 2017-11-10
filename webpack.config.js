@@ -59,9 +59,10 @@ module.exports = {
             "fa-chevron-right",
             "fa-chevron-left",
             "fa-comments-o",
-            "fa-clock-o"
+            "fa-clock-o",
+            "fa-recycle"
           ]
-      }
+        }
       }
     ]
   },

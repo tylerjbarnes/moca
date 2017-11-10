@@ -6,6 +6,9 @@
         color: solid ? person.darkColor : person.color
     }">
         {{ person.firstName }}
+        <transition name="scale">
+            <div class="online-dot" v-if="person.online"></div>
+        </transition>
     </div>
 
 </template>
@@ -33,10 +36,26 @@
         font-weight: 700;
         margin-right: 2px;
         padding: 4px 8px;
+        position: relative;
 
         &.solid {
             font-weight: 700;
 
+        }
+
+        .online-dot {
+            background: $green;
+            border: 3px solid white;
+            border-radius: 7px;
+            position: absolute;
+                bottom: -7px; right: -7px;
+            width: 14px; height: 14px;
+        }
+        .scale-enter-active, .scale-leave-active {
+            transition: transform 0.4s ease;
+        }
+        .scale-enter, .scale-leave-to {
+            transform: scale(0);
         }
 
     }
