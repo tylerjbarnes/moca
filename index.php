@@ -41,6 +41,5 @@
     <div id="app"></div>
     <script src="https://js.pusher.com/4.1/pusher.min.js"></script>
     <script src="http://localhost:8080/dist/build.js"></script>
-    <!-- <script src="/dist/build.js"></script> -->
   </body>
 </html>

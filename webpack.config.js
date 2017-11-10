@@ -1,5 +1,6 @@
 var path = require('path')
 var webpack = require('webpack')
+var HtmlWebpackPlugin = require('html-webpack-plugin')
 
 module.exports = {
   entry: './src/main.js',
@@ -85,7 +86,9 @@ module.exports = {
 }
 
 if (process.env.NODE_ENV === 'production') {
-  module.exports.devtool = '#source-map'
+  module.exports.devtool = '#source-map';
+  module.exports.output.publicPath = 'http://jesshershey.com/wp-content/plugins/moca/';
+  module.exports.output.filename = 'build[chunkhash].js';
   // http://vue-loader.vuejs.org/en/workflow/production.html
   module.exports.plugins = (module.exports.plugins || []).concat([
     new webpack.DefinePlugin({
@@ -93,14 +96,46 @@ if (process.env.NODE_ENV === 'production') {
         NODE_ENV: '"production"'
       }
     }),
-    new webpack.optimize.UglifyJsPlugin({
-      sourceMap: true,
-      compress: {
-        warnings: false
-      }
-    }),
+    // new webpack.optimize.UglifyJsPlugin({
+    //   sourceMap: true,
+    //   compress: {
+    //     warnings: false
+    //   }
+    // }),
     new webpack.LoaderOptionsPlugin({
-      minimize: true
-    })
-  ])
+      minimize: true,
+    }),
+    new HtmlWebpackPlugin({
+        filename: 'index.php',
+        template: 'index.php',
+        inject: true,
+        chunksSortMode: 'dependency'
+    }),
+  ]);
+  module.exports.module = {
+    rules: [
+        {
+            test: /\.js$/,
+            exclude: /(node_modules)/,
+            loader: 'babel-loader',
+            options: {
+                presets: ['es2015']
+            }
+        },
+        {
+          test: /\.vue$/,
+          loader: 'vue-loader',
+          options: {
+              loaders: {
+                  js: {
+                     loader: 'babel-loader',
+                     options: {
+                         presets: ['es2015']
+                     }
+                  },
+              }
+          }
+      }
+    ]
+  };
 }
