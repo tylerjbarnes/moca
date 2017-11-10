@@ -52,7 +52,7 @@
     import PersonTag from './PersonTag.vue';
     import Selector from './inputs/Selector.vue';
     import MocaMutationSet from '../objects/mocaMutationSet.js';
-    import { Slider } from 'vue-color';
+    import { Sketch } from 'vue-color';
 
     export default {
         name: 'profile-editor',
@@ -183,7 +183,7 @@
                 router.go(-1);
             }
         },
-        components: {'color-picker': Slider, PersonTag, Selector}
+        components: {'color-picker': Sketch, PersonTag, Selector}
         // watch: {
         //     colorObject: function(newVal) {
         //         let vm = this;
