@@ -3,6 +3,7 @@ import TeamView from './components/TeamView.vue';
 import ProjectsView from './components/ProjectsView.vue';
 import ArchiveView from './components/ArchiveView.vue';
 import Inbox from './components/Inbox.vue';
+import ProjectCard from './components/ProjectCard.vue';
 
 const routes = [
         {
@@ -94,6 +95,18 @@ const routes = [
             name: 'projects-project',
             components: {
                 default: ProjectsView,
+                modal: require('./components/ProjectView.vue')
+            },
+            props: {
+                default: false,
+                modal: true
+            }
+        },
+        {
+            path: '/inbox/:id',
+            name: 'inbox-project',
+            components: {
+                default: Inbox,
                 modal: require('./components/ProjectView.vue')
             },
             props: {

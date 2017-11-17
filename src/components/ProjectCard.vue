@@ -1,11 +1,14 @@
 <template>
 
     <div @click="open" tag="div" class="project-card" :class="{dragging: isDragDelegate, delegating}" :style="{transform:'translate(' + dragDelta.x + 'px,' + dragDelta.y + 'px)'}">
+        <div class="cycles" :class="{ active: project.autocycle }">
+            <ceri-icon name="fa-recycle" size="12" offset-y="-5" hcenter></ceri-icon>
+        </div>
         <div class="flag" :class="{ active: project.flagged }">
-            <ceri-icon name="fa-flag" size="10" hcenter></ceri-icon>
+            <ceri-icon name="fa-flag" size="11" hcenter></ceri-icon>
         </div>
         <div class="unresolved" :class="{ active: project.unresolvedMessages.length }">
-            <ceri-icon name="fa-comment" size="9" hcenter></ceri-icon>
+            <ceri-icon name="fa-comment" size="11" offset-y="7" hcenter></ceri-icon>
         </div>
         <div class="content">
             <div class="names">
@@ -19,7 +22,7 @@
                 <person-tag v-if="show.contractor && project.contractor" :person="project.contractor" :solid="true"></person-tag>
             </div>
             <div class="meta">
-                <span class="estimate">{{ project.estimate | hours }}</span>
+                <span class="estimate">{{ project.max | hours }}</span>
                 <span class="due" v-if="project.dueString">{{ project.dueString }}</span>
             </div>
         </footer>
@@ -60,7 +63,8 @@
         mixins: [Draggable],
         methods: {
             open () {
-                this.$router.push({ name: this.$store.state.route.view + '-project', params: { id: this.project.id }});
+                let prefix = this.$store.state.route.view ? this.$store.state.route.view + '-' : 'inbox-';
+                this.$router.push({ name: prefix + 'project', params: { id: this.project.id }});
             },
             didAssumeDragDelegacy () {
                 bus.$on('delegationInvite', () => { this.delegating = true; });
@@ -126,7 +130,7 @@
         }
 
         // Badges
-        .flag, .unresolved {
+        .cycles, .flag, .unresolved {
             background: $light;
             // border: 2px solid $gray;
             border-radius: 3px;
@@ -141,6 +145,16 @@
             ceri-icon {
                 height: 17px;
 
+            }
+        }
+        .cycles {
+            right: 70px;
+
+            &.active {
+                background: lighten($primary, 35%);
+                ceri-icon {
+                    color: $primary;
+                }
             }
         }
         .flag {

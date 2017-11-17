@@ -13,6 +13,7 @@
         <div class="preview">
             <template v-if="!selected">No more items!</template>
             <template v-else-if="selected.type == 'project'">
+                <project-header :project="selected.object" :external="true"></project-header>
                 <conversation-view ref="focalPoint" :project="selected.object"></conversation-view>
             </template>
             <template v-else-if="selected.type == 'time'">
@@ -59,6 +60,7 @@
 <script>
     import InboxItem from './InboxItem.vue';
     import ConversationView from './ConversationView.vue';
+    import ProjectHeader from './ProjectHeader.vue';
     import DateInput from './inputs/DateInput.vue';
     import TimeTable from './TimeTable.vue';
     import MocaMutationSet from '../objects/mocaMutationSet.js';
@@ -70,7 +72,7 @@
             selectedIndex: null,
             extensionDate: null
         }},
-        components: {InboxItem,ConversationView,TimeTable,DateInput},
+        components: {InboxItem,ConversationView,TimeTable,DateInput,ProjectHeader},
         computed: {
             selected () {
                 return this.items[this.selectedIndex];
@@ -196,6 +198,16 @@
             position: absolute;
                 top: 0; bottom: 0;
                 left: 300px; right: 0;
+
+            .project-header {
+                padding: 20px;
+
+                .blurbs {
+                    display: none;
+
+                }
+
+            }
 
             .time-table-wrapper {
                 align-self: stretch;

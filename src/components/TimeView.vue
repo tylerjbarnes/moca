@@ -3,7 +3,7 @@
     <div id="time-view">
         <div class="actions">
             <button class="primary button" @click="logTime">Log Time</button>
-            <button class="inverted button" @click="addPackage">Add Package</button>
+            <button class="inverted button" @click="addPackage" v-if="$store.state.user.canManage">Add Package</button>
         </div>
         <div class="time-panel">
             <time-table ref="timeTable" :times="filterTimes(times)"></time-table>

@@ -84,13 +84,15 @@
         align-items: center;
         justify-content: center;
         display: flex;
-        height: 100%; width: 100%;
+        height: 100%;
         position: absolute;
             top: 0; left: 0;
+        width: 100%;
 
         .wrapper {
             position: absolute;
                 bottom: 45px;
+            width: 300px;
 
             .dialogue {
                 background: white;

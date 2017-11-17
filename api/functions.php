@@ -55,32 +55,49 @@ function hpm_object( $type, $id ) {
  */
 function hpm_get_pusher() {
 
-    $whitelist = array('127.0.0.1', "::1", 'localhost');
-    if(in_array($_SERVER['REMOTE_ADDR'], $whitelist)){
-        // Is localhost
-        $options = array(
-            'encrypted' => true,
-            'cluster' => 'us2'
-        );
-        $pusher = new Pusher(
-            '2a9730534281c98fb4b3',
-            'cded72d30868b6e533dd',
-            '368095',
-            $options
-        );
+    global $wpdb;
+    $option_table = $wpdb->prefix . 'hpm_options';
+    $secret = $wpdb->get_var( "SELECT option_value FROM $option_table messages WHERE option_name = 'pusher_secret'" );
+    $key = $wpdb->get_var( "SELECT option_value FROM $option_table messages WHERE option_name = 'pusher_key'" );
+    $app_id = $wpdb->get_var( "SELECT option_value FROM $option_table messages WHERE option_name = 'pusher_app_id'" );
 
-    } else {
-        $options = array(
-            'encrypted' => true
-        );
-        $pusher = new Pusher(
-            '1f4e52f094e0cf3aafeb',
-            '7a8fc6f85028e615fcc4',
-            '290162',
-            $options
-        );
+    $options = array(
+        'encrypted' => true,
+        'cluster' => 'us2'
+    );
+    $pusher = new Pusher(
+        $key,
+        $secret,
+        $app_id,
+        $options
+    );
 
-    }
+    // $whitelist = array('127.0.0.1', "::1", 'localhost');
+    // if(in_array($_SERVER['REMOTE_ADDR'], $whitelist)){
+    //     // Is localhost
+    //     $options = array(
+    //         'encrypted' => true,
+    //         'cluster' => 'us2'
+    //     );
+    //     $pusher = new Pusher(
+    //         '2a9730534281c98fb4b3',
+    //         'cded72d30868b6e533dd',
+    //         '368095',
+    //         $options
+    //     );
+    //
+    // } else {
+    //     $options = array(
+    //         'encrypted' => true
+    //     );
+    //     $pusher = new Pusher(
+    //         '1f4e52f094e0cf3aafeb',
+    //         '7a8fc6f85028e615fcc4',
+    //         '290162',
+    //         $options
+    //     );
+    //
+    // }
 
     return $pusher;
 }
@@ -242,14 +259,6 @@ function hpm_api_create_person( $person_data ) {
         return null;
     }
 
-    // Create WP User
-    $username = $person_data["name"];
-    $password = wp_generate_password( 12, false );
-    $wp_id = wp_create_user( $username, $password );
-    $user = new WP_User( $wp_id );
-    $user->set_role( $person_data["role"] );
-    $person_data["wp_id"] = $wp_id;
-
     // Mutate
     $mutations = [
         (object) [
@@ -259,8 +268,8 @@ function hpm_api_create_person( $person_data ) {
             "property_name" => NULL,
             "property_value" => (object) [
                 "id" => $person_data["id"],
-                "wp_id" => $wp_id,
-                "name" => $username,
+                "wp_id" => $person_data["wp_id"],
+                "name" => $person_data["name"],
                 "role" => $person_data["role"],
                 "color" => "#777777"
             ],

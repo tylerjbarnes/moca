@@ -9,7 +9,7 @@
                     <span class="cycle" v-if="$store.state.user.canManage">{{ project.cycle + 1 }}</span>
                     <span class="flagged" v-if="project.flagged"><ceri-icon name="fa-flag" size="14" hcenter></ceri-icon></span>
                 </div>
-                <h1 class="project-name">{{ project.name }}</h1>
+                <h1 class="project-name" :class="{external}" @click="open">{{ project.name }}</h1>
             </div>
             <div v-if="managing && !project.archived" class="meta">
                 <span class="logged">{{ project.hoursLogged | hours }} Logged</span>
@@ -53,9 +53,15 @@
 
     export default {
         name: 'project-header',
-        props: ['project'],
+        props: ['project','external'],
         computed: {
             managing () { return store.state.user.canManage && store.state.user.id != this.project.contractor_id; }
+        },
+        methods: {
+            open () {
+                let prefix = this.$store.state.route.view ? this.$store.state.route.view + '-' : 'inbox-';
+                this.$router.push({ name: prefix + 'project', params: { id: this.project.id }});
+            }
         },
         components: {PersonTag,ProjectActions,QuickLog}
     }
@@ -115,6 +121,10 @@
                     display: inline-block;
                     font-size: 1.4em;
                     font-weight: 900;
+
+                    &.external {
+                        cursor: pointer;
+                    }
 
                 }
 

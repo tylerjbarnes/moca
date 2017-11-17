@@ -36,6 +36,11 @@
                 <button class="big primary button" @click="logTime">Log Time</button>
             </div> -->
         </template>
+        <template v-if="$store.state.route.view == 'profile'">
+            <div class="actions only">
+                <button class="big primary button" @click="signout">Sign Out</button>
+            </div>
+        </template>
     </div>
 </template>
 
@@ -76,6 +81,9 @@
             },
             toggleStartedFilter() {
                 this.$store.dispatch('setUiFilter', {type: 'projects', name: 'started', value: !this.filters.started})
+            },
+            signout () {
+                window.location.replace('/wp-login.php?action=logout');
             }
         }
     }
@@ -158,6 +166,10 @@
             flex-flow: row;
             justify-content: flex-end;
             padding-left: 10px;
+
+            &.only {
+                flex-grow: 1;
+            }
 
         }
 

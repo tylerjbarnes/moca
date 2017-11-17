@@ -11,7 +11,7 @@
                 <router-link :to="{name:'archive'}" class="navbar-item">Archive</router-link>
             </nav>
             <nav class="secondary-nav">
-                <a href="/wp-admin">
+                <a href="/wp-admin" v-if="$store.state.user.canManage">
                     <ceri-icon name="fa-wordpress" size="30" h-center></ceri-icon>
                 </a>
                 <router-link :to="{name: 'profile'}" class="profile-link">

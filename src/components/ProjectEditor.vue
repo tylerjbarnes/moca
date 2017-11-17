@@ -52,7 +52,7 @@
                             </div>
                             <div class="field-column">
                                 <label>Contractor</label>
-                                <person-input ref="contractorInput" roles="['contractor']" v-model="projectPrimitive.contractor_id"></person-input>
+                                <person-input ref="contractorInput" roles="['contractor','administrator','manager']" v-model="projectPrimitive.contractor_id"></person-input>
                             </div>
                         </div>
                     </div>
@@ -144,7 +144,8 @@
         },
         computed: {
             validates () {
-                return this.projectPrimitive.name &&
+                return this.projectPrimitive.client_id &&
+                    this.projectPrimitive.name &&
                     this.projectPrimitive.manager_id &&
                     this.projectPrimitive.max >= this.projectPrimitive.estimate;
             },

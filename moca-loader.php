@@ -393,7 +393,7 @@ class Moca {
             "color" => "#777777",
             "time_offset" => -7,
         ];
-        hpm_api_create_person( $person_data, null );
+        hpm_api_create_person( $person_data );
 
     }
 
