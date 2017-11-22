@@ -57,7 +57,8 @@ module.exports = {
             "fa-comments-o",
             "fa-clock-o",
             "fa-recycle",
-            "fa-wordpress"
+            "fa-wordpress",
+            "fa-check-circle"
           ]
         }
       }

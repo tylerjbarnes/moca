@@ -1,17 +1,15 @@
 <?php
-    if (is_user_logged_in() && hpm_user_role() == "client") {
-        header("Location: /client-portal"); /* Redirect browser */
-        exit();
-    }
     if (!is_user_logged_in()) {
         header("Location: /login"); /* Redirect browser */
         exit();
     }
-    global $wpdb;
-    $option_table = $wpdb->prefix . 'hpm_options';
-    $pusher_key = $wpdb->get_var(
-        "SELECT option_value FROM $option_table messages WHERE option_name = 'pusher_key'"
-    );
+    if (hpm_user_role() != "client") {
+        global $wpdb;
+        $option_table = $wpdb->prefix . 'hpm_options';
+        $pusher_key = $wpdb->get_var(
+            "SELECT option_value FROM $option_table messages WHERE option_name = 'pusher_key'"
+        );
+    }
 ?>
 
 <!DOCTYPE html>
@@ -31,6 +29,7 @@
             itemId: "<?php echo get_query_var('item'); ?>" ? "<?php echo get_query_var('item'); ?>" : null
         };
         var currentUserWpId = "<?php echo get_current_user_id(); ?>";
+        var mocaUserRole = "<?php echo hpm_user_role(); ?>";
         var pusherKey = "<?php echo $pusher_key; ?>";
         if (appState.mode == 'people') {
             appState.mode = 'persons';

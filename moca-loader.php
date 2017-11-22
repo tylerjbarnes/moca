@@ -60,9 +60,10 @@ class Moca {
         add_action( 'init', array( $this, 'setup_rewrites' ), 10, 0);
         add_action( 'wp_ajax_handle_ajax_request', array($this,'handle_ajax_request') );
         add_action( 'wp_ajax_hpm_api', array($this,'hpm_api') );
+        add_action( 'wp_ajax_moca_client_api', array($this,'moca_client_api') );
         add_filter( 'template_include', array($this, 'dashboard_template'), 99 );
         add_filter( 'template_include', array($this, 'login_template'), 99 );
-        add_filter( 'template_include', array($this, 'client_template'), 99 );
+        // add_filter( 'template_include', array($this, 'client_template'), 99 );
         add_filter( 'login_redirect', array($this, 'login_redirect'), 10, 3 );
         add_action( 'init', array( $this, 'remove_admin_bar' ), 10, 0 );
         add_filter( 'wp_mail_from_name', function( $name ) {
@@ -99,6 +100,7 @@ class Moca {
         require( $this->plugin_dir . 'api/lib/Pusher.php' );
         require( $this->plugin_dir . 'api/notifications.php' );
         require( $this->plugin_dir . 'api/api.php' );
+        require( $this->plugin_dir . 'api/client_api.php' );
         require( $this->plugin_dir . 'api/client-access.php' );
     }
 
@@ -282,18 +284,18 @@ class Moca {
         }
         return $template;
     }
-    /**
-     * Adds template filter to use Moca's client portal template
-     */
-    public function client_template( $template ) {
-        if ( is_page( "client-portal" )  ) {
-            $new_template = plugin_dir_path(__FILE__).'client-portal.php';
-            if ( !empty($new_template) ) {
-                return $new_template ;
-            }
-        }
-        return $template;
-    }
+    // /**
+    //  * Adds template filter to use Moca's client portal template
+    //  */
+    // public function client_template( $template ) {
+    //     if ( is_page( "client-portal" )  ) {
+    //         $new_template = plugin_dir_path(__FILE__).'client-portal.php';
+    //         if ( !empty($new_template) ) {
+    //             return $new_template ;
+    //         }
+    //     }
+    //     return $template;
+    // }
 
     /**
      * Redirects non-admins to dashboard
@@ -306,13 +308,13 @@ class Moca {
 
         //is there a user to check?
         if ( isset( $user->roles ) && is_array( $user->roles ) ) {
-            //check for clients
-            if ( in_array( 'client', $user->roles ) ) {
-                // redirect them to the default place
-                return "/client-portal";
-            } else {
+            // //check for clients
+            // if ( in_array( 'client', $user->roles ) ) {
+            //     // redirect them to the default place
+            //     return "/client-portal";
+            // } else {
                 return get_post_permalink( $dashboard_page->ID );
-            }
+            // }
         } else {
             return $redirect_to;
         }
@@ -417,8 +419,20 @@ class Moca {
     }
 
     public function hpm_api() {
+        if (!is_user_logged_in() || hpm_user_role() == "client") {
+            die();
+        }
+
         header('Content-Type: application/json');
         $function_name = 'hpm_api_' . $_POST['functionName'];
+        $args = (array) json_decode( stripslashes( $_POST['args'] ) );
+        $args = $args ? array_values( $args ) : [];
+        wp_send_json( call_user_func_array( $function_name, $args ) );
+    }
+
+    public function moca_client_api() {
+        header('Content-Type: application/json');
+        $function_name = 'moca_client_api_' . $_POST['functionName'];
         $args = (array) json_decode( stripslashes( $_POST['args'] ) );
         $args = $args ? array_values( $args ) : [];
         wp_send_json( call_user_func_array( $function_name, $args ) );

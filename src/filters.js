@@ -10,8 +10,10 @@ Vue.filter('hours', (value) => {
     return value !== null ? value.toFixed(2) : '';
 });
 
-Vue.filter('date', (value) => {
-    return new moment(value).format('MMM D');
+Vue.filter('date', (value, includeYear) => {
+    return includeYear ?
+        new moment(value).format('MMM D, Y') :
+        new moment(value).format('MMM D');
 });
 
 Vue.filter('year', (value) => {

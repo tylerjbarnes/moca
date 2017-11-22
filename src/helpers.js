@@ -30,6 +30,17 @@ window.hpmAPI = (functionName, args) => {
             ({data}) => { reject(data); });
     });
 }
+window.mocaClientAPI = (functionName, args) => {
+    return new Promise(function(resolve, reject) {
+        axios.post(ajaxurl, qs.stringify({
+            action: 'moca_client_api',
+            functionName,
+            args: JSON.stringify(args)
+        })).then(
+            ({data}) => { resolve(data); },
+            ({data}) => { reject(data); });
+    });
+}
 
 // https://plainjs.com/javascript/styles/get-the-position-of-an-element-relative-to-the-document-24/
 window.offset = (el) => {
