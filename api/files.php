@@ -10,8 +10,6 @@ function hpm_api_upload_file( $folder, $socket_id ) {
     $dropboxFile = new Kunnu\Dropbox\DropboxFile($_FILES["file"]["tmp_name"]);
     $file = $dropbox->upload($dropboxFile, "/".$folder."/".$_FILES["file"]["name"]);
 
-    error_log( $file->getName() );
-
 }
 
 function hpm_api_list_files( $folder ) {

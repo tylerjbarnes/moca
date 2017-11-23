@@ -69,10 +69,11 @@ function hpm_client_projects( $type ) {
 
 /**
  * Get Balance for Client App
+ * @param $client_id optional
  * @return float
  */
-function hpm_client_balance() {
-    $client_id = hpm_user_id();
+function hpm_client_balance( $client_id ) {
+    $client_id = $client_id ? $client_id : hpm_user_id();
 
     global $wpdb;
     $time_table = $wpdb->prefix . 'hpm_times';

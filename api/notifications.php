@@ -10,9 +10,10 @@ function hpm_log_notification( $recipient_id, $address, $content ) {
     $insert_data = [
         "recipient_id" => $recipient_id,
         "address" => $address,
-        "content" => $content,
-        "datetime" => gmdate("Y-m-d H:i:s")
+        "content" => $content
     ];
+
+    error_log( print_r($insert_data, true ) );
 
     global $wpdb;
     $table = $wpdb->prefix . "hpm_notifications";
@@ -28,7 +29,7 @@ function hpm_log_notification( $recipient_id, $address, $content ) {
 function hpm_send_notification( $recipient_id, $content ) {
 
     // Get Text Address
-    $recipient = hpm_get_person( $recipient_id );
+    $recipient = hpm_object('person', $recipient_id );
     if ( !$recipient->cell_number ) { return; }
     switch ( $recipient->cell_provider ) {
         case 'verizon':
@@ -47,13 +48,13 @@ function hpm_send_notification( $recipient_id, $content ) {
     }
     $address = "{$recipient->cell_number}@{$domain}";
 
+    // Log Notification
+    hpm_log_notification( $recipient_id, $address, $content );
+
     // Send Notification
     mail( $address, "", $content );
     // mail( "9494229316@vtext.com", "", $content );
 	// error_log( $address . ': ' . $content);
-
-    // Log Notification
-    hpm_log_notification( $recipient_id, $address, $content );
 
 }
 
@@ -64,7 +65,7 @@ function hpm_send_notification( $recipient_id, $content ) {
  */
 function hpm_send_project_assigned_notification( $contractor_id, $project_id ) {
 
-    $project_name = hpm_get_project( $project_id )->name;
+    $project_name = hpm_object('project', $project_id )->name;
     $content = "You have been assigned to $project_name.";
 
     hpm_send_notification( $contractor_id, $content );
@@ -76,8 +77,8 @@ function hpm_send_project_assigned_notification( $contractor_id, $project_id ) {
  * @param  String $client_id
  */
 function hpm_send_client_used_all_hours_notification( $client_id ) {
-    $client = hpm_get_person( $client_id );
-	hpm_send_notification( "c5b7fro2h40001ofsvuunw4c13", $client->name . " has used up their hours." );
+    $client = hpm_object('person', $client_id );
+	hpm_send_notification( "1", $client->name . " has used up their hours." );
 }
 
 
@@ -87,7 +88,7 @@ function hpm_send_client_used_all_hours_notification( $client_id ) {
 
 function hpm_today_for_person( $person_id ) {
 
-	$user_time_offset = hpm_get_person( $person_id )->time_offset;
+	$user_time_offset = hpm_object('person', $person_id )->time_offset;
 
 	$today = new DateTime();
 	$timezoneName = timezone_name_from_abbr("", $user_time_offset*3600, false);
@@ -99,14 +100,12 @@ function hpm_today_for_person( $person_id ) {
 
 function hpm_get_projects_due_tomorrow() {
 
-	$projects = hpm_api_load_projects( [
-		"archived" => false
-	] );
+	$projects = hpm_get_current_projects();
 
 	$projects_due_tomorrow = [];
 
 	if (is_array( $projects )) {
-        error_log( "Found " . count( $projects ) . " projects.");
+        error_log( "Found " . count( $projects ) . " projects."); // TEMP
         foreach( $projects as $project ) {
 
     		if (!$project->contractor_id || !$project->due) {
@@ -123,7 +122,7 @@ function hpm_get_projects_due_tomorrow() {
 
     	}
 	} else {
-        error_log( $projects );
+        error_log( $projects ); // TEMP
     }
 
 	return $projects_due_tomorrow;
@@ -132,10 +131,10 @@ function hpm_get_projects_due_tomorrow() {
 
 function hpm_person_notification_hour_utc( $person_id ) {
 
-	$user_time_offset = hpm_get_person( $person_id )->time_offset;
+	$user_time_offset = hpm_object('person', $person_id )->time_offset;
 	$user_time_zone = timezone_name_from_abbr("", $user_time_offset*3600, false);
 
-	$user_notify_time = hpm_get_person( $person_id )->notification_time;
+	$user_notify_time = hpm_object('person', $person_id )->notification_time;
 
 	$hour_as_entered = new DateTime();
 	$hour_as_entered->setTimezone( new DateTimeZone( $user_time_zone ) );

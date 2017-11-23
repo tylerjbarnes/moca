@@ -327,7 +327,7 @@ function hpm_api_mutate ( $mutations, $socket_id ) {
         }
     }
 
-    // Push Gain Prompt
+    // Push Gain Prompt & Text Notification
     foreach ( $mutations as $mutation ) {
         if ( $mutation->object_type == 'project' && $mutation->property_name == 'contractor_id' ) {
             if ( $mutation->property_value ) {
@@ -336,6 +336,20 @@ function hpm_api_mutate ( $mutations, $socket_id ) {
                     (object) ['object_type' => $mutation->object_type, 'object_id' => $mutation->object_id],
                     $socket_id
                 );
+                hpm_send_project_assigned_notification( $mutation->property_value, $mutation->object_id );
+            }
+        }
+    }
+
+    // Send Client Used All Hours Text Notification
+    foreach( $mutations as $mutation ) {
+        if ( $mutation->object_type == 'time' ) {
+            $time = hpm_object( 'time', $mutation->object_id );
+            if ( $time->client_id ) {
+                $balance = hpm_client_balance( $time->client_id );
+                if ( $balance <= 0 ) {
+                    hpm_send_client_used_all_hours_notification( $time->client_id );
+                }
             }
         }
     }

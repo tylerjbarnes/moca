@@ -50,6 +50,22 @@ function hpm_object( $type, $id ) {
 }
 
 /**
+ * Get Current Projects (not archived)
+ * @return Array raw project row objects
+ */
+function hpm_get_current_projects() {
+
+    global $wpdb;
+    $table = $wpdb->prefix . 'hpm_projects';
+
+    // Get Rows from DB
+    $rows = $wpdb->get_results( "SELECT * FROM $table WHERE archived = 0" );
+
+    return $rows;
+
+}
+
+/**
  * Get Pusher
  * @return Pusher
  */
