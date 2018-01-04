@@ -13,9 +13,6 @@ class Moca {
 
     /**
      * Sets up a single instance of Hershey Project Manager
-     *
-     * Based on BuddyPress structure
-     *
      * @return Moca only instance of Moca
      */
     public static function instance() {
@@ -100,6 +97,7 @@ class Moca {
         require( $this->plugin_dir . 'api/lib/Pusher.php' );
         require( $this->plugin_dir . 'api/notifications.php' );
         require( $this->plugin_dir . 'api/api.php' );
+        require( $this->plugin_dir . 'api/files.php' );
         require( $this->plugin_dir . 'api/client_api.php' );
         require( $this->plugin_dir . 'api/client-access.php' );
     }
@@ -441,7 +439,7 @@ class Moca {
 }
 
 // Setup Dropbox SDK //@todo move this
-// require("api/vendor/autoload.php");
+require("api/vendor/autoload.php");
 
 /**
  * Returns the only Moca instance

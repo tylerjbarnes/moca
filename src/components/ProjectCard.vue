@@ -23,7 +23,7 @@
             </div>
             <div class="meta">
                 <span class="estimate">{{ project.max | hours }}</span>
-                <span class="due" v-if="project.dueString">{{ project.dueString }}</span>
+                <span class="due" v-if="project.dueString" :class="{overdue: project.overdue}">{{ project.dueString }}</span>
             </div>
         </footer>
     </div>
@@ -234,6 +234,10 @@
                     &.due {
                         font-weight: 900;
                         padding-left: 5px;
+
+                        &.overdue {
+                            color: $red;
+                        }
 
                     }
 

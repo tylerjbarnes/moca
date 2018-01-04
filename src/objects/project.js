@@ -70,6 +70,10 @@ class Project extends MocaObject {
         return moment(this.start).diff(moment()) >= 0;
     }
 
+    get overdue () {
+        return moment(this.due).diff(moment(), 'days') < 0;
+    }
+
     // Messages
 
     get messages () {

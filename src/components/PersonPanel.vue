@@ -70,6 +70,8 @@
                         <button class="button" @click="archivePerson">Archive Client</button>
                     </div>
                 </template>
+
+                <files-view :client="person"></files-view>
             </template>
 
         </div>
@@ -81,6 +83,7 @@
 <script>
     import ProjectCollection from '../components/ProjectCollection.vue';
     import ResourceView from '../components/ResourceView.vue';
+    import FilesView from '../components/FilesView.vue';
     import DragDropController from '../mixins/DragDropController.js';
 
     export default {
@@ -88,7 +91,8 @@
         props: ['person'],
         data () { return {
             mode: 'projects',
-            draftResource: null
+            draftResource: null,
+            showFiles: false
         }},
         computed: {
             filters () {
@@ -110,7 +114,7 @@
                 this.person.archive();
             }
         },
-        components: {ProjectCollection, ResourceView},
+        components: {ProjectCollection, ResourceView, FilesView},
         mixins: [DragDropController]
     }
 

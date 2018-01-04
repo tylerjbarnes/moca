@@ -17,6 +17,7 @@
                     <div class="items">
                         <resource-view v-for="resource in resources" :resource="resource" key="resource.id"></resource-view>
                         <resource-view v-if="draftResource" :resource="draftResource" :isDraft="true" @closeDraft="closeDraft"></resource-view>
+                        <files-view :client="project.client"></files-view>
                     </div>
                 </div>
                 <project-actions :project="project" @addResource="addResource"></project-actions>
@@ -33,6 +34,7 @@
     import ConversationView from './ConversationView.vue';
     import ResourceView from './ResourceView.vue';
     import ProjectHeader from './ProjectHeader.vue';
+    import FilesView from './FilesView.vue';
     import ProjectActions from './ProjectActions.vue';
     import MocaFactory from '../objects/mocaFactory.js';
     import Resource from '../objects/resource.js';
@@ -44,7 +46,7 @@
             mode: 'messages',
             draftResource: null
         }},
-        components: {ConversationView,ResourceView,ProjectHeader,ProjectActions},
+        components: {ConversationView,ResourceView,ProjectHeader,ProjectActions,FilesView},
         computed: {
             project () {
                 return this.$store.getters.project(this.id);
@@ -120,6 +122,11 @@
                     overflow: scroll;
                     .items {
                         padding: 0 20px 20px 20px;
+
+                        .files-view {
+                            padding-top: 10px;
+                        }
+
                     }
                 }
 
