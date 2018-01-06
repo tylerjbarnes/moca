@@ -92,7 +92,11 @@
     @import '~styles/settings.scss';
 
     .kanban-column {
-        flex: 0 0 25%;
+        justify-content: stretch;
+        display: flex;
+        flex: 0 0 calc(25% + 15px);
+        flex-flow: column;
+        margin: -7.5px;
         padding-top: 5px; padding-bottom: 5px;
 
         &.inviteDrop {
@@ -102,6 +106,7 @@
 
         header {
             margin-bottom: 4px;
+            padding-left: 7.5px;
 
             span {
                 display: block;
@@ -113,8 +118,20 @@
         }
 
         .items {
-            margin-top: -10px;
+            background: rgba($light,0.5);
+            border-radius: 4px;
+            flex-grow: 1;
             min-height: 100px;
+            padding: 14px 5px 5px 5px;
+
+            .project-card {
+                &:first-of-type {
+                    margin-top: 0 !important;
+                }
+                &:last-of-type {
+                    margin-bottom: 0 !important;
+                }
+            }
 
         }
 

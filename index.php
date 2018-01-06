@@ -10,9 +10,7 @@
             "SELECT option_value FROM $option_table messages WHERE option_name = 'pusher_key'"
         );
     }
-?>
-
-<!DOCTYPE html>
+?><!DOCTYPE html>
 <html <?php language_attributes(); ?>>
   <head>
     <title>moca</title>
@@ -35,6 +33,9 @@
             appState.mode = 'persons';
         }
     </script>
+    <?php /* {% for (var chunk in o.htmlWebpackPlugin.files.chunks) { %}
+        <script src="{%=o.htmlWebpackPlugin.files.chunks[chunk].entry %}"></script>
+    {% } %} */ ?>
   </head>
   <body>
     <div id="app"></div>

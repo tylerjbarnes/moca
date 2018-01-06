@@ -1,6 +1,8 @@
 var path = require('path')
 var webpack = require('webpack')
 var HtmlWebpackPlugin = require('html-webpack-plugin')
+var pkg = require('./package.json')
+var libPath = path.join(__dirname)
 
 module.exports = {
   entry: './src/main.js',
@@ -9,6 +11,13 @@ module.exports = {
     publicPath: 'http://localhost:8080/dist/',
     filename: 'build.js'
   },
+  plugins: [
+      new HtmlWebpackPlugin({
+          filename: 'index.php',
+          pkg: pkg,
+          template: path.join(libPath, 'index.php')
+      })
+  ],
   module: {
     rules: [
       {
