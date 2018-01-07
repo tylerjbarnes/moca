@@ -33,9 +33,6 @@
             appState.mode = 'persons';
         }
     </script>
-    <?php /* {% for (var chunk in o.htmlWebpackPlugin.files.chunks) { %}
-        <script src="{%=o.htmlWebpackPlugin.files.chunks[chunk].entry %}"></script>
-    {% } %} */ ?>
   </head>
   <body>
     <div id="app"></div>

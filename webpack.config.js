@@ -1,114 +1,105 @@
-var path = require('path')
-var webpack = require('webpack')
-var HtmlWebpackPlugin = require('html-webpack-plugin')
-var pkg = require('./package.json')
-var libPath = path.join(__dirname)
+let path = require('path');
+let CleanWebpackPlugin = require('clean-webpack-plugin');
+let HtmlWebpackPlugin = require('html-webpack-plugin');
 
-module.exports = {
-  entry: './src/main.js',
-  output: {
-    path: path.resolve(__dirname, './dist'),
-    publicPath: 'http://localhost:8080/dist/',
-    filename: 'build.js'
-  },
-  plugins: [
-      new HtmlWebpackPlugin({
-          filename: 'index.php',
-          pkg: pkg,
-          template: path.join(libPath, 'index.php')
-      })
-  ],
-  module: {
-    rules: [
-      {
-        test: /\.vue$/,
-        loader: 'vue-loader',
-        options: {
-          loaders: {
-            // Since sass-loader (weirdly) has SCSS as its default parse mode, we map
-            // the "scss" and "sass" values for the lang attribute to the right configs here.
-            // other preprocessors should work out of the box, no loader config like this necessary.
-            'scss': 'vue-style-loader!css-loader!sass-loader',
-            'sass': 'vue-style-loader!css-loader!sass-loader?indentedSyntax'
-          }
-          // other vue-loader options go here
-        }
-      },
-      {
-        test: /\.(png|jpg|gif|svg)$/,
-        loader: 'file-loader',
-        options: {
-          name: '[name].[ext]?[hash]'
+let config = {
+
+    // Entry & Output
+    entry: './src/main.js',
+    output: {
+        filename: 'moca-[hash:6].js',
+        path: path.resolve(__dirname, 'dist')
+    },
+
+    // Modules
+    module: {
+        rules: [
+            // Vue Loader
+            {
+                test: /\.vue$/,
+                loader: 'vue-loader',
+                options: {
+                    loaders: {
+                        // Sass
+                        'scss': 'vue-style-loader!css-loader!sass-loader'
+                    }
+                }
+            },
+            // Assets
+            {
+                test: /\.(png|jpg|gif|svg)$/,
+                loader: 'file-loader',
+                options: {
+                    name: '[name].[ext]?[hash]'
+                }
+            },
+            // Ceri Icon
+            {
+                test: /ceri-icon\/icon/,
+                enforce: "post",
+                loader: "ceri-icon",
+                options: {
+                    icons: [
+                        "fa-calendar-times-o",
+                        "fa-check",
+                        "fa-check-circle",
+                        "fa-chevron-left",
+                        "fa-chevron-right",
+                        "fa-clock-o",
+                        "fa-comment",
+                        "fa-comments-o",
+                        "fa-cube",
+                        "fa-eye",
+                        "fa-eye-slash",
+                        "fa-flag",
+                        "fa-minus",
+                        "fa-paper-plane",
+                        "fa-pencil",
+                        "fa-plus",
+                        "fa-recycle",
+                        "fa-search",
+                        "fa-times",
+                        "fa-wordpress",
+                        "ma-reply"
+                    ]
+                }
+            }
+        ]
+    },
+
+    // Plugins
+    plugins: process.env.NODE_ENV === 'production' ?
+        [
+            new CleanWebpackPlugin(['dist']),
+            new HtmlWebpackPlugin({
+                filename: 'output.php',
+                template: 'index.php'
+            })
+        ] : [
+            
+        ],
+
+    // Resolvers
+    resolve: {
+        // Aliases
+        alias: {
+            'vue$': 'vue/dist/vue.esm.js',
+            'styles': path.resolve(__dirname, './src/style/')
         }
     },
-    {
-        test: /ceri-icon\/icon/,
-        enforce: "post",
-        loader: "ceri-icon",
-        options: {
-          icons: [
-            "fa-flag",
-            "fa-comment",
-            "fa-search",
-            "fa-times",
-            "fa-plus",
-            "fa-minus",
-            "fa-paper-plane",
-            "ma-reply",
-            "fa-check",
-            "fa-pencil",
-            "fa-cube",
-            "fa-calendar-times-o",
-            "fa-eye",
-            "fa-eye-slash",
-            "fa-chevron-right",
-            "fa-chevron-left",
-            "fa-comments-o",
-            "fa-clock-o",
-            "fa-recycle",
-            "fa-wordpress",
-            "fa-check-circle"
-          ]
-        }
-      }
-    ]
-  },
-  resolve: {
-    alias: {
-      'vue$': 'vue/dist/vue.esm.js',
-      'styles': path.resolve(__dirname, './src/style/')
+
+    // Source Maps
+    devtool: process.env.NODE_ENV === 'production' ?
+        '#source-map' :
+        '#eval-source-map',
+
+    // Dev Server
+    devServer: {
+        historyApiFallback: true,
+        noInfo: true,
+        headers: { "Access-Control-Allow-Origin": "*" }
     }
-  },
-  devServer: {
-    historyApiFallback: true,
-    noInfo: true,
-    headers: { "Access-Control-Allow-Origin": "*" }
-  },
-  performance: {
-    hints: false
-  },
-  devtool: '#eval-source-map'
+
 }
 
-if (process.env.NODE_ENV === 'production') {
-  module.exports.devtool = '#source-map';
-  module.exports.output.publicPath = 'dev.jesshershey.com/wp-content/plugins/moca/';
-  module.exports.output.filename = 'build[chunkhash].js';
-  // http://vue-loader.vuejs.org/en/workflow/production.html
-  module.exports.plugins = (module.exports.plugins || []).concat([
-    new webpack.DefinePlugin({
-      'process.env': {
-        NODE_ENV: '"production"'
-      }
-    }),
-    // new webpack.optimize.UglifyJsPlugin({
-    //   sourceMap: true,
-    //   compress: {
-    //     warnings: false
-    //   }
-    // }),
-    new webpack.LoaderOptionsPlugin({
-      minimize: true,
-    })
-  ]);
-}
+module.exports = config;
