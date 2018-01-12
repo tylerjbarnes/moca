@@ -2,7 +2,7 @@
 
     <div class="conversation-view">
         <div class="items" ref="items">
-            <message-view v-for="message in messages" key="message.id" :message="message" v-on:toggleReplying="toggleReplying(message.id)"></message-view>
+            <message-view v-for="message in messages" :key="message.id" :message="message"></message-view>
         </div>
         <div class="create" ref="dynamicHeight">
             <div class="textarea-wrapper">

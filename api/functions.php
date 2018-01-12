@@ -88,34 +88,8 @@ function hpm_get_pusher() {
         $options
     );
 
-    // $whitelist = array('127.0.0.1', "::1", 'localhost');
-    // if(in_array($_SERVER['REMOTE_ADDR'], $whitelist)){
-    //     // Is localhost
-    //     $options = array(
-    //         'encrypted' => true,
-    //         'cluster' => 'us2'
-    //     );
-    //     $pusher = new Pusher(
-    //         '2a9730534281c98fb4b3',
-    //         'cded72d30868b6e533dd',
-    //         '368095',
-    //         $options
-    //     );
-    //
-    // } else {
-    //     $options = array(
-    //         'encrypted' => true
-    //     );
-    //     $pusher = new Pusher(
-    //         '1f4e52f094e0cf3aafeb',
-    //         '7a8fc6f85028e615fcc4',
-    //         '290162',
-    //         $options
-    //     );
-    //
-    // }
-
     return $pusher;
+    
 }
 
 
