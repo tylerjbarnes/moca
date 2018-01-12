@@ -15,7 +15,7 @@
                 <project-header :project="project"></project-header>
                 <div class="resources" ref="resources">
                     <div class="items">
-                        <resource-view v-for="resource in resources" :resource="resource" key="resource.id"></resource-view>
+                        <resource-view v-for="resource in resources" :resource="resource" :key="resource.id"></resource-view>
                         <resource-view v-if="draftResource" :resource="draftResource" :isDraft="true" @closeDraft="closeDraft"></resource-view>
                         <files-view :client="project.client"></files-view>
                     </div>
@@ -112,13 +112,11 @@
                 display: flex;
                 flex-flow: column;
                 flex: 1 1;
-
-                .resources, .conversation-view {
-                    flex: 1 0;
-                }
+                width: 0;
 
                 .resources {
                     background: white;
+                    flex: 1 1;
                     overflow: scroll;
                     .items {
                         padding: 0 20px 20px 20px;
@@ -134,7 +132,7 @@
 
             .conversation-view {
                 border-left: 1px solid $gray;
-                flex: 0 1 400px;
+                width: 400px;
             }
 
         }

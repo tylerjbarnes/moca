@@ -26,6 +26,8 @@ const state = {
     resources:  [],
     times:  [],
     //
+    lookup: {},
+    //
     searchTerm: '',
     uiFilters: {
         projects: {
@@ -43,10 +45,10 @@ const state = {
 
 const getters = {
 
-    object: (state, getters) => (type, id) => state[type + 's'].find(object => object.id === id),
+    object: (state, getters) => (type, id) => state.lookup[type][id],
 
     // Messages
-    message: (state, getters) => (id) => state.messages.find(message => message.id === id),
+    message: (state, getters) => (id) => state.lookup['message'][id],
     messagesByProject: (state, getters) => (id) => state.messages.filter(message => message.project_id === id),
     messagesFromContractors: (state, getters) => state.messages.filter(message => message.author.role == 'contractor' && message.type != 'activity'),
     messagesFromManagers: (state, getters) => state.messages.filter(message => message.author.canManage && message.type != 'activity'),
@@ -55,7 +57,7 @@ const getters = {
     },
 
     // Packages
-    mocaPackage: (state, getters) => (id) => state.packages.find(mocaPackage => mocaPackage.id === id),
+    mocaPackage: (state, getters) => (id) => state.lookup['package'][id],
     packagesByClient: (state, getters) => (id) => {
         return state.packages.filter(mocaPackage => mocaPackage.client_id === id);
     },
@@ -69,24 +71,22 @@ const getters = {
     members: (state, getters) => state.persons.filter(person => person.role !== 'client'),
     activeMembers: (state, getters) => state.persons.filter(person => person.role !== 'client' && !person.archived),
     personsByRoles: (state, getters) => (roles) => state.persons.filter(person => roles.includes(person.role)),
-    person: (state, getters) => (id) => {
-        return state.persons.find(person => person.id === id);
-    },
+    person: (state, getters) => (id) => state.lookup['person'][id],
 
     // Projects
-    project: (state, getters) => (id) => state.projects.find(project => project.id === id),
+    project: (state, getters) => (id) => state.lookup['project'][id],
     projectsByContractor: (state, getters) => (id) => state.projects.filter(project => project.contractor_id === id),
     projectsByManager: (state, getters) => (id) => state.projects.filter(project => project.manager_id === id),
     projectsByClient: (state, getters) => (id) => state.projects.filter(project => project.client_id === id),
     projectsByStatus: (state, getters) => (status) => state.projects.filter(project => project.status === status),
 
     // Resources
-    resource: (state, getters) => (id) => state.resources.find(resource => resource.id === id),
+    resource: (state, getters) => (id) => state.lookup['resource'][id],
     resourcesByProject: (state, getters) => (id) => state.resources.filter(resource => resource.project_id === id),
     resourcesByClient: (state, getters) => (id) => state.resources.filter(resource => resource.client_id === id),
 
     // Times
-    time: (state, getters) => (id) => state.times.find(time => time.id === id),
+    time: (state, getters) => (id) => state.lookup['time'][id],
     times: (state, getters) => state.times.sort((a,b) => a.date < b.date || (a.date == b.date && a.cycle < b.cycle)),
     pendingTimes: (state, getters) => getters.times.filter(time => time.pending),
     timesInPeriod: (state, getters) => state.times.filter(time => time.date >= state.uiFilters.times.period.start && time.date <= state.uiFilters.times.period.end).sort((a,b) => a.date < b.date || (a.date == b.date && a.cycle < b.cycle)),
@@ -137,9 +137,21 @@ const mutations = {
             'time'
         ]) {
             if (!data[type + 's']) { continue; }
-            state[type + 's'] = [...state[type + 's'], ...data[type + 's'].map(
-                primitive => MocaFactory.constructObject(type, primitive)
-            )];
+            // let primitives = [...state[type + 's'], ...data[type + 's'].map(
+            //     primitive => {
+            //         state.lookup[type] = state.lookup[type] ? state.lookup[type] : {};
+            //         state.lookup[type][primitive.id] = primitive;
+            //         return MocaFactory.constructObject(type, primitive);
+            //     }
+            // )];
+            for (var i = 0; i < data[type + 's'].length; i++) {
+                let primitive = data[type + 's'][i];
+                let mocaObject = MocaFactory.constructObject(type, primitive);
+                state.lookup[type] = state.lookup[type] ? state.lookup[type] : {};
+                state.lookup[type][primitive.id] = mocaObject;
+                state[type + 's'].push(mocaObject);
+            }
+            // state[type + 's'] = primitives;
         }
     },
 
