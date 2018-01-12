@@ -38,5 +38,5 @@
     <div id="app"></div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://js.pusher.com/4.1/pusher.min.js"></script>
-    <script type="text/javascript" src="http://localhost:8080/dist/build.js"></script></body>
+  </body>
 </html>

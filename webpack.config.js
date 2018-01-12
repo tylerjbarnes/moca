@@ -6,10 +6,16 @@ let config = {
 
     // Entry & Output
     entry: './src/main.js',
-    output: {
-        filename: 'moca-[hash:6].js',
-        path: path.resolve(__dirname, 'dist')
-    },
+    output: process.env.NODE_ENV === 'production' ?
+        {
+            filename: 'moca-[hash:6].js',
+            path: path.resolve(__dirname, '../dist'),
+            publicPath: '/wp-content/plugins/moca/'
+        } : {
+            filename: 'build.js',
+            path: path.resolve(__dirname, '../dist'),
+            publicPath: 'http://localhost:8080/dist/'
+        },
 
     // Modules
     module: {
@@ -24,6 +30,12 @@ let config = {
                         'scss': 'vue-style-loader!css-loader!sass-loader'
                     }
                 }
+            },
+            // ES6
+            {
+                test: /\.js$/,
+                loader: 'babel-loader',
+                exclude: /node_modules/
             },
             // Assets
             {
@@ -68,16 +80,15 @@ let config = {
     },
 
     // Plugins
-    plugins: process.env.NODE_ENV === 'production' ?
-        [
-            new CleanWebpackPlugin(['dist']),
-            new HtmlWebpackPlugin({
-                filename: 'output.php',
-                template: 'index.php'
-            })
-        ] : [
-            
-        ],
+    plugins: [
+        new CleanWebpackPlugin(['dist/*.*'], {
+            root: path.resolve(__dirname, '../')
+        }),
+        new HtmlWebpackPlugin({
+            filename: 'index.php',
+            template: 'index-template.php'
+        })
+    ],
 
     // Resolvers
     resolve: {
