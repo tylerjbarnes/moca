@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "axios": "^0.16.2",
+    "dexie": "^2.0.1",
     "vue": "^2.5.13"
   },
   "devDependencies": {

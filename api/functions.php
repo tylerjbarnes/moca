@@ -89,7 +89,7 @@ function hpm_get_pusher() {
     );
 
     return $pusher;
-    
+
 }
 
 
@@ -132,7 +132,7 @@ function hpm_typify_data_from_db( $data ) {
                 case 'flagged':
                 case 'pending':
                 case 'resolved':
-                    $typified->$key = $value == 1;
+                    $typified->$key = $value == 1 ? 1 : 0;
                     break;
                 case 'avatar':
                     $typified->$key = get_wp_user_avatar_src( $data->wp_id, 'thumbnail');

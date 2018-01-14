@@ -27,8 +27,8 @@ class MocaPusher {
     subscribeToChannels () {
         this.presenceChannel = this.pusher.subscribe('presence-all');
         this.publicChannel = this.pusher.subscribe('members');
-        this.privateChannel = store.state.user.role == 'contractor' ?
-            this.pusher.subscribe('private-contractor-' + store.state.user.id) :
+        this.privateChannel = store.getters.user.role == 'contractor' ?
+            this.pusher.subscribe('private-contractor-' + store.getters.user.id) :
             this.pusher.subscribe('private-managers');
     }
 
@@ -38,14 +38,14 @@ class MocaPusher {
         let me = this;
         this.presenceChannel.bind('pusher:subscription_succeeded', () => {
             me.presenceChannel.members.each(member => {
-                store.getters.person(member.id).online = true;
+                // store.getters.person(member.id).online = true; // @TODO
             });
         });
         this.presenceChannel.bind('pusher:member_added', member => {
-            store.getters.person(member.id).online = true;
+            // store.getters.person(member.id).online = true; // @TODO
         });
         this.presenceChannel.bind('pusher:member_removed', member => {
-            store.getters.person(member.id).online = false;
+            // store.getters.person(member.id).online = false; // @TODO
         });
     }
 

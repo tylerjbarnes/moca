@@ -9,6 +9,7 @@ import Time from './time.js';
 class MocaFactory {
 
     static constructObject(type, primitive) {
+        if (!primitive) return null;
         switch (type) {
             case 'message': return new Message(primitive);
             case 'package': return new Package(primitive);

@@ -91,7 +91,8 @@ class Project extends MocaObject {
     }
 
     get unresolvedMessages () {
-        return this.messages.filter( message => { return message.userCanResolve });
+        // return this.messages.filter( message => { return message.userCanResolve });
+        return store.getters.unresolvedMessagesByProject(this.id);
     }
 
     get hasPendingTimeRequest () {

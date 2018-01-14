@@ -4,6 +4,7 @@ Vue.use(Vuex);
 
 import MocaObject from './objects/mocaObject.js';
 import MocaFactory from './objects/mocaFactory.js';
+
 import Client from './objects/client.js';
 import Member from './objects/member.js';
 import Message from './objects/message.js';
@@ -16,18 +17,21 @@ import axios from 'axios';
 import qs from 'qs';
 import Period from './period.js';
 
-import forager from './forager.js';
+import Dexie from 'dexie';
+
+// prepare the mocadex
+var db = new Dexie('mocadex');
+db.version(1).stores({
+    messages: '&id,resolved',
+    packages: '&id',
+    persons: '&id,&wp_id',
+    projects: '&id,archived',
+    resources: '&id',
+    times: '&id'
+});
 
 const state = {
-    messages:  [],
-    packages:  [],
-    persons: [],
-    projects:  [],
-    resources:  [],
-    times:  [],
-    //
-    lookup: {},
-    //
+    userId: null,
     searchTerm: '',
     uiFilters: {
         projects: {
@@ -40,60 +44,79 @@ const state = {
         }
     },
     route: { view: null, item: null },
-    lastMutationId: 0
+    lastMutationId: 0,
+
+    persons: {}, // all
+    projects: {}, // unarchived
+
+    unresolvedMessages: {}
 };
 
 const getters = {
 
-    object: (state, getters) => (type, id) => state.lookup[type][id],
+    user: (state, getters) => () => getters.person(state.userId),
+    person: (state, getters) => (id) => MocaFactory.constructObject('person', state.persons[id]),
 
-    // Messages
-    message: (state, getters) => (id) => state.lookup['message'][id],
-    messagesByProject: (state, getters) => (id) => state.messages.filter(message => message.project_id === id),
-    messagesFromContractors: (state, getters) => state.messages.filter(message => message.author.role == 'contractor' && message.type != 'activity'),
-    messagesFromManagers: (state, getters) => state.messages.filter(message => message.author.canManage && message.type != 'activity'),
-    mutationMessagesForObject: (state, getters) => (id) => {
-        return state.messages.filter(message => message.content.object_id === id);
-    },
+    projectsByManager: (state, getters) => (id) => Object.values(state.projects).filter(x => x.manager_id === id)
+        .map(x => MocaFactory.constructObject('project', x)),
 
-    // Packages
-    mocaPackage: (state, getters) => (id) => state.lookup['package'][id],
-    packagesByClient: (state, getters) => (id) => {
-        return state.packages.filter(mocaPackage => mocaPackage.client_id === id);
-    },
+    unresolvedMessagesByProject: (state, getters) => (id) => Object.values(state.unresolvedMessages).filter(x => x.project_id === id)
+        .map(x => MocaFactory.constructObject('message', x)),
 
-    // Persons
-    clients: (state, getters) => state.persons.filter(person => person.role === 'client'),
-    activeClients: (state, getters) => state.persons.filter(person => person.role === 'client' && !person.archived),
-    expiredClients: (state, getters) => getters.activeClients.filter(client => client.expired),
-    management: (state, getters) => getters.members.filter(person => person.canManage),
-    contractors: (state, getters) => state.persons.filter(person => person.role === 'contractor'),
-    members: (state, getters) => state.persons.filter(person => person.role !== 'client'),
-    activeMembers: (state, getters) => state.persons.filter(person => person.role !== 'client' && !person.archived),
-    personsByRoles: (state, getters) => (roles) => state.persons.filter(person => roles.includes(person.role)),
-    person: (state, getters) => (id) => state.lookup['person'][id],
-
-    // Projects
-    project: (state, getters) => (id) => state.lookup['project'][id],
-    projectsByContractor: (state, getters) => (id) => state.projects.filter(project => project.contractor_id === id),
-    projectsByManager: (state, getters) => (id) => state.projects.filter(project => project.manager_id === id),
-    projectsByClient: (state, getters) => (id) => state.projects.filter(project => project.client_id === id),
-    projectsByStatus: (state, getters) => (status) => state.projects.filter(project => project.status === status),
-
-    // Resources
-    resource: (state, getters) => (id) => state.lookup['resource'][id],
-    resourcesByProject: (state, getters) => (id) => state.resources.filter(resource => resource.project_id === id),
-    resourcesByClient: (state, getters) => (id) => state.resources.filter(resource => resource.client_id === id),
-
-    // Times
-    time: (state, getters) => (id) => state.lookup['time'][id],
-    times: (state, getters) => state.times.sort((a,b) => a.date < b.date || (a.date == b.date && a.cycle < b.cycle)),
-    pendingTimes: (state, getters) => getters.times.filter(time => time.pending),
-    timesInPeriod: (state, getters) => state.times.filter(time => time.date >= state.uiFilters.times.period.start && time.date <= state.uiFilters.times.period.end).sort((a,b) => a.date < b.date || (a.date == b.date && a.cycle < b.cycle)),
-    logsByProject: (state, getters) => (id) => state.times.filter(time => time.project_id === id),
-    timesByContractor: (state, getters) => (id) => state.times.filter(time => time.worker_id === id),
-    timesByClient: (state, getters) => (id) => state.times.filter(time => time.client_id === id),
-    creditForPackage: (state, getters) => (id) => state.times.find(time => time.package_id === id),
+    // // Single Objects
+    //
+    // object: (state, getters) => (type, id) => MocaFactory.constructObject(type, state.lookup[type][id]),
+    // message: (state, getters) => (id) => getters.object('message', id),
+    // mocaPackage: (state, getters) => (id) => getters.object('package', id),
+    // person: (state, getters) => (id) => getters.object('person', id),
+    // project: (state, getters) => (id) => getters.object('project', id),
+    // resource: (state, getters) => (id) => getters.object('resource', id),
+    // time: (state, getters) => (id) => getters.object('time', id),
+    //
+    // // Messages
+    //
+    // messagesByProject: (state, getters) => (id) => state.messages.filter(message => message.project_id === id).map(x => MocaFactory.constructObject('message', x)),
+    // messagesFromContractors: (state, getters) => state.messages.filter(message => message.author.role == 'contractor' && message.type != 'activity').map(x => MocaFactory.constructObject('message', x)),
+    // messagesFromManagers: (state, getters) => state.messages.filter(message => message.author.canManage && message.type != 'activity').map(x => MocaFactory.constructObject('message', x)),
+    // mutationMessagesForObject: (state, getters) => (id) => state.messages.filter(message => message.content.object_id === id).map(x => MocaFactory.constructObject('message', x)),
+    //
+    // // Packages
+    //
+    // packagesByClient: (state, getters) => (id) => state.packages.filter(mocaPackage => mocaPackage.client_id === id).map(x => MocaFactory.constructObject('package', x)),
+    //
+    // // Persons
+    //
+    // clients: (state, getters) => state.persons.filter(person => person.role === 'client').map(x => MocaFactory.constructObject('person', x)),
+    // activeClients: (state, getters) => state.persons.filter(person => person.role === 'client' && !person.archived).map(x => MocaFactory.constructObject('person', x)),
+    // expiredClients: (state, getters) => getters.activeClients.filter(client => client.expired).map(x => MocaFactory.constructObject('person', x)),
+    // management: (state, getters) => getters.members.filter(person => person.canManage).map(x => MocaFactory.constructObject('person', x)),
+    // contractors: (state, getters) => state.persons.filter(person => person.role === 'contractor').map(x => MocaFactory.constructObject('person', x)),
+    // members: (state, getters) => state.persons.filter(person => person.role !== 'client').map(x => MocaFactory.constructObject('person', x)),
+    // activeMembers: (state, getters) => state.persons.filter(person => person.role !== 'client' && !person.archived).map(x => MocaFactory.constructObject('person', x)),
+    // personsByRoles: (state, getters) => (roles) => state.persons.filter(person => roles.includes(person.role)).map(x => MocaFactory.constructObject('person', x)),
+    //
+    //
+    // // Projects
+    //
+    // projectsByContractor: (state, getters) => (id) => state.projects.filter(project => project.contractor_id === id).map(x => MocaFactory.constructObject('project', x)),
+    // projectsByManager: (state, getters) => (id) => state.projects.filter(project => project.manager_id === id).map(x => MocaFactory.constructObject('project', x)),
+    // projectsByClient: (state, getters) => (id) => state.projects.filter(project => project.client_id === id).map(x => MocaFactory.constructObject('project', x)),
+    // projectsByStatus: (state, getters) => (status) => state.projects.filter(project => project.status === status).map(x => MocaFactory.constructObject('project', x)),
+    //
+    // // Resources
+    //
+    // resourcesByProject: (state, getters) => (id) => state.resources.filter(resource => resource.project_id === id).map(x => MocaFactory.constructObject('resource', x)),
+    // resourcesByClient: (state, getters) => (id) => state.resources.filter(resource => resource.client_id === id).map(x => MocaFactory.constructObject('resource', x)),
+    //
+    // // Times
+    //
+    // times: (state, getters) => state.times.sort((a,b) => a.date < b.date || (a.date == b.date && a.cycle < b.cycle)).map(x => MocaFactory.constructObject('time', x)),
+    // pendingTimes: (state, getters) => getters.times.filter(time => time.pending).map(x => MocaFactory.constructObject('time', x)),
+    // timesInPeriod: (state, getters) => state.times.filter(time => time.date >= state.uiFilters.times.period.start && time.date <= state.uiFilters.times.period.end).sort((a,b) => a.date < b.date || (a.date == b.date && a.cycle < b.cycle)).map(x => MocaFactory.constructObject('time', x)),
+    // logsByProject: (state, getters) => (id) => state.times.filter(time => time.project_id === id).map(x => MocaFactory.constructObject('time', x)),
+    // timesByContractor: (state, getters) => (id) => state.times.filter(time => time.worker_id === id).map(x => MocaFactory.constructObject('time', x)),
+    // timesByClient: (state, getters) => (id) => state.times.filter(time => time.client_id === id).map(x => MocaFactory.constructObject('time', x)),
+    // creditForPackage: (state, getters) => (id) => MocaFactory.constructObject('time', state.times.find(time => time.package_id === id)),
 
 };
 
@@ -128,31 +151,7 @@ const mutations = {
     // Static Objects
 
     importObjects (state, data) {
-        for (let type of [
-            'message',
-            'package',
-            'person',
-            'project',
-            'resource',
-            'time'
-        ]) {
-            if (!data[type + 's']) { continue; }
-            // let primitives = [...state[type + 's'], ...data[type + 's'].map(
-            //     primitive => {
-            //         state.lookup[type] = state.lookup[type] ? state.lookup[type] : {};
-            //         state.lookup[type][primitive.id] = primitive;
-            //         return MocaFactory.constructObject(type, primitive);
-            //     }
-            // )];
-            for (var i = 0; i < data[type + 's'].length; i++) {
-                let primitive = data[type + 's'][i];
-                let mocaObject = MocaFactory.constructObject(type, primitive);
-                state.lookup[type] = state.lookup[type] ? state.lookup[type] : {};
-                state.lookup[type][primitive.id] = mocaObject;
-                state[type + 's'].push(mocaObject);
-            }
-            // state[type + 's'] = primitives;
-        }
+
     },
 
     loseProject (state, id) {
@@ -162,12 +161,17 @@ const mutations = {
 
     // Interface
 
-    setSearchTerm(state, searchTerm) { state.searchTerm = searchTerm; },
-    setUiFilter(state, filterData) { state.uiFilters[filterData.type][filterData.name] = filterData.value; },
-    setUser(state, wpId) { state.user = state.persons.find(person => person.wp_id == wpId); },
-    setLastMutationId(state, mutationId) { state.lastMutationId = mutationId; },
-    updateRoute(state, route) { state.route = route; },
-    ready(state) { state.ready = true; }
+    // setSearchTerm(state, searchTerm) { state.searchTerm = searchTerm; },
+    // setUiFilter(state, filterData) { state.uiFilters[filterData.type][filterData.name] = filterData.value; },
+    setUser(state, id) { state.userId = id; },
+    // setLastMutationId(state, mutationId) { state.lastMutationId = mutationId; },
+    // updateRoute(state, route) { state.route = route; },
+    // ready(state) { state.ready = true; }
+
+
+    setPersons (state, data) { state.persons = data; },
+    setProjects (state, data) { state.projects = data; },
+    setUnresolvedMessages (state, data) { state.unresolvedMessages = data; }
 
 };
 
@@ -176,126 +180,155 @@ const actions = {
     // Object Mutation
 
     applyMutations (context, mutations) {
-        for (let mutation of mutations) {
-            context.commit('mutateObject', mutation);
-        }
+        // for (let mutation of mutations) {
+        //     context.commit('mutateObject', mutation);
+        // }
     },
 
     persistMutations (context, mutations) {
-        if (!mutations) { return; }
-        for (let mutation of mutations) {
-            forager.mutateObject(mutation);
-        }
+        // if (!mutations) { return; }
+        // for (let mutation of mutations) {
+        //     forager.mutateObject(mutation);
+        // }
     },
 
     exportMutations (context, mutations) {
-        store.dispatch('applyMutations', mutations);
-        hpmAPI('mutate', [mutations, pusher.socketId]).then(response => {
-            if ( response.integrity == store.state.lastMutationId) {
-                store.dispatch('persistMutations', mutations);
-                store.dispatch('setLastMutationId', response.mutation_id);
-            } else {
-                console.log('Out of sync. Last mutation should be ' + response.integrity[store.state.user.id] + ', but is ' + store.state.lastMutationId + '.', response);
-                alert("Hmm... looks like you're out of sync. Refresh to make sure you have the latest.");
-            }
-        }, response => {
-            alert("Crap, got disconnected, and that didn't save. Make sure you're connected and refresh.");
-        });
+        // store.dispatch('applyMutations', mutations);
+        // hpmAPI('mutate', [mutations, pusher.socketId]).then(response => {
+        //     if ( response.integrity == store.state.lastMutationId) {
+        //         store.dispatch('persistMutations', mutations);
+        //         store.dispatch('setLastMutationId', response.mutation_id);
+        //     } else {
+        //         console.log('Out of sync. Last mutation should be ' + response.integrity[store.state.user.id] + ', but is ' + store.state.lastMutationId + '.', response);
+        //         alert("Hmm... looks like you're out of sync. Refresh to make sure you have the latest.");
+        //     }
+        // }, response => {
+        //     alert("Crap, got disconnected, and that didn't save. Make sure you're connected and refresh.");
+        // });
     },
 
     importMutations (context, data) {
-        console.log(data.mutations.length + ' New Mutations Imported');
-        store.dispatch('applyMutations', data.mutations);
-        if ( !data.integrity || data.integrity[store.state.user.id] == store.state.lastMutationId) {
-            store.dispatch('setLastMutationId', data.mutation_id);
-            store.dispatch('persistMutations', data.mutations);
-        } else {
-            console.log('Out of sync. Last mutation should be ' + data.integrity[store.state.user.id] + ', but is ' + store.state.lastMutationId + '.');
-            alert("Hmm... looks like you're out of sync. Refresh to make sure you have the latest.");
-        }
+        // console.log(data.mutations.length + ' New Mutations Imported');
+        // store.dispatch('applyMutations', data.mutations);
+        // if ( !data.integrity || data.integrity[store.state.user.id] == store.state.lastMutationId) {
+        //     store.dispatch('setLastMutationId', data.mutation_id);
+        //     store.dispatch('persistMutations', data.mutations);
+        // } else {
+        //     console.log('Out of sync. Last mutation should be ' + data.integrity[store.state.user.id] + ', but is ' + store.state.lastMutationId + '.');
+        //     alert("Hmm... looks like you're out of sync. Refresh to make sure you have the latest.");
+        // }
     },
 
     setLastMutationId (context, mutationId) {
-        context.commit('setLastMutationId', mutationId);
-        forager.setLastMutationId(mutationId);
+        // context.commit('setLastMutationId', mutationId);
+        // forager.setLastMutationId(mutationId);
     },
 
     // Object Gain
 
     gainObject (context, object) {
 
-        hpmAPI('object_dependents', [object.object_type, object.object_id]).then(data => {
-            console.log('Gained Object Dependents', data);
-
-            // Add to Local Store
-            context.commit('importObjects', data);
-
-            // Add to IndexedDB
-            for (let type of [
-                'message',
-                'resource'
-            ]) {
-                for (let primitive of data[type + 's']) {
-                    forager.setObject(type, primitive.id, primitive);
-                }
-            }
-
-        });
+        // hpmAPI('object_dependents', [object.object_type, object.object_id]).then(data => {
+        //     console.log('Gained Object Dependents', data);
+        //
+        //     // Add to Local Store
+        //     context.commit('importObjects', data);
+        //
+        //     // Add to IndexedDB
+        //     for (let type of [
+        //         'message',
+        //         'resource'
+        //     ]) {
+        //         for (let primitive of data[type + 's']) {
+        //             forager.setObject(type, primitive.id, primitive);
+        //         }
+        //     }
+        //
+        // });
 
     },
 
     loseObject (context, object) {
 
-        // Only Support Projects for Now
-        console.log('Losing Access to Project', object);
-
-        // Remove from IndexedDB
-        for (let type of [
-            'message',
-            'resource'
-        ]) {
-            for (let primitive of store.state[type + 's'].filter(dep => dep.project_id == object.object_id)) {
-                forager.removeObject(type, primitive.id);
-            }
-        }
-
-        // Remove from Local Store
-        context.commit('loseProject', object.object_id);
+        // // Only Support Projects for Now
+        // console.log('Losing Access to Project', object);
+        //
+        // // Remove from IndexedDB
+        // for (let type of [
+        //     'message',
+        //     'resource'
+        // ]) {
+        //     for (let primitive of store.state[type + 's'].filter(dep => dep.project_id == object.object_id)) {
+        //         forager.removeObject(type, primitive.id);
+        //     }
+        // }
+        //
+        // // Remove from Local Store
+        // context.commit('loseProject', object.object_id);
 
     },
 
     // Static Objects
 
     importObjects (context, data) {
+        db.messages.where('id').notEqual('0').delete();
+        db.packages.where('id').notEqual('0').delete();
+        db.persons.where('id').notEqual('0').delete();
+        db.projects.where('id').notEqual('0').delete();
+        db.resources.where('id').notEqual('0').delete();
+        db.times.where('id').notEqual('0').delete();
+        data.messages && db.messages.bulkAdd(data.messages);
+        data.packages && db.packages.bulkAdd(data.packages);
+        data.persons && db.persons.bulkAdd(data.persons);
+        data.projects && db.projects.bulkAdd(data.projects);
+        data.resources && db.resources.bulkAdd(data.resources);
+        data.times && db.times.bulkAdd(data.times);
 
-        console.log('Objects Imported:', data);
 
-        // Add to Local Store
-        context.commit('importObjects', data);
+    },
 
-        // Add to IndexedDB
-        for (let type of [
-            'message',
-            'package',
-            'person',
-            'project',
-            'resource',
-            'time'
-        ]) {
-            for (let primitive of data[type + 's']) {
-                forager.setObject(type, primitive.id, primitive);
-            }
-        }
+    loadAppState (context) {
+        // load persons
+        let persons = {};
+        db.persons.each((person) => { persons[person.id] = person; })
+            .then(() => {
+                context.commit('setPersons', persons);
+            });
 
+        // load active projects
+        let projects = {};
+        db.projects.where('archived').equals(0).each((project) => { projects[project.id] = project; })
+            .then(() => {
+                context.commit('setProjects', projects);
+            });
+
+        // unresolved messages for counting/flagging/etc.
+        let unresolvedMessages = {};
+        db.messages.where('resolved').equals(0).each((message) => { unresolvedMessages[message.id] = message; })
+            .then(() => {
+                context.commit('setUnresolvedMessages', unresolvedMessages);
+            });
+
+        // db.persons.count((count) => {console.log(count); });
     },
 
     // Interface
 
-    setSearchTerm (context, searchTerm) { context.commit('setSearchTerm', searchTerm); },
-    setUiFilter (context, filterData) { context.commit('setUiFilter', filterData); },
-    setUser (context, wpId) { context.commit('setUser', wpId); },
-    updateRoute (context, route) { context.commit('updateRoute', route); },
-    ready (context) { context.commit('ready'); }
+    // setSearchTerm (context, searchTerm) { context.commit('setSearchTerm', searchTerm); },
+    // setUiFilter (context, filterData) { context.commit('setUiFilter', filterData); },
+    setUser (context, wpId) {
+        db.persons.get({ wp_id: wpId }).then((userPrimitive) => {
+            context.commit('setUser', userPrimitive.id);
+        });
+    },
+    // updateRoute (context, route) { context.commit('updateRoute', route); },
+    // ready (context) { context.commit('ready'); }
+
+    setSearchTerm (context, searchTerm) {  },
+    setUiFilter (context, filterData) { },
+    // setUser (context, wpId) { },
+    updateRoute (context, route) { },
+    ready (context) { }
 
 };
 

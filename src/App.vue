@@ -1,6 +1,6 @@
 <template>
-    <div id="app" v-if="appReady">
-        <header>
+    <!-- <div id="app" v-if="appReady"> -->
+        <!-- <header>
             <div class="logo"></div>
             <nav class="primary-nav">
                 <router-link :to="{name:'inbox'}" class="navbar-item">Inbox</router-link>
@@ -33,54 +33,78 @@
         </transition>
         <transition name="slide-up">
             <delegator v-if="showDelegator"></delegator>
-        </transition>
+        </transition> -->
+    <!-- </div> -->
+
+    <div id="app">
+        <template v-if="user">
+            <span>Let's get some projects for {{ user.name }}</span>
+            <ul>
+                <li v-for="project in projects" :key="project.id">{{ project.name }} - {{ project.unresolvedMessages.length }}</li>
+            </ul>
+        </template><template v-else>
+            Loading.
+        </template>
     </div>
 </template>
 
 
 <script>
-    import Inbox from './components/Inbox.vue';
-    import Toolbar from './components/Toolbar.vue';
-    import Delegator from './components/Delegator.vue';
-    import Project from './objects/project.js';
 
     export default {
         name: 'app',
-        components: {Inbox,Toolbar,Delegator},
-        data () { return {
-            appReady: false,
-            showDelegator: false
-        }},
         computed: {
-            modalOpen () {
-                return this.$store.state.route.itemId !== null;
+            user () {
+                return this.$store.getters.user();
+            },
+            projects () {
+                return this.$store.getters.projectsByManager(this.user.id)
             }
-        },
-        watch: {
-            modalOpen: (newVal) => {
-                newVal ?
-                    document.body.classList.add('noScroll') :
-                    document.body.classList.remove('noScroll');
-            }
-        },
-        created () {
-            bus.$on('storeLoaded', () => {
-                this.appReady = true;
-            });
-            bus.$on('didStartDrag', (payload) => {
-                if (payload instanceof Project && !payload.contractor_id) {
-                    this.showDelegator = true;
-                }
-            });
-            bus.$on('didEndDrag', (e) => {
-                this.showDelegator = false;
-            });
-            document.addEventListener("keydown", (e) => {
-                if (['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) { return; }
-                bus.$emit('keydown', e.keyCode);
-            });
         }
     }
+
+    // import Inbox from './components/Inbox.vue';
+    // import Toolbar from './components/Toolbar.vue';
+    // import Delegator from './components/Delegator.vue';
+    // import Project from './objects/project.js';
+    //
+    // export default {
+    //     name: 'app',
+    //     components: {Inbox,Toolbar,Delegator},
+    //     data () { return {
+    //         appReady: false,
+    //         showDelegator: false
+    //     }},
+    //     computed: {
+    //         modalOpen () {
+    //             return this.$store.state.route.itemId !== null;
+    //         }
+    //     },
+    //     watch: {
+    //         modalOpen: (newVal) => {
+    //             newVal ?
+    //                 document.body.classList.add('noScroll') :
+    //                 document.body.classList.remove('noScroll');
+    //         }
+    //     },
+    //     created () {
+    //         bus.$on('storeLoaded', () => {
+    //             this.appReady = true;
+    //         });
+    //         bus.$on('didStartDrag', (payload) => {
+    //             if (payload instanceof Project && !payload.contractor_id) {
+    //                 this.showDelegator = true;
+    //             }
+    //         });
+    //         bus.$on('didEndDrag', (e) => {
+    //             this.showDelegator = false;
+    //         });
+    //         document.addEventListener("keydown", (e) => {
+    //             if (['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) { return; }
+    //             bus.$emit('keydown', e.keyCode);
+    //         });
+    //     }
+    // }
 </script>
 
 
