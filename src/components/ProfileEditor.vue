@@ -6,7 +6,7 @@
                 :style="{
                     background: lightColor,
                     color: darkColor
-                    }">{{ $store.state.user.name }}</span>
+                    }">{{ user.name }}</span>
             <div class="fields">
                 <div class="field-columns">
                     <div class="field-column">
@@ -57,17 +57,17 @@
     export default {
         name: 'profile-editor',
         data () { return {
-            colorObject: this.colorObjectFromHex(store.state.user.color),
+            colorObject: this.colorObjectFromHex(this.user.color),
             colorUpdateTimeout: null,
-            cell_number: store.state.user.cell_number,
-            cell_provider: store.state.user.cell_provider,
+            cell_number: this.user.cell_number,
+            cell_provider: this.user.cell_provider,
             cellProviderOptions: [
                 { id: 'verizon', name: 'Verizon' },
                 { id: 'att', name: 'AT&T' },
                 { id: 'tmobile', name: 'T-Mobile' },
                 { id: 'sprint', name: 'Sprint' }
             ],
-            time_offset: store.state.user.time_offset,
+            time_offset: this.user.time_offset,
             timezoneOptions: [
                 { id: -12, name: '(GMT -12:00) Eniwetok, Kwajalein' },
                 { id: -11, name: '(GMT -11:00) Midway Island, Samoa' },
@@ -101,7 +101,7 @@
                 { id:  11, name: '(GMT +11:00) Magadan, Solomon Islands, New Caledonia' },
                 { id:  12, name: '(GMT +12:00) Auckland, Wellington, Fiji, Kamchatka' }
             ],
-            notification_time: store.state.user.notification_time,
+            notification_time: this.user.notification_time,
             notificationTimeOptions: [
                 { id: 0,  name: '12:00 AM' },
                 { id: 1,  name: '1:00 AM'  },
@@ -130,6 +130,9 @@
             ]
         }},
         computed: {
+            user () {
+                return this.$store.getters.user();
+            },
             lightColor () {
                 return tinycolor(this.colorObject.hex).lighten(32).toString();
             },
@@ -137,11 +140,11 @@
                 return tinycolor(this.colorObject.hex).darken(25).saturate(20).toString();
             },
             validates () {
-                return this.cell_number != store.state.user.cell_number ||
-                       this.cell_provider != store.state.user.cell_provider ||
-                       this.time_offset != store.state.user.time_offset ||
-                       this.notification_time != store.state.user.notification_time ||
-                       this.colorObject.hex != store.state.user.color;
+                return this.cell_number != this.user.cell_number ||
+                       this.cell_provider != this.user.cell_provider ||
+                       this.time_offset != this.user.time_offset ||
+                       this.notification_time != this.user.notification_time ||
+                       this.colorObject.hex != this.user.color;
             }
         },
         methods: {
@@ -157,7 +160,7 @@
             },
             // saveColor () {
             //     new MocaMutationSet(
-            //         'update', 'person', store.state.user.id,
+            //         'update', 'person', this.user.id,
             //         {color: this.colorObject.hex}
             //     ).commit();
             // },
@@ -168,7 +171,7 @@
             },
             save () {
                 new MocaMutationSet(
-                    'update', 'person', store.state.user.id,
+                    'update', 'person', this.user.id,
                     {
                         cell_number: this.cell_number,
                         cell_provider: this.cell_provider,

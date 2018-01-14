@@ -1,7 +1,7 @@
 <template>
 
     <div @click="open" tag="div" class="project-card" :class="{dragging: isDragDelegate, delegating}" :style="{transform:'translate(' + dragDelta.x + 'px,' + dragDelta.y + 'px)'}">
-        <div class="cycles" :class="{ active: project.autocycle }">
+        <!-- <div class="cycles" :class="{ active: project.autocycle }">
             <ceri-icon name="fa-recycle" size="12" offset-y="-5" hcenter></ceri-icon>
         </div>
         <div class="flag" :class="{ active: project.flagged }">
@@ -25,7 +25,8 @@
                 <span class="estimate">{{ project.max | hours }}</span>
                 <span class="due" v-if="project.dueString" :class="{overdue: project.overdue}">{{ project.dueString }}</span>
             </div>
-        </footer>
+        </footer> -->
+        {{ project.name }}
     </div>
 
 </template>

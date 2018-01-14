@@ -5,12 +5,12 @@
 
             <!-- Header -->
             <header>
-                <div class="avatar">
+                <!-- <div class="avatar">
                     <img :src="person.avatar">
                     <transition name="scale">
                         <div class="online-dot" v-if="person.online"></div>
                     </transition>
-                </div>
+                </div> -->
                 <div class="titles">
                     <p class="title">{{ person.name }}</p>
                     <div class="subtitle">
@@ -21,7 +21,7 @@
                     </div>
                 </div>
                 <template v-if="person.role == 'client'">
-                    <div class="blurbs">
+                    <!-- <div class="blurbs">
                         <div class="blurb">
                             <label>Balance</label>
                             <span :class="{negative: person.balance < 0}">{{ person.balance | hours }}</span>
@@ -34,7 +34,7 @@
                             <label>Available</label>
                             <span :class="{negative: person.hoursAvailable < 0}">{{ person.hoursAvailable | hours }}</span>
                         </div>
-                    </div>
+                    </div> -->
                 </template>
             </header>
 
@@ -48,11 +48,11 @@
                     <h2 class="collection-title">Managing</h2>
                     <project-collection :projects="filterProjects(person.activeProjectsManaged)" :kanban="true" :person="person"></project-collection>
                 </template>
-                <template v-if="!person.canManage && !person.activeProjectsAssigned.length">
+                <!-- <template v-if="!person.canManage && !person.activeProjectsAssigned.length">
                     <div class="actions">
                         <button class="button" @click="archivePerson">Archive Contractor</button>
                     </div>
-                </template>
+                </template> -->
             </template>
 
             <!-- Clients -->
@@ -65,13 +65,13 @@
                 <!-- <h2 class="collection-title">Files</h2>
                 <button class="button primary">Add File</button> -->
 
-                <template v-if="!person.activeProjectsOwned.length">
+                <!-- <template v-if="!person.activeProjectsOwned.length">
                     <div class="actions">
                         <button class="button" @click="archivePerson">Archive Client</button>
                     </div>
-                </template>
+                </template> -->
 
-                <files-view :client="person"></files-view>
+                <!-- <files-view :client="person"></files-view> -->
             </template>
 
         </div>
@@ -100,7 +100,8 @@
             },
             subtitle () {
                 return this.person.role == 'client' ?
-                    this.person.expirationDescription :
+                    // this.person.expirationDescription :
+                    'not implemented' :
                     capitalizeFirstLetter(this.person.role);
             }
         },

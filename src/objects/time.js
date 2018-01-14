@@ -18,7 +18,8 @@ class Time extends MocaObject {
     }
 
     get isInCurrentPeriod() {
-        return this.date >= currentPeriod.start && this.date <= currentPeriod.end;
+        return true; // @TODO
+        // return this.date >= currentPeriod.start && this.date <= currentPeriod.end;
     }
 
 }

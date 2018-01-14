@@ -24,10 +24,10 @@ var db = new Dexie('mocadex');
 db.version(1).stores({
     messages: '&id,resolved',
     packages: '&id',
-    persons: '&id,&wp_id',
+    persons: '&id,&wp_id,archived',
     projects: '&id,archived',
     resources: '&id',
-    times: '&id'
+    times: '&id,date'
 });
 
 const state = {
@@ -48,6 +48,8 @@ const state = {
 
     persons: {}, // all
     projects: {}, // unarchived
+    times: {}, // current period
+    mocaPackages: {}, // tied to times in current period
 
     unresolvedMessages: {}
 };
@@ -56,12 +58,29 @@ const getters = {
 
     user: (state, getters) => () => getters.person(state.userId),
     person: (state, getters) => (id) => MocaFactory.constructObject('person', state.persons[id]),
+    project: (state, getters) => (id) => MocaFactory.constructObject('project', state.projects[id]),
+    mocaPackage: (state, getters) => (id) => MocaFactory.constructObject('package', state.mocaPackages[id]),
 
     projectsByManager: (state, getters) => (id) => Object.values(state.projects).filter(x => x.manager_id === id)
         .map(x => MocaFactory.constructObject('project', x)),
 
+    projectsByContractor: (state, getters) => (id) => Object.values(state.projects).filter(x => x.contractor_id === id)
+        .map(x => MocaFactory.constructObject('project', x)),
+
+    projectsByClient: (state, getters) => (id) => Object.values(state.projects).filter(x => x.client_id === id)
+        .map(x => MocaFactory.constructObject('project', x)),
+
     unresolvedMessagesByProject: (state, getters) => (id) => Object.values(state.unresolvedMessages).filter(x => x.project_id === id)
         .map(x => MocaFactory.constructObject('message', x)),
+
+    members: (state, getters) => Object.values(state.persons).filter(x => x.role != 'client')
+        .map(x => MocaFactory.constructObject('person', x)),
+
+    clients: (state, getters) => Object.values(state.persons).filter(x => x.role == 'client')
+        .map(x => MocaFactory.constructObject('person', x)),
+
+    timesInPeriod: (state, getters) => Object.values(state.times)
+        .map(x => MocaFactory.constructObject('time', x)),
 
     // // Single Objects
     //
@@ -171,7 +190,8 @@ const mutations = {
 
     setPersons (state, data) { state.persons = data; },
     setProjects (state, data) { state.projects = data; },
-    setUnresolvedMessages (state, data) { state.unresolvedMessages = data; }
+    setUnresolvedMessages (state, data) { state.unresolvedMessages = data; },
+    setTimes (state, data) { state.times = data; }
 
 };
 
@@ -288,9 +308,9 @@ const actions = {
     },
 
     loadAppState (context) {
-        // load persons
+        // load active persons
         let persons = {};
-        db.persons.each((person) => { persons[person.id] = person; })
+        db.persons.where('archived').equals(0).each((person) => { persons[person.id] = person; })
             .then(() => {
                 context.commit('setPersons', persons);
             });
@@ -307,6 +327,13 @@ const actions = {
         db.messages.where('resolved').equals(0).each((message) => { unresolvedMessages[message.id] = message; })
             .then(() => {
                 context.commit('setUnresolvedMessages', unresolvedMessages);
+            });
+
+        // times in current period
+        let times = {};
+        db.times.where('date').between(state.uiFilters.times.period.start, state.uiFilters.times.period.end).each((time) => { times[time.id] = time; })
+            .then(() => {
+                context.commit('setTimes', times);
             });
 
         // db.persons.count((count) => {console.log(count); });

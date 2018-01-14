@@ -16,7 +16,7 @@
         name: 'clients-view',
         computed: {
             allPersons () {
-                return this.$store.getters.activeClients;
+                return this.$store.getters.clients;
             }
         },
         components: {
@@ -24,8 +24,8 @@
         },
         mixins: [CanSearchPersons],
         mounted () {
-            let savedScroll = localStorage['clientsScroll'];
-            document.body.scrollTop = savedScroll;
+            // let savedScroll = localStorage['clientsScroll'];
+            // document.body.scrollTop = savedScroll;
         }
     }
 

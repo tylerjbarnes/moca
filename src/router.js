@@ -168,8 +168,8 @@ router.afterEach((hook) => {
 });
 
 router.beforeEach((to, from, next) => {
-    let view = store.state.route.view;
-    if (view) { localStorage[view + "Scroll"] = document.body.scrollTop; }
+    // let view = store.state.route.view;
+    // if (view) { localStorage[view + "Scroll"] = document.body.scrollTop; }
     next();
 });
 

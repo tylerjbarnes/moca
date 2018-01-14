@@ -17,7 +17,7 @@
         name: 'team-view',
         computed: {
             allPersons () {
-                return this.$store.getters.activeMembers;
+                return this.$store.getters.members;
             }
         },
         components: {
@@ -25,8 +25,8 @@
         },
         mixins: [CanSearchPersons],
         mounted () {
-            let savedScroll = localStorage['teamScroll'];
-            document.body.scrollTop = savedScroll;
+            // let savedScroll = localStorage['teamScroll'];
+            // document.body.scrollTop = savedScroll;
         }
     }
 </script>
