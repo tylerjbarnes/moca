@@ -27,7 +27,7 @@ db.version(1).stores({
     persons: '&id,&wp_id,archived',
     projects: '&id,archived',
     resources: '&id',
-    times: '&id,date'
+    times: '&id,date,pending'
 });
 
 const state = {
@@ -51,7 +51,10 @@ const state = {
     times: {}, // current period
     mocaPackages: {}, // tied to times in current period
 
-    unresolvedMessages: {}
+    archivedProjects: {}, // 20 at a time
+
+    unresolvedMessages: {},
+    pendingTimes: {}
 };
 
 const getters = {
@@ -70,6 +73,9 @@ const getters = {
     projectsByClient: (state, getters) => (id) => Object.values(state.projects).filter(x => x.client_id === id)
         .map(x => MocaFactory.constructObject('project', x)),
 
+    unresolvedMessages: (state, getters) => () => Object.values(state.unresolvedMessages)
+        .map(x => MocaFactory.constructObject('message', x)),
+
     unresolvedMessagesByProject: (state, getters) => (id) => Object.values(state.unresolvedMessages).filter(x => x.project_id === id)
         .map(x => MocaFactory.constructObject('message', x)),
 
@@ -80,6 +86,12 @@ const getters = {
         .map(x => MocaFactory.constructObject('person', x)),
 
     timesInPeriod: (state, getters) => Object.values(state.times)
+        .map(x => MocaFactory.constructObject('time', x)),
+
+    archivedProjects: (state, getters) => Object.values(state.archivedProjects)
+        .map(x => MocaFactory.constructObject('project', x)),
+
+    pendingTimes: (state, getters) => Object.values(state.pendingTimes)
         .map(x => MocaFactory.constructObject('time', x)),
 
     // // Single Objects
@@ -191,7 +203,9 @@ const mutations = {
     setPersons (state, data) { state.persons = data; },
     setProjects (state, data) { state.projects = data; },
     setUnresolvedMessages (state, data) { state.unresolvedMessages = data; },
-    setTimes (state, data) { state.times = data; }
+    setTimes (state, data) { state.times = data; },
+    setPendingTimes (state, data) { state.pendingTimes = data; },
+    setArchivedProjects (state, data) { state.archivedProjects = data; }
 
 };
 
@@ -334,6 +348,20 @@ const actions = {
         db.times.where('date').between(state.uiFilters.times.period.start, state.uiFilters.times.period.end).each((time) => { times[time.id] = time; })
             .then(() => {
                 context.commit('setTimes', times);
+            });
+
+        // pending times
+        let pendingTimes = {};
+        db.times.where('pending').equals(1).each((time) => { pendingTimes[time.id] = time; })
+            .then(() => {
+                context.commit('setPendingTimes', pendingTimes);
+            });
+
+        // archived projects
+        let archivedProjects = {};
+        db.projects.where('archived').equals(1).limit(20).each((project) => { archivedProjects[project.id] = project; })
+            .then(() => {
+                context.commit('setArchivedProjects', archivedProjects);
             });
 
         // db.persons.count((count) => {console.log(count); });

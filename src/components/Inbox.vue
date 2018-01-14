@@ -11,7 +11,8 @@
             ></inbox-item>
         </div>
         <div class="preview">
-            <template v-if="!selected">No more items!</template>
+            {{ selected ? selected.object : '' }}
+            <!-- <template v-if="!selected">No more items!</template>
             <template v-else-if="selected.type == 'project'">
                 <project-header :project="selected.object" :external="true"></project-header>
                 <conversation-view ref="focalPoint" :project="selected.object"></conversation-view>
@@ -50,7 +51,7 @@
                     <button class="primary button" :disabled="!extensionDate" @click="extendPackage">Extend</button>
                     <button ref="focalPoint" class="dangerous button" @click="expirePackage">Expire</button>
                 </div>
-            </template>
+            </template> -->
         </div>
     </div>
 
@@ -65,6 +66,8 @@
     import TimeTable from './TimeTable.vue';
     import MocaMutationSet from '../objects/mocaMutationSet.js';
 
+    import HasMoca from '../mixins/HasMoca.js';
+
     export default {
         name: 'inbox',
         props: [],
@@ -73,29 +76,33 @@
             extensionDate: null
         }},
         components: {InboxItem,ConversationView,TimeTable,DateInput,ProjectHeader},
+        mixins: [HasMoca],
         computed: {
             selected () {
                 return this.items[this.selectedIndex];
             },
             projectItems () {
-                let messages = store.state.user.canManage ?
-                    store.getters.messagesFromContractors.filter(message => !message.resolved) :
-                    store.getters.messagesFromManagers.filter(message => !message.resolved);
-                let projects = [...new Set(messages.map(message => message.project))];
-                return projects.map(project => ({type: 'project', object: project, time: project.lastChatMessage.datetime}));
+                let messages = store.getters.unresolvedMessages();
+                let projects = _.uniqBy(messages.filter(x => x.project).map(x => x.project), 'id');
+                // console.log(messages, projects);
+                // let projects = messages.map(message => message.project);
+                // return projects.map(project => ({type: 'project', object: project, time: store.getters.unresolvedMessagesByProject(project.id)[0].datetime}));
+                return projects.map(project => ({type: 'project', object: project, time: store.getters.unresolvedMessagesByProject(project.id)[0].datetime}));
             },
             timeItems () {
                 let times = store.getters.pendingTimes;
                 return times.map(time => ({type: 'time', object: time, time: time.date}));
             },
             clientItems () {
-                let clients = store.getters.expiredClients;
-                return clients.map(client => ({type: 'client', object: client, time: client.lastPackage.time.date}));
+                // let clients = Object.values(store.getters.clients).filter(x => x.expired);
+                // return clients.map(client => ({type: 'client', object: client, time: client.lastPackage.time.date}));
+                return [].map(client => ({type: 'client', object: client, time: client.lastPackage.time.date}));
             },
             items () {
-                return [...this.projectItems, ...this.timeItems, ...this.clientItems].sort((a,b) => {
-                    return a.time < b.time;
-                });
+                // return [...this.projectItems, ...this.timeItems, ...this.clientItems].sort((a,b) => {
+                //     return a.time < b.time;
+                // });
+                return this.projectItems;
             },
             times () {
                 let times = [];
