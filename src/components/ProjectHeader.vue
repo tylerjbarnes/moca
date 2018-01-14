@@ -6,7 +6,7 @@
             <div class="titles">
                 <div class="subtitles">
                     <h2 class="client-name">{{ project.client ? project.client.name : 'No Client' }}</h2>
-                    <span class="cycle" v-if="$store.state.user.canManage">{{ project.cycle + 1 }}</span>
+                    <span class="cycle" v-if="user.canManage">{{ project.cycle + 1 }}</span>
                     <span class="flagged" v-if="project.flagged"><ceri-icon name="fa-flag" size="14" hcenter></ceri-icon></span>
                 </div>
                 <h1 class="project-name" :class="{external}" @click="open">{{ project.name }}</h1>
@@ -50,12 +50,14 @@
     import PersonTag from './PersonTag.vue';
     import ProjectActions from './ProjectActions.vue';
     import QuickLog from './QuickLog.vue';
+    import HasMoca from '../mixins/HasMoca.js';
 
     export default {
         name: 'project-header',
         props: ['project','external'],
+        mixins: [HasMoca],
         computed: {
-            managing () { return store.state.user.canManage && store.state.user.id != this.project.contractor_id; }
+            managing () { return this.user.canManage && this.user.id != this.project.contractor_id; }
         },
         methods: {
             open () {
