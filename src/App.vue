@@ -25,7 +25,7 @@
                 <router-view></router-view>
             </div>
         </div>
-        <!-- <transition name="modal-fade">
+        <transition name="modal-fade">
             <div class="modal is-active" v-if="$store.state.route.itemId">
                 <router-link tag="div" class="modal-background" :to="{name: $store.state.route.view}"></router-link>
                 <router-view name="modal"></router-view>
@@ -33,36 +33,12 @@
         </transition>
         <transition name="slide-up">
             <delegator v-if="showDelegator"></delegator>
-        </transition> -->
+        </transition>
     </div>
-
-    <!-- <div id="app">
-        <template v-if="user">
-            <span>Let's get some projects for {{ user.name }}</span>
-            <ul>
-                <li v-for="project in projects" :key="project.id">{{ project.name }} - {{ project.unresolvedMessages.length }}</li>
-            </ul>
-        </template><template v-else>
-            Loading.
-        </template>
-    </div> -->
 </template>
 
 
 <script>
-
-    // export default {
-    //     name: 'app',
-    //     computed: {
-    //         user () {
-    //             return this.$store.getters.user();
-    //         },
-    //         projects () {
-    //             return this.$store.getters.projectsByManager(this.user.id)
-    //         }
-    //     }
-    // }
-
     import Inbox from './components/Inbox.vue';
     import Toolbar from './components/Toolbar.vue';
     import Delegator from './components/Delegator.vue';

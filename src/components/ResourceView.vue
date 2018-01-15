@@ -4,7 +4,7 @@
         <header :style="{backgroundImage: gradientString}" @dblclick="edit(null, true)">
             <span class="name" ref="nameEditor" v-show="!editing">{{ resource.name }}</span>
             <input type="text" v-show="editing" class="nameEditor" ref="nameEditor" v-model="primitive.name" placeholder="Resource Name">
-            <span class="delete" @click="deleteResource" v-if="!isDraft && $store.state.user.canManage"></span>
+            <span class="delete" @click="deleteResource" v-if="!isDraft && user.canManage"></span>
         </header>
         <div class="main" @dblclick="edit">
             <div class="markup" v-html="markup" v-show="!editing"></div>
@@ -31,9 +31,12 @@
     import MocaMutationSet from '../objects/mocaMutationSet.js';
     import MocaFactory from '../objects/mocaFactory.js';
 
+    import HasMoca from '../mixins/HasMoca.js';
+
     export default {
         name: 'resource-view',
         props: ['resource', 'isDraft'],
+        mixins: [HasMoca],
         data () { return {
             editing: false,
             primitive: {

@@ -20,9 +20,13 @@
     import MocaFactory from '../objects/mocaFactory.js';
     import MocaMutationSet from '../objects/mocaMutationSet.js';
 
+    import HasMoca from '../mixins/HasMoca.js';
+
+
     export default {
         name: 'quick-log',
         props: ['project'],
+        mixins: [HasMoca],
         data () { return {
             logPrimitive: this.newLogPrimitive(),
             editing: false
@@ -34,7 +38,7 @@
                     client_id: this.project.client ? this.project.client.id : null,
                     cycle: this.project.cycle,
                     project_id: this.project.id,
-                    worker_id: this.$store.state.user.id
+                    // worker_id: this.user.id @TODO
                 })
             },
             resetPrimitive () {

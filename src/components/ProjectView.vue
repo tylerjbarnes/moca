@@ -1,7 +1,7 @@
 <template>
 
     <div class="project-view">
-        <template v-if="project"><div class="project-modal">
+        <template v-if="project && project.resources && project.hoursLogged !== null && project.messages"><div class="project-modal">
 
             <div class="project-main">
                 <!-- <header>
@@ -80,6 +80,16 @@
                     router.replace({name: store.state.route.view});
                 }
             }
+        },
+        created () {
+            this.$store.dispatch('fetchResourcesByProject', this.id);
+            this.$store.dispatch('fetchTimesByProject', this.id);
+            this.$store.dispatch('fetchMessagesByProject', this.id);
+        },
+        destroyed () {
+            this.$store.dispatch('cleanResourcesByProject');
+            this.$store.dispatch('cleanTimesByProject');
+            this.$store.dispatch('cleanMessagesByProject');
         }
     }
 

@@ -34,7 +34,7 @@ class MocaFactory {
                 primitive = {
                     id: cuid(),
                     type: null,
-                    author_id: store.state.user.id,
+                    author_id: store.getters.user.id,
                     project_id: null,
                     cycle: 0,
                     content: '',

@@ -22,7 +22,7 @@ class Message extends MocaObject {
 
         let string = '';
         let style = 'simple';
-        let name = this.author.id == store.state.user.id ? 'You' : this.author.firstName;
+        let name = this.author.id == store.getters.user.id ? 'You' : this.author.firstName;
         switch (this.content.object_type) {
             case 'project':
                 if (this.content.property_name == 'cycle') {
@@ -57,7 +57,7 @@ class Message extends MocaObject {
                 break;
             case 'message':
                 let request = store.getters.message(this.content.object_id);
-                let requesterName = request.author_id == store.state.user.id ? 'your' : store.getters.person(request.author_id).firstName + "'s";
+                let requesterName = request.author_id == store.getters.user.id ? 'your' : store.getters.person(request.author_id).firstName + "'s";
                 switch (request.content.granted) {
                     case true: string = name + ' allowed ' + requesterName + ' time request'; break;
                     default: string = name + ' denied ' + requesterName + ' time request'; break;
@@ -76,7 +76,7 @@ class Message extends MocaObject {
         let hoursString = this.content.hours ? '<strong>' + this.content.hours + ' more hour' + (this.content.hours != 1 ? 's' : '') + '</strong>' : '';
         let dueString = this.content.due ? 'a later due date of <strong>' + moment(this.content.due).format("MMM D") + '</strong>': '';
         let both = hoursString && dueString;
-        let name = this.author.id == store.state.user.id ? 'You' : this.author.firstName;
+        let name = this.author.id == store.getters.user.id ? 'You' : this.author.firstName;
         return name + ' requested '
             + hoursString + ( both ? '<br>and ' : '' ) + dueString
             + '<br><strong>"' + this.content.reason +'"</strong>';

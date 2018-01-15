@@ -1,16 +1,16 @@
 <template>
 
     <div class="project-actions">
-        <button class="button" @click="edit(false)" v-if="$store.state.user.canManage && !project.archived" :style="{backgroundColor: project.manager.color}">Edit Project</button>
+        <button class="button" @click="edit(false)" v-if="user.canManage && !project.archived" :style="{backgroundColor: project.manager.color}">Edit Project</button>
         <button class="button" v-if="!project.archived" :style="{backgroundImage: gradientString()}" @click="$emit('addResource')">Add Resource</button>
-        <div class="request-time" v-if="!$store.state.user.canManage && project.status == 'do'">
+        <div class="request-time" v-if="!user.canManage && project.status == 'do'">
             <button class="button" :class="{dangerous: !requesting}" @click="toggleRequesting" :disabled="this.project.hasPendingTimeRequest">{{ requesting ? 'Cancel Request' : 'Request Time'}}</button>
             <request-view :project="project" v-if="requesting" @closeRequest="requesting = false"></request-view>
         </div>
-        <button @click="moveProjectBackward" v-if="$store.state.user.canManage && project.canMoveBackward  && !project.archived" class="button dangerous">{{ project.previousStatusActionName }}</button>
-        <button v-if="($store.state.user.canManage || project.status == 'do')  && !project.archived" @click="moveProjectForward" class="button primary">{{ project.nextStatusActionName }}</button>
-        <button v-if="$store.state.user.canManage && project.archived" @click="unarchive" class="button">Unarchive</button>
-        <button v-if="$store.state.user.canManage && project.archived" @click="recycle" class="button primary">Recycle</button>
+        <button @click="moveProjectBackward" v-if="user.canManage && project.canMoveBackward  && !project.archived" class="button dangerous">{{ project.previousStatusActionName }}</button>
+        <button v-if="(user.canManage || project.status == 'do')  && !project.archived" @click="moveProjectForward" class="button primary">{{ project.nextStatusActionName }}</button>
+        <button v-if="user.canManage && project.archived" @click="unarchive" class="button">Unarchive</button>
+        <button v-if="user.canManage && project.archived" @click="recycle" class="button primary">Recycle</button>
     </div>
 
 </template>
@@ -19,6 +19,7 @@
 <script>
 
     import RequestView from './RequestView.vue';
+    import HasMoca from '../mixins/HasMoca.js';
 
     export default {
         name: 'project-actions',
@@ -27,6 +28,7 @@
             requesting: false
         }},
         components: {RequestView},
+        mixins: [HasMoca],
         methods: {
             toggleRequesting () {
                 this.requesting = this.requesting ? false : true;

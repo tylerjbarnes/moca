@@ -31,7 +31,9 @@ class Project extends MocaObject {
     }
 
     get hoursLogged () {
-        return store.getters.logsByProject(this.id).filter(time => time.cycle === this.cycle).map(log => log.hours).reduce((a,b) => a + b, 0);
+        return store.getters.timesByProject(this.id) ?
+            store.getters.timesByProject(this.id).filter(time => time.cycle === this.cycle).map(log => log.hours).reduce((a,b) => a + b, 0) :
+            null;
     }
 
     // Dates
@@ -77,9 +79,11 @@ class Project extends MocaObject {
     // Messages
 
     get messages () {
-        return store.getters.messagesByProject(this.id).sort((a,b) => {
-            return a.datetime > b.datetime;
-        });
+        return store.getters.messagesByProject(this.id) ?
+            store.getters.messagesByProject(this.id).sort((a,b) => {
+                return a.datetime > b.datetime;
+            }) :
+            null;
     }
 
     get chatMessages () {
@@ -102,7 +106,7 @@ class Project extends MocaObject {
     // Resources
 
     get resources () {
-        return store.getters.resourcesByProject(this.id);
+        return store.getters.resourcesByProject();
     }
 
     // Status
@@ -129,7 +133,7 @@ class Project extends MocaObject {
 
     get nextStatusActionName () {
         switch (this.status) {
-            case 'do': return store.state.user.canManage ? 'Complete' : 'Submit';
+            case 'do': return store.getters.user.canManage ? 'Complete' : 'Submit';
             default: return this.status;
         }
     }

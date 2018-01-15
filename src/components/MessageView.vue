@@ -1,6 +1,6 @@
 <template>
 
-    <div class="message-view chat" v-if="message.type == 'chat'" :class="{self: message.author_id == $store.state.user.id}">
+    <div class="message-view chat" v-if="message.type == 'chat'" :class="{self: message.author_id == $store.getters.user.id}">
         <header>
             <img :src="message.author.avatar">
             <span class="name">{{ message.author.firstName }}</span>
@@ -11,13 +11,13 @@
         </header>
         <div class="main">
             <div class="card"  :style="{
-                backgroundColor: message.author_id == $store.state.user.id ? message.author.color : ''
+                backgroundColor: message.author_id == $store.getters.user.id ? message.author.color : ''
             }">
                 <div class="markup" v-html="markup"></div>
                 <span class="resolve" @click="resolveMessage" :class="{off: !message.userCanResolve}">
                     <ceri-icon name="fa-check" size="12" hcenter></ceri-icon>
                 </span>
-                <span class="resolved" v-if="message.author.canManage == $store.state.user.canManage && message.resolved">
+                <span class="resolved" v-if="message.author.canManage == $store.getters.user.canManage && message.resolved">
                     <ceri-icon name="fa-check" size="10" hcenter></ceri-icon>
                 </span>
             </div>
@@ -51,7 +51,7 @@
                 return markdown(this.message.content);
             },
             canDelete () {
-                return store.state.user.canManage;
+                return store.getters.user.canManage;
             }
         },
         methods: {
