@@ -48,7 +48,7 @@ const state = {
 
     persons: {}, // all
     projects: {}, // unarchived
-    times: {}, // current period
+    timesInPeriod: {}, // current period
     mocaPackages: {}, // tied to times in current period
 
     archivedProjects: {}, // 20 at a time
@@ -63,7 +63,7 @@ const state = {
 
 const getters = {
 
-    user: (state, getters) => () => getters.person(state.userId),
+    user: (state, getters) => MocaFactory.constructObject('person', getters.person(state.userId)),
     person: (state, getters) => (id) => MocaFactory.constructObject('person', state.persons[id]),
     project: (state, getters) => (id) => MocaFactory.constructObject('project', state.projects[id]),
     mocaPackage: (state, getters) => (id) => MocaFactory.constructObject('package', state.mocaPackages[id]),
@@ -90,7 +90,10 @@ const getters = {
     clients: (state, getters) => Object.values(state.persons).filter(x => x.role == 'client')
         .map(x => MocaFactory.constructObject('person', x)),
 
-    timesInPeriod: (state, getters) => Object.values(state.times)
+    personsByRoles: (state, getters) => (roles) => Object.values(state.persons).filter(x => roles.includes(x.role))
+        .map(x => MocaFactory.constructObject('person', x)),
+
+    timesInPeriod: (state, getters) => Object.values(state.timesInPeriod)
         .map(x => MocaFactory.constructObject('time', x)),
 
     archivedProjects: (state, getters) => Object.values(state.archivedProjects)
@@ -210,7 +213,7 @@ const mutations = {
     // Interface
 
     // setSearchTerm(state, searchTerm) { state.searchTerm = searchTerm; },
-    // setUiFilter(state, filterData) { state.uiFilters[filterData.type][filterData.name] = filterData.value; },
+    setUiFilter(state, filterData) { state.uiFilters[filterData.type][filterData.name] = filterData.value; },
     setUser(state, id) { state.userId = id; },
     // setLastMutationId(state, mutationId) { state.lastMutationId = mutationId; },
     updateRoute(state, route) { state.route = route; },
@@ -220,7 +223,7 @@ const mutations = {
     setPersons (state, data) { state.persons = data; },
     setProjects (state, data) { state.projects = data; },
     setUnresolvedMessages (state, data) { state.unresolvedMessages = data; },
-    setTimes (state, data) { state.times = data; },
+    setTimesInPeriod (state, data) { state.timesInPeriod = data; },
     setPendingTimes (state, data) { state.pendingTimes = data; },
     setArchivedProjects (state, data) { state.archivedProjects = data; },
 
@@ -368,12 +371,7 @@ const actions = {
                 context.commit('setUnresolvedMessages', unresolvedMessages);
             });
 
-        // times in current period
-        let times = {};
-        db.times.where('date').between(state.uiFilters.times.period.start, state.uiFilters.times.period.end).each((time) => { times[time.id] = time; })
-            .then(() => {
-                context.commit('setTimes', times);
-            });
+        context.dispatch('fetchTimesInPeriod');
 
         // pending times
         let pendingTimes = {};
@@ -425,10 +423,26 @@ const actions = {
         context.commit('cleanMessagesByProject');
     },
 
+    fetchTimesInPeriod (context ) {
+        // times in current period
+        let timesInPeriod = {};
+        db.times.where('date').between(state.uiFilters.times.period.start, state.uiFilters.times.period.end).each((time) => { timesInPeriod[time.id] = time; })
+            .then(() => {
+                context.commit('setTimesInPeriod', timesInPeriod);
+            });
+    },
+
     // Interface
 
     // setSearchTerm (context, searchTerm) { context.commit('setSearchTerm', searchTerm); },
-    // setUiFilter (context, filterData) { context.commit('setUiFilter', filterData); },
+    setUiFilter (context, filterData) {
+        context.commit('setUiFilter', filterData);
+
+        // @TODO - robust
+        if (filterData.type == 'times' && filterData.name == 'period') {
+            store.dispatch('fetchTimesInPeriod');
+        }
+    },
     setUser (context, wpId) {
         db.persons.get({ wp_id: wpId }).then((userPrimitive) => {
             context.commit('setUser', userPrimitive.id);
@@ -438,7 +452,7 @@ const actions = {
     // ready (context) { context.commit('ready'); }
 
     setSearchTerm (context, searchTerm) {  },
-    setUiFilter (context, filterData) { },
+    // setUiFilter (context, filterData) { },
     // setUser (context, wpId) { },
     // updateRoute (context, route) { },
     ready (context) { }
