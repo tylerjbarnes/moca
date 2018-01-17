@@ -104,13 +104,6 @@ class Message extends MocaObject {
     }
 
     /**
-     * clean up for deletion
-     */
-    cleanUp () {
-        console.log('Cleaning up message ' + this.id);
-    }
-
-    /**
      * resolve request message
      * @param  {boolean} granted - whether approved or rejected
      */

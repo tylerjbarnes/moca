@@ -15,7 +15,7 @@ class MocaObject {
     // Deletion
 
     cleanUp () {
-        console.log('Cleaning up object ' + this.id);
+        store.dispatch('cleanup', this.id);
     }
 
 }
