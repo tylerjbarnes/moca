@@ -387,6 +387,20 @@ const actions = {
                 context.commit('setArchivedProjects', archivedProjects);
             });
 
+        // pending times
+        let pendingTimes = {};
+        db.times.where('pending').equals(1).each((time) => { pendingTimes[time.id] = time; })
+            .then(() => {
+                context.commit('setPendingTimes', pendingTimes);
+            });
+
+        // archived projects
+        let archivedProjects = {};
+        db.projects.where('archived').equals(1).limit(20).each((project) => { archivedProjects[project.id] = project; })
+            .then(() => {
+                context.commit('setArchivedProjects', archivedProjects);
+            });
+
         // db.persons.count((count) => {console.log(count); });
     },
 
