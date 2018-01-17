@@ -1,21 +1,19 @@
-import MocaObject from './mocaObject.js';
 import MocaMutationSet from '../objects/mocaMutationSet.js';
+import MocaObject from './mocaObject.js';
 
 class Message extends MocaObject {
 
-    get project () {
-        return store.getters.project(this.project_id);
-    }
+    // related objects
 
     get author () {
         return store.getters.person(this.author_id);
     }
 
-    get userCanResolve () {
-        return !this.resolved &&
-            this.author &&
-            this.author.canManage !== store.getters.user.canManage;
+    get project () {
+        return store.getters.project(this.project_id);
     }
+
+    // computed properties
 
     get mutationDescription () {
         if (this.type !== 'mutation') { return; }
@@ -82,15 +80,40 @@ class Message extends MocaObject {
             + '<br><strong>"' + this.content.reason +'"</strong>';
     }
 
+    get userCanResolve () {
+        return !this.resolved &&
+            this.author &&
+            this.author.canManage !== store.getters.user.canManage;
+    }
+
+    // actions
+
+    /**
+     * approve request message and update target project
+     */
+    approve () {
+        this.resolve(true);
+        let project = store.getters.project(this.project_id);
+        new MocaMutationSet(
+            'update', 'project',
+            project.id, {
+                max: this.content.hours ? project.max + this.content.hours : project.max,
+                due: this.content.due ? this.content.due : project.due
+            }
+        ).commit();
+    }
+
+    /**
+     * clean up for deletion
+     */
     cleanUp () {
         console.log('Cleaning up message ' + this.id);
     }
 
-
-    /////////////
-    // Setters //
-    /////////////
-
+    /**
+     * resolve request message
+     * @param  {boolean} granted - whether approved or rejected
+     */
     resolve (granted) {
         let newContent = {};
         Object.assign(newContent, this.content);
@@ -103,19 +126,12 @@ class Message extends MocaObject {
             }
         ).commit();
     }
+
+    /**
+     * reject request message
+     */
     reject () {
         this.resolve(false);
-    }
-    approve () {
-        this.resolve(true);
-        let project = store.getters.project(this.project_id);
-        new MocaMutationSet(
-            'update', 'project',
-            project.id, {
-                max: this.content.hours ? project.max + this.content.hours : project.max,
-                due: this.content.due ? this.content.due : project.due
-            }
-        ).commit();
     }
 
 }
