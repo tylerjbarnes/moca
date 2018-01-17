@@ -1,5 +1,8 @@
 import MocaObject from './mocaObject.js';
+
 class Resource extends MocaObject {
+
+    // related objects
 
     get author () {
         return store.getters.person(this.author_id);
@@ -11,16 +14,6 @@ class Resource extends MocaObject {
 
     get project () {
         return store.getters.project(this.project_id);
-    }
-
-    cleanUp() {
-
-        // Mutation Messages
-        let markedMessageIds = store.getters.mutationMessagesForObject(this.id).map(message => message.id);
-        store.state.messages = store.state.messages.filter(
-            message => !markedMessageIds.includes(message.id)
-        );
-
     }
 
 }
