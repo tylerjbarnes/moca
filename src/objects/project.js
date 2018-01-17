@@ -1,28 +1,36 @@
 import MocaFactory from './mocaFactory.js';
-import MocaObject from './mocaObject.js';
 import MocaMutationSet from '../objects/mocaMutationSet.js';
+import MocaObject from './mocaObject.js';
 
 class Project extends MocaObject {
 
-    /////////////
-    // GETTERS //
-    /////////////
-
-    // Persons
+    // related objects
 
     get client () {
         return this.client_id ? store.getters.person(this.client_id) : null;
+    }
+
+    get contractor () {
+        return this.contractor_id ? store.getters.person(this.contractor_id) : null;
     }
 
     get manager () {
         return store.getters.person(this.manager_id);
     }
 
-    get contractor () {
-        return store.getters.person(this.contractor_id);
+    get messages () {
+        return store.getters.messagesByProject(this.id);
     }
 
-    // Times
+    get resources () {
+        return store.getters.resourcesByProject();
+    }
+
+    // computed properties
+
+    get autocycleString () {
+        return this.autocycle ? this.autocycle : 'never';
+    }
 
     get budgetString () {
         return this.estimate == this.max ?
@@ -30,16 +38,12 @@ class Project extends MocaObject {
             this.estimate.toFixed(2) + ' - ' + this.max.toFixed(2);
     }
 
-    get hoursLogged () {
-        return store.getters.timesByProject(this.id) ?
-            store.getters.timesByProject(this.id).filter(time => time.cycle === this.cycle).map(log => log.hours).reduce((a,b) => a + b, 0) :
-            null;
+    get canMoveBackward () {
+        return this.status != 'delegate';
     }
 
-    // Dates
-
-    get earliestDue () {
-        return this.target ? this.target : this.due;
+    get chatMessages () {
+        return this.messages.filter(message => message.type == 'chat');
     }
 
     get dueString () {
@@ -60,65 +64,31 @@ class Project extends MocaObject {
         }
     }
 
-    get startsInCurrentPeriod () {
-        return this.start >= currentPeriod.start && this.start <= currentPeriod.end;
-    }
-
-    get autocycleString () {
-        return this.autocycle ? this.autocycle : 'never';
+    get earliestDue () {
+        return this.target || this.due;
     }
 
     get future () {
         return moment(this.start).diff(moment()) >= 0;
     }
 
-    get overdue () {
-        return moment(this.due).diff(moment(), 'days') < 0;
+    get hasPendingTimeRequest () {
+        return this.messages.find( message => { return message.type == 'request' && !message.resolved });
     }
 
-    // Messages
-
-    get messages () {
-        return store.getters.messagesByProject(this.id) ?
-            store.getters.messagesByProject(this.id).sort((a,b) => {
-                return a.datetime > b.datetime;
-            }) :
-            null;
-    }
-
-    get chatMessages () {
-        return this.messages.filter(message => message.type == 'chat');
+    get hoursLogged () {
+        return store.getters.timesByProject(this.id)
+            .filter(time => time.cycle === this.cycle)
+            .map(log => log.hours).reduce((a,b) => a + b, 0);
     }
 
     get lastChatMessage () {
         return this.chatMessages.length ? this.chatMessages[this.chatMessages.length - 1] : null;
     }
 
-    get unresolvedMessages () {
-        // return this.messages.filter( message => { return message.userCanResolve });
-        return store.getters.unresolvedMessagesByProject(this.id);
-    }
-
-    get hasPendingTimeRequest () {
-        return this.messages.find( message => { return message.type == 'request' && !message.resolved });
-    }
-
-    // Resources
-
-    get resources () {
-        return store.getters.resourcesByProject();
-    }
-
-    // Status
-
-    get previousStatus () {
-        switch (this.status) {
-            case 'delegate': return 'send';
-            case 'send': return 'approve';
-            case 'approve': return 'do';
-            case 'do': return 'delegate';
-            default: break;
-        }
+    get lastMutationMessage () {
+        let mutationMessages = this.messages.reverse().filter(message => message.type == 'mutation');
+        return mutationMessages.length ? mutationMessages[0] : null;
     }
 
     get nextStatus () {
@@ -138,6 +108,20 @@ class Project extends MocaObject {
         }
     }
 
+    get overdue () {
+        return moment(this.due).diff(moment(), 'days') < 0;
+    }
+
+    get previousStatus () {
+        switch (this.status) {
+            case 'delegate': return 'send';
+            case 'send': return 'approve';
+            case 'approve': return 'do';
+            case 'do': return 'delegate';
+            default: break;
+        }
+    }
+
     get previousStatusActionName () {
         switch (this.status) {
             case 'do': return 'Undelegate';
@@ -147,49 +131,19 @@ class Project extends MocaObject {
         }
     }
 
-    get canMoveBackward () {
-        return this.status != 'delegate';
+    get startsInCurrentPeriod () {
+        return this.start >= currentPeriod.start && this.start <= currentPeriod.end;
     }
 
-
-    /////////////
-    // Setters //
-    /////////////
-
-    // Status
-
-    recycleDate (date) {
-        if (!date) { return null; }
-        switch (this.autocycle) {
-            case 'daily': return moment(date).add(1, 'd').format('YYYY-MM-DD');
-            case 'weekly': return moment(date).add(1, 'w').format('YYYY-MM-DD');
-            case 'monthly': return moment(date).add(1, 'M').format('YYYY-MM-DD');
-            default: return date;
-        }
+    get unresolvedMessages () {
+        return store.getters.unresolvedMessagesByProject(this.id);
     }
 
-    recycleOrArchive () {
-        this.autocycle ?
-            new MocaMutationSet(
-                'update', 'project',
-                this.id, {
-                    'contractor_id': null,
-                    'status': this.nextStatus,
-                    'cycle': this.cycle + 1,
-                    'start': this.recycleDate(this.start),
-                    'target': this.recycleDate(this.target),
-                    'due': this.recycleDate(this.due)
-                }
-            ).commit() :
-            new MocaMutationSet(
-                'update', 'project',
-                this.id, {
-                    'status': this.nextStatus,
-                    'archived': true
-                }
-            ).commit();
-    }
+    // actions
 
+    /**
+     * archive project
+     */
     archive () {
         new MocaMutationSet(
             'update', 'project',
@@ -199,55 +153,11 @@ class Project extends MocaObject {
         ).commit();
     }
 
-    unarchive () {
-        new MocaMutationSet(
-            'update', 'project',
-            this.id, {
-                'archived' : false,
-            }
-        ).commit();
-    }
-
-    recycle () {
-        new MocaMutationSet(
-            'update', 'project',
-            this.id, {
-                'archived' : false,
-                'contractor_id': null,
-                'status': 'delegate',
-                'cycle': this.cycle + 1,
-                'start': moment().format('YYYY-MM-DD'),
-                'target': this.target ? moment().add(moment(this.target).diff(moment(this.start), 'days'),'d').format('YYYY-MM-DD') : null,
-                'due': this.due ? moment().add(moment(this.due).diff(moment(this.start), 'days'),'d').format('YYYY-MM-DD') : null
-            }
-        ).commit();
-    }
-
-    moveForward () {
-        this.status == 'send' ?
-            this.recycleOrArchive() :
-            new MocaMutationSet(
-                'update', 'project',
-                this.id, {
-                    'status': this.nextStatus
-                }
-            ).commit();
-    }
-    moveBackward () {
-        new MocaMutationSet(
-            'update', 'project',
-            this.id, {
-                'status': this.previousStatus,
-                'contractor_id': this.previousStatus == 'delegate' ? null : this.contractor_id
-            }
-        ).commit();
-    }
-
-
-    ///////////////////////
-    // Mutation Messages //
-    ///////////////////////
-
+    /**
+     * create a new message object that describes the mutation
+     * @param  {MocaMutation} mutation
+     * @param  {any} oldValue
+     */
     generateMutationMessage(mutation, oldValue) {
 
         // Whitelist Actions that Send Messages
@@ -321,9 +231,101 @@ class Project extends MocaObject {
 
     }
 
-    get lastMutationMessage () {
-        let mutationMessages = this.messages.reverse().filter(message => message.type == 'mutation');
-        return mutationMessages.length ? mutationMessages[0] : null;
+    /**
+     * move project status backward
+     */
+    moveBackward () {
+        new MocaMutationSet(
+            'update', 'project',
+            this.id, {
+                'status': this.previousStatus,
+                'contractor_id': this.previousStatus == 'delegate' ? null : this.contractor_id
+            }
+        ).commit();
+    }
+
+    /**
+     * move project status forward
+     */
+    moveForward () {
+        this.status == 'send' ?
+            this.recycleOrArchive() :
+            new MocaMutationSet(
+                'update', 'project',
+                this.id, {
+                    'status': this.nextStatus
+                }
+            ).commit();
+    }
+
+    /**
+     * recycle project
+     */
+    recycle () {
+        new MocaMutationSet(
+            'update', 'project',
+            this.id, {
+                'archived' : false,
+                'contractor_id': null,
+                'status': 'delegate',
+                'cycle': this.cycle + 1,
+                'start': moment().format('YYYY-MM-DD'),
+                'target': this.target ? moment().add(moment(this.target).diff(moment(this.start), 'days'),'d').format('YYYY-MM-DD') : null,
+                'due': this.due ? moment().add(moment(this.due).diff(moment(this.start), 'days'),'d').format('YYYY-MM-DD') : null
+            }
+        ).commit();
+    }
+
+    /**
+     * get recycle date
+     * @param  {string} date
+     * @return {string}
+     */
+    recycleDate (date) {
+        if (!date) { return null; }
+        switch (this.autocycle) {
+            case 'daily': return moment(date).add(1, 'd').format('YYYY-MM-DD');
+            case 'weekly': return moment(date).add(1, 'w').format('YYYY-MM-DD');
+            case 'monthly': return moment(date).add(1, 'M').format('YYYY-MM-DD');
+            default: return date;
+        }
+    }
+
+    /**
+     * recycle or archive project
+     */
+    recycleOrArchive () {
+        this.autocycle ?
+            new MocaMutationSet(
+                'update', 'project',
+                this.id, {
+                    'contractor_id': null,
+                    'status': this.nextStatus,
+                    'cycle': this.cycle + 1,
+                    'start': this.recycleDate(this.start),
+                    'target': this.recycleDate(this.target),
+                    'due': this.recycleDate(this.due)
+                }
+            ).commit() :
+            new MocaMutationSet(
+                'update', 'project',
+                this.id, {
+                    'status': this.nextStatus,
+                    'archived': true
+                }
+            ).commit();
+    }
+
+    /**
+     * unarchive project
+     */
+    unarchive () {
+        new MocaMutationSet(
+            'update', 'project',
+            this.id, {
+                'archived' : false,
+            }
+        ).commit();
     }
 
 }
