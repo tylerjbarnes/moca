@@ -1,5 +1,16 @@
 import MocaObject from './mocaObject.js';
+
 class Time extends MocaObject {
+
+    // related objects
+
+    get client () {
+        return store.getters.person(this.client_id);
+    }
+
+    get package () {
+        return this.package_id ? store.getters.mocaPackage(this.package_id) : null;
+    }
 
     get project () {
         return this.project_id ? store.getters.project(this.project_id) : null;
@@ -9,17 +20,10 @@ class Time extends MocaObject {
         return store.getters.person(this.worker_id);
     }
 
-    get client () {
-        return store.getters.person(this.client_id);
-    }
+    // computed properties
 
-    get package () {
-        return store.getters.mocaPackage(this.package_id);
-    }
-
-    get isInCurrentPeriod() {
-        return true; // @TODO
-        // return this.date >= currentPeriod.start && this.date <= currentPeriod.end;
+    get inCurrentPeriod() {
+        return this.date >= currentPeriod.start && this.date <= currentPeriod.end;
     }
 
 }
