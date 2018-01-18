@@ -1,14 +1,13 @@
 <template>
-    <div id="app" v-if="appReady && user">
+    <div id="app" v-if="appReady">
         <header>
-            <div class="logo"></div>
             <nav class="primary-nav">
-                <router-link :to="{name:'inbox'}" class="navbar-item">Inbox</router-link>
+                <router-link :to="{name:'inbox'}"    class="navbar-item"                       >Inbox</router-link>
                 <router-link :to="{name:'projects'}" class="navbar-item" v-if="!user.canManage">Projects</router-link>
-                <router-link :to="{name:'team'}" class="navbar-item" v-if="user.canManage">Team</router-link>
-                <router-link :to="{name:'clients'}" class="navbar-item" v-if="user.canManage">Clients</router-link>
-                <router-link :to="{name:'time'}" class="navbar-item">Time</router-link>
-                <router-link :to="{name:'archive'}" class="navbar-item">Archive</router-link>
+                <router-link :to="{name:'team'}"     class="navbar-item" v-if="user.canManage" >Team</router-link>
+                <router-link :to="{name:'clients'}"  class="navbar-item" v-if="user.canManage" >Clients</router-link>
+                <router-link :to="{name:'time'}"     class="navbar-item"                       >Time</router-link>
+                <router-link :to="{name:'archive'}"  class="navbar-item"                       >Archive</router-link>
             </nav>
             <nav class="secondary-nav">
                 <a href="/wp-admin" v-if="user.canManage">
@@ -26,8 +25,8 @@
             </div>
         </div>
         <transition name="modal-fade">
-            <div class="modal is-active" v-if="$store.state.route.itemId">
-                <router-link tag="div" class="modal-background" :to="{name: $store.state.route.view}"></router-link>
+            <div class="modal is-active" v-if="route.itemId">
+                <router-link tag="div" class="modal-background" :to="{name: route.view}"></router-link>
                 <router-view name="modal"></router-view>
             </div>
         </transition>
@@ -39,16 +38,15 @@
 
 
 <script>
-    import Inbox from './components/Inbox.vue';
-    import Toolbar from './components/Toolbar.vue';
     import Delegator from './components/Delegator.vue';
-    import Project from './objects/project.js';
-
     import HasMoca from './mixins/HasMoca.js';
+    import Inbox from './components/Inbox.vue';
+    import Project from './objects/project.js';
+    import Toolbar from './components/Toolbar.vue';
 
     export default {
         name: 'app',
-        components: {Inbox,Toolbar,Delegator},
+        components: {Delegator, Inbox, Toolbar},
         mixins: [HasMoca],
         data () { return {
             appReady: false,
@@ -56,8 +54,25 @@
         }},
         computed: {
             modalOpen () {
-                return this.$store.state.route.itemId !== null;
+                return this.route.itemId !== null;
             }
+        },
+        created () {
+            bus.$on('didEndDrag', (e) => {
+                this.showDelegator = false;
+            });
+            bus.$on('didStartDrag', (payload) => {
+                if (payload instanceof Project && !payload.contractor_id) {
+                    this.showDelegator = true;
+                }
+            });
+            bus.$on('storeLoaded', () => {
+                this.appReady = true;
+            });
+            document.addEventListener("keydown", (e) => {
+                if (['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) { return; }
+                bus.$emit('keydown', e.keyCode);
+            });
         },
         watch: {
             modalOpen: (newVal) => {
@@ -65,23 +80,6 @@
                     document.body.classList.add('noScroll') :
                     document.body.classList.remove('noScroll');
             }
-        },
-        created () {
-            bus.$on('storeLoaded', () => {
-                this.appReady = true;
-            });
-            bus.$on('didStartDrag', (payload) => {
-                if (payload instanceof Project && !payload.contractor_id) {
-                    this.showDelegator = true;
-                }
-            });
-            bus.$on('didEndDrag', (e) => {
-                this.showDelegator = false;
-            });
-            document.addEventListener("keydown", (e) => {
-                if (['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) { return; }
-                bus.$emit('keydown', e.keyCode);
-            });
         }
     }
 </script>

@@ -114,6 +114,8 @@ const getters = {
         Object.values(state.messagesByProject).map(x => MocaFactory.constructObject('message', x)) :
         null,
 
+    route: (state, getters) => store.state.route,
+
     // // Single Objects
     //
     // object: (state, getters) => (type, id) => MocaFactory.constructObject(type, state.lookup[type][id]),
