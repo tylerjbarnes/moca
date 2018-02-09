@@ -19,7 +19,6 @@
 <script>
 
     import RequestView from './RequestView.vue';
-    import HasMoca from '../mixins/HasMoca.js';
 
     export default {
         name: 'project-actions',
@@ -28,7 +27,6 @@
             requesting: false
         }},
         components: {RequestView},
-        mixins: [HasMoca],
         methods: {
             toggleRequesting () {
                 this.requesting = this.requesting ? false : true;

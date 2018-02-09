@@ -1,15 +1,17 @@
 <template>
 
     <div @click="open" tag="div" class="project-card" :class="{dragging: isDragDelegate, delegating}" :style="{transform:'translate(' + dragDelta.x + 'px,' + dragDelta.y + 'px)'}">
-        <!-- <div class="cycles" :class="{ active: project.autocycle }">
-            <ceri-icon name="fa-recycle" size="12" offset-y="-5" hcenter></ceri-icon>
-        </div>
-        <div class="flag" :class="{ active: project.flagged }">
-            <ceri-icon name="fa-flag" size="11" hcenter></ceri-icon>
-        </div>
-        <div class="unresolved" :class="{ active: project.unresolvedMessages.length }">
-            <ceri-icon name="fa-comment" size="11" offset-y="7" hcenter></ceri-icon>
-        </div>
+        <template v-if="!project.archived">
+            <div class="cycles" :class="{ active: project.autocycle }">
+                <ceri-icon name="fa-recycle" size="12" offset-y="-5" hcenter></ceri-icon>
+            </div>
+            <div class="flag" :class="{ active: project.flagged }">
+                <ceri-icon name="fa-flag" size="11" hcenter></ceri-icon>
+            </div>
+            <div class="unresolved" :class="{ active: project.unresolvedMessages.length }">
+                <ceri-icon name="fa-comment" size="11" offset-y="7" hcenter></ceri-icon>
+            </div>
+        </template>
         <div class="content">
             <div class="names">
                 <span class="client">{{ project.client ? project.client.name : 'No Client' }}</span>
@@ -23,10 +25,9 @@
             </div>
             <div class="meta">
                 <span class="estimate">{{ project.max | hours }}</span>
-                <span class="due" v-if="project.dueString" :class="{overdue: project.overdue}">{{ project.dueString }}</span>
+                <span class="due" v-if="project.dueString" :class="{overdue: !project.archived && project.overdue}">{{ project.dueString }}</span>
             </div>
-        </footer> -->
-        {{ project.name }}
+        </footer>
     </div>
 
 </template>

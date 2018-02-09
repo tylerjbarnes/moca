@@ -1,8 +1,11 @@
 <template>
     <div id="toolbar">
+        <template v-if="route.view == 'archive'">
+            <person-input class="archive-client" v-model="archiveClientFilter" :roles="['client']"></person-input>
+        </template>
         <template v-if="['team','clients','archive','projects'].includes($store.state.route.view)">
             <ceri-icon size="16" name="fa-search" hcenter></ceri-icon>
-            <input v-model="searchTerm" type="text" id="search" placeholder="Find a person, project, resource...">
+            <input v-model="searchTerm" type="text" id="search" placeholder="Filter by name...">
             <div v-if="searchTerm.length" @click="searchTerm = '';" class="clear">
                 <ceri-icon size="16" name="fa-times" hcenter></ceri-icon>
             </div>
@@ -62,6 +65,10 @@
                 get () { return this.$store.state.uiFilters.times.period; },
                 set (value) { this.$store.dispatch('setUiFilter', {type: 'times', name: 'period', value: value}); }
             },
+            archiveClientFilter: {
+                get () { return this.$store.state.uiFilters.archive.clientId; },
+                set (value) { this.$store.dispatch('setUiFilter', {type: 'archive', name: 'clientId', value: value }); }
+            },
             timeClientFilter: {
                 get () { return this.$store.state.uiFilters.times.clientId; },
                 set (value) { this.$store.dispatch('setUiFilter', {type: 'times', name: 'clientId', value: value}); }
@@ -107,7 +114,7 @@
 
         > ceri-icon, .filter ceri-icon {
             opacity: 0.25;
-            padding-right: 10px;
+            margin-right: 10px;
 
         }
 
@@ -126,6 +133,11 @@
 
             }
 
+        }
+
+        .archive-client {
+            margin-right: 20px;
+            width: 300px;
         }
 
         input#search {

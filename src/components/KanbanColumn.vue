@@ -121,7 +121,9 @@
             background: rgba($light,0.5);
             border-radius: 4px;
             flex-grow: 1;
+            // max-height: 50vh;
             min-height: 100px;
+            // overflow-y: scroll;
             padding: 14px 5px 5px 5px;
 
             .project-card {

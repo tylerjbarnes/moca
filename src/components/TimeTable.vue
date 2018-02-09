@@ -41,12 +41,12 @@
         methods: {
             newLog () {
                 this.timePrimitive = MocaFactory.constructPrimitive('time', {
-                    worker_id: store.state.user.id
+                    worker_id: store.getters.user.id
                 });
             },
             newPackage () {
                 this.timePrimitive = MocaFactory.constructPrimitive('time', {
-                    type: 'credit'
+                    type: 'purchase'
                 });
             }
         },
@@ -100,7 +100,7 @@
                 &.time-icon {
                     flex: 0 0 32px;
                     &.log { color: $medium; }
-                    &.credit { color: $dark; }
+                    &.purchase { color: $dark; }
                     &.expiration { color: $red; }
                 }
                 &.date {

@@ -18,22 +18,26 @@ import qs from 'qs';
 import Period from './period.js';
 
 import Dexie from 'dexie';
+import Mocadex from './mocadex.js';
 
 // prepare the mocadex
-var db = new Dexie('mocadex');
+window.db = new Dexie('mocadex');
 db.version(1).stores({
-    messages: '&id,resolved,project_id',
+    messages: '&id,resolved,project_id,datetime,type',
     packages: '&id',
-    persons: '&id,&wp_id,archived',
-    projects: '&id,archived',
+    persons: '&id,&wp_id,archived,role',
+    projects: '&id,archived,start',
     resources: '&id,project_id',
-    times: '&id,date,pending,project_id'
+    times: '&id,date,pending,project_id,client_id,type'
 });
 
 const state = {
     userId: null,
     searchTerm: '',
     uiFilters: {
+        archive: {
+            clientId: null
+        },
         projects: {
             started: false,
         },
@@ -45,167 +49,111 @@ const state = {
     },
     route: { view: null, item: null },
     lastMutationId: 0,
+    buffer: {
 
-    persons: {}, // all
-    projects: {}, // unarchived
-    timesInPeriod: {}, // current period
-    mocaPackages: {}, // tied to times in current period
+        // packages
+        packages: null,
 
-    archivedProjects: {}, // 20 at a time
+        // persons
+        activePersons: null,
 
-    unresolvedMessages: {},
-    pendingTimes: {},
+        // projects
+        activeProjects: null,
+        archivedProjects: null,
+        projectsForTimesInPeriod: null,
+        projectsWithUnresolvedMessages: null,
 
-    resourcesByProject: null,
-    timesByProject: null,
-    messagesByProject: null
+        // messages
+        messagesByProject: null,
+        resolvableMessages: null,
+
+        // resources
+        resourcesByProject: null,
+
+        // times
+        balances: null,
+        pendingTimes: null,
+        purchases: null,
+        timesByProject: null,
+        timesInPeriod: null
+
+    }
 };
 
 const getters = {
+    buffer: (state, getters) => (bufferName, single, id) => {
+        // try { console.log(bufferName, buffers[bufferName].id, id); }
+        if (
+            !store.state.buffer[bufferName] ||
+            (buffers[bufferName].id && buffers[bufferName].id != id)
+        ) return single ? null : [];
+        return single ?
+            state.buffer[bufferName].find(x => x.id === id) :
+            state.buffer[bufferName];
+    },
+    object: (state, getters) => (type, id) => {
+        for (let bufferName of Object.keys(store.state.buffer)) {
+            let buffer = store.state.buffer[bufferName];
+            let foundObj = buffer ? _.find(buffer, ['id', id]) : null;
+            if (foundObj){
+                return foundObj;
+            }
+        }
+        // console.log(new Error('Object not found!'), type, id);
+        return null;
+    },
 
-    user: (state, getters) => MocaFactory.constructObject('person', getters.person(state.userId)),
-    person: (state, getters) => (id) => MocaFactory.constructObject('person', state.persons[id]),
-    project: (state, getters) => (id) => MocaFactory.constructObject('project', state.projects[id]),
-    mocaPackage: (state, getters) => (id) => MocaFactory.constructObject('package', state.mocaPackages[id]),
-    resource: (state, getters) => (id) => MocaFactory.constructObject('resource', state.resourcesByProject[id]),
+    // messages
+    messagesByProject: (state, getters) => (id) => getters.buffer('messagesByProject', false, id),
+    resolvableMessages: (state, getters) => getters.buffer('resolvableMessages'),
+    resolvableMessagesByProject: (state, getters) => (id) => getters.resolvableMessages.filter(x => x.project_id == id),
 
-    projectsByManager: (state, getters) => (id) => Object.values(state.projects).filter(x => x.manager_id === id)
-        .map(x => MocaFactory.constructObject('project', x)),
+    // packages
+    mocaPackage: (state, getters) => (id) => getters.buffer('packages', true, id),
+    packagesByClient: (state, getters) => (id) => getters.buffer('packages').filter(x => x.client_id == id),
 
-    projectsByContractor: (state, getters) => (id) => Object.values(state.projects).filter(x => x.contractor_id === id)
-        .map(x => MocaFactory.constructObject('project', x)),
+    // persons
+    clients: (state, getters) => _.orderBy(getters.buffer('activePersons').filter(x => x.role == 'client'), 'name'),
+    members: (state, getters) => _.orderBy(getters.buffer('activePersons').filter(x => x.role != 'client'), 'name'),
+    person: (state, getters) => (id) => getters.buffer('activePersons', true, id) || getters.buffer('archivedPersons', true, id),
+    personsByRoles: (state, getters) => (roles) => _.orderBy(getters.buffer('activePersons').filter(x => roles.includes(x.role)), 'name'),
+    user: (state, getters) => getters.person(state.userId),
+    expiredClients: (state, getters) => _.orderBy(state.buffer.balances && getters.buffer('activePersons').filter(x => x.role == 'client' && x.expired), 'name'),
 
-    projectsByClient: (state, getters) => (id) => Object.values(state.projects).filter(x => x.client_id === id)
-        .map(x => MocaFactory.constructObject('project', x)),
+    // projects
+    activeProjects: (state, getters) => getters.buffer('activeProjects'),
+    archivedProjects: (state, getters) => getters.buffer('archivedProjects'),
+    project: (state, getters) => (id) => getters.buffer('activeProjects', true, id) || getters.buffer('projectsForTimesInPeriod', true, id) || getters.buffer('archivedProjects', true, id),
+    projectsByClient: (state, getters) => (id) => getters.buffer('activeProjects').filter(x => x.client_id == id),
+    projectsByContractor: (state, getters) => (id) => getters.buffer('activeProjects').filter(x => x.contractor_id == id),
+    projectsByManager: (state, getters) => (id) => getters.buffer('activeProjects').filter(x => x.manager_id == id),
+    projectsWithResolvableMessages: (state, getters) => {
+        let projectsWithUnresolvedMessages = getters.buffer('projectsWithUnresolvedMessages');
+        let resolvableMessages = getters.resolvableMessages;
+        let projectIdsWithResolvableMessages = _.uniq(resolvableMessages.map(x => x.project_id));
+        return projectsWithUnresolvedMessages.filter(x => projectIdsWithResolvableMessages.includes(x.id));
+    },
 
-    unresolvedMessages: (state, getters) => () => Object.values(state.unresolvedMessages) // @TODO this one has to be called function style for no reason - lose the ()
-        .map(x => MocaFactory.constructObject('message', x)),
+    // resources
+    resourcesByProject: (state, getters) => (id) => getters.buffer('resourcesByProject', false, id),
 
-    unresolvedMessagesByProject: (state, getters) => (id) => Object.values(state.unresolvedMessages).filter(x => x.project_id === id)
-        .map(x => MocaFactory.constructObject('message', x)),
+    // times
+    balance: (state, getters) => (id) => {
+        if (!state.buffer.balances) { console.log(new Error()); }
+        return _.find(state.buffer.balances, ['clientId', id]).balance;
+    },
+    pendingTimes: (state, getters) => getters.buffer('pendingTimes'),
+    purchaseByPackage: (state, getters) => (id) => getters.buffer('purchases').find(x => x.package_id == id),
+    timesByProject: (state, getters) => (id) => getters.buffer('timesByProject', false, id),
+    timesInPeriod: (state, getters) => _.orderBy(getters.buffer('timesInPeriod'), 'date', 'desc'),
 
-    members: (state, getters) => Object.values(state.persons).filter(x => x.role != 'client')
-        .map(x => MocaFactory.constructObject('person', x)),
-
-    clients: (state, getters) => Object.values(state.persons).filter(x => x.role == 'client')
-        .map(x => MocaFactory.constructObject('person', x)),
-
-    personsByRoles: (state, getters) => (roles) => Object.values(state.persons).filter(x => roles.includes(x.role))
-        .map(x => MocaFactory.constructObject('person', x)),
-
-    timesInPeriod: (state, getters) => Object.values(state.timesInPeriod)
-        .map(x => MocaFactory.constructObject('time', x)),
-
-    archivedProjects: (state, getters) => Object.values(state.archivedProjects)
-        .map(x => MocaFactory.constructObject('project', x)),
-
-    pendingTimes: (state, getters) => Object.values(state.pendingTimes)
-        .map(x => MocaFactory.constructObject('time', x)),
-
-    resourcesByProject: (state, getters) => (id) => state.resourcesByProject ?
-        Object.values(state.resourcesByProject).map(x => MocaFactory.constructObject('resource', x)) :
-        null,
-
-    timesByProject: (state, getters) => (id) => state.timesByProject ?
-        Object.values(state.timesByProject).map(x => MocaFactory.constructObject('time', x)) :
-        null,
-
-    messagesByProject: (state, getters) => (id) => state.messagesByProject ?
-        Object.values(state.messagesByProject).map(x => MocaFactory.constructObject('message', x)) :
-        null,
-
+    // other
+    online: (state, getters) => (id) => true, // @TODO
     route: (state, getters) => store.state.route,
-
-    // // Single Objects
-    //
-    // object: (state, getters) => (type, id) => MocaFactory.constructObject(type, state.lookup[type][id]),
-    // message: (state, getters) => (id) => getters.object('message', id),
-    // mocaPackage: (state, getters) => (id) => getters.object('package', id),
-    // person: (state, getters) => (id) => getters.object('person', id),
-    // project: (state, getters) => (id) => getters.object('project', id),
-    // resource: (state, getters) => (id) => getters.object('resource', id),
-    // time: (state, getters) => (id) => getters.object('time', id),
-    //
-    // // Messages
-    //
-    // messagesByProject: (state, getters) => (id) => state.messages.filter(message => message.project_id === id).map(x => MocaFactory.constructObject('message', x)),
-    // messagesFromContractors: (state, getters) => state.messages.filter(message => message.author.role == 'contractor' && message.type != 'activity').map(x => MocaFactory.constructObject('message', x)),
-    // messagesFromManagers: (state, getters) => state.messages.filter(message => message.author.canManage && message.type != 'activity').map(x => MocaFactory.constructObject('message', x)),
-    // mutationMessagesForObject: (state, getters) => (id) => state.messages.filter(message => message.content.object_id === id).map(x => MocaFactory.constructObject('message', x)),
-    //
-    // // Packages
-    //
-    // packagesByClient: (state, getters) => (id) => state.packages.filter(mocaPackage => mocaPackage.client_id === id).map(x => MocaFactory.constructObject('package', x)),
-    //
-    // // Persons
-    //
-    // clients: (state, getters) => state.persons.filter(person => person.role === 'client').map(x => MocaFactory.constructObject('person', x)),
-    // activeClients: (state, getters) => state.persons.filter(person => person.role === 'client' && !person.archived).map(x => MocaFactory.constructObject('person', x)),
-    // expiredClients: (state, getters) => getters.activeClients.filter(client => client.expired).map(x => MocaFactory.constructObject('person', x)),
-    // management: (state, getters) => getters.members.filter(person => person.canManage).map(x => MocaFactory.constructObject('person', x)),
-    // contractors: (state, getters) => state.persons.filter(person => person.role === 'contractor').map(x => MocaFactory.constructObject('person', x)),
-    // members: (state, getters) => state.persons.filter(person => person.role !== 'client').map(x => MocaFactory.constructObject('person', x)),
-    // activeMembers: (state, getters) => state.persons.filter(person => person.role !== 'client' && !person.archived).map(x => MocaFactory.constructObject('person', x)),
-    // personsByRoles: (state, getters) => (roles) => state.persons.filter(person => roles.includes(person.role)).map(x => MocaFactory.constructObject('person', x)),
-    //
-    //
-    // // Projects
-    //
-    // projectsByContractor: (state, getters) => (id) => state.projects.filter(project => project.contractor_id === id).map(x => MocaFactory.constructObject('project', x)),
-    // projectsByManager: (state, getters) => (id) => state.projects.filter(project => project.manager_id === id).map(x => MocaFactory.constructObject('project', x)),
-    // projectsByClient: (state, getters) => (id) => state.projects.filter(project => project.client_id === id).map(x => MocaFactory.constructObject('project', x)),
-    // projectsByStatus: (state, getters) => (status) => state.projects.filter(project => project.status === status).map(x => MocaFactory.constructObject('project', x)),
-    //
-    // // Resources
-    //
-    // resourcesByProject: (state, getters) => (id) => state.resources.filter(resource => resource.project_id === id).map(x => MocaFactory.constructObject('resource', x)),
-    // resourcesByClient: (state, getters) => (id) => state.resources.filter(resource => resource.client_id === id).map(x => MocaFactory.constructObject('resource', x)),
-    //
-    // // Times
-    //
-    // times: (state, getters) => state.times.sort((a,b) => a.date < b.date || (a.date == b.date && a.cycle < b.cycle)).map(x => MocaFactory.constructObject('time', x)),
-    // pendingTimes: (state, getters) => getters.times.filter(time => time.pending).map(x => MocaFactory.constructObject('time', x)),
-    // timesInPeriod: (state, getters) => state.times.filter(time => time.date >= state.uiFilters.times.period.start && time.date <= state.uiFilters.times.period.end).sort((a,b) => a.date < b.date || (a.date == b.date && a.cycle < b.cycle)).map(x => MocaFactory.constructObject('time', x)),
-    // logsByProject: (state, getters) => (id) => state.times.filter(time => time.project_id === id).map(x => MocaFactory.constructObject('time', x)),
-    // timesByContractor: (state, getters) => (id) => state.times.filter(time => time.worker_id === id).map(x => MocaFactory.constructObject('time', x)),
-    // timesByClient: (state, getters) => (id) => state.times.filter(time => time.client_id === id).map(x => MocaFactory.constructObject('time', x)),
-    // creditForPackage: (state, getters) => (id) => MocaFactory.constructObject('time', state.times.find(time => time.package_id === id)),
 
 };
 
 const mutations = {
-
-    // Object Mutation
-
-    mutateObject (state, mutation) {
-
-        switch (mutation.action) {
-            case 'create':
-                state[mutation.object_type + 's'].push(
-                    MocaFactory.constructObject(mutation.object_type, mutation.property_value)
-                );
-                break;
-            case 'update':
-                let object = state[mutation.object_type + 's'].find(object => object.id === mutation.object_id);
-                object[mutation.property_name] = mutation.property_value;
-                break;
-            case 'delete':
-                let deletionObject = state[mutation.object_type + 's'].find(object => object.id === mutation.object_id);
-                deletionObject.cleanUp();
-                state[mutation.object_type + 's'] = state[mutation.object_type + 's'].filter(
-                    object => object.id !== mutation.object_id
-                );
-                break;
-            default: return;
-        }
-
-    },
-
-    // Static Objects
-
-    importObjects (state, data) {
-
-    },
 
     loseProject (state, id) {
         state.messages = state.messages.filter(message => message.project_id != id);
@@ -214,78 +162,293 @@ const mutations = {
 
     // Interface
 
-    // setSearchTerm(state, searchTerm) { state.searchTerm = searchTerm; },
+    setSearchTerm(state, searchTerm) { state.searchTerm = searchTerm; },
     setUiFilter(state, filterData) { state.uiFilters[filterData.type][filterData.name] = filterData.value; },
     setUser(state, id) { state.userId = id; },
     // setLastMutationId(state, mutationId) { state.lastMutationId = mutationId; },
     updateRoute(state, route) { state.route = route; },
     // ready(state) { state.ready = true; }
 
+    setBuffer(state, {name, data, id}) { state.buffer[name] = data; buffers[name].id = id; },
 
-    setPersons (state, data) { state.persons = data; },
-    setProjects (state, data) { state.projects = data; },
-    setUnresolvedMessages (state, data) { state.unresolvedMessages = data; },
-    setTimesInPeriod (state, data) { state.timesInPeriod = data; },
-    setPendingTimes (state, data) { state.pendingTimes = data; },
-    setArchivedProjects (state, data) { state.archivedProjects = data; },
+    updateBuffer(state, {mutations, primitives}) {
+        for (let mutation of mutations) {
+            let primitive = _.find(primitives, ['id', mutation.object_id]);
+            console.log(mutation.object_type, mutation.property_name, mutation.property_value);
 
-    setResourcesByProject (state, resources) { state.resourcesByProject = resources; },
-    setTimesByProject (state, times) { state.timesByProject = times; },
-    setMessagesByProject (state, messages) { state.messagesByProject = messages; },
+            for (let bufferName in buffers) {
+                let buffer = buffers[bufferName];
 
-    cleanResourcesByProject (state) { state.resourcesByProject = null; },
-    cleanTimesByProject (state) { state.timesByProject = null; },
-    cleanMessagesByProject (state) { state.messagesByProject = null; },
+                if (buffer.watch && buffer.watch[mutation.object_type]) {
+                    buffer.watch[mutation.object_type](mutation);
+                }
+                if (buffer.primitiveType != mutation.object_type) continue;
+
+                let objectIndex = _.findIndex(state.buffer[bufferName], (o) => o.id == mutation.object_id);
+                switch (mutation.action) {
+                    case 'create':
+                    case 'update':
+                        if (buffer.shouldContain && buffer.shouldContain(primitive)) {
+                            // add or update
+                            let object = MocaFactory.constructObject(buffer.primitiveType, primitive);
+                            if (objectIndex >= 0) {
+                                state.buffer[bufferName].splice(objectIndex, 1, object);
+                            } else {
+                                state.buffer[bufferName] && state.buffer[bufferName].push(object);
+                            }
+                        } else {
+                            // delete
+                            if (objectIndex >= 0) {
+                                state.buffer[bufferName].splice(objectIndex, 1);
+                            }
+                        }
+                        break;
+                    case 'delete':
+                        if (objectIndex >= 0) {
+                            state.buffer[bufferName].splice(objectIndex, 1);
+                        }
+                }
+
+            }
+        }
+    },
+
+    cleanup(state, primitiveIds) {
+        for (let bufferName in buffers) {
+            let buffer = state.buffer[bufferName];
+            if (!buffer) continue;
+            let foundIndex = _.findIndex(buffer, x => primitiveIds.includes(x.id))
+            if (foundIndex !== -1) {
+                buffer.splice(foundIndex, 1);
+            }
+        }
+    }
 
 };
 
+const buffers = {
+
+    // packages
+    packages: {
+        primitiveType: 'package',
+        fetch: () => new Promise(function(resolve, reject) {
+            db.packages.toArray().then(primitives => { resolve(primitives); });
+        }),
+        shouldContain: (primitive) => true
+    },
+
+    // persons
+    archivedPersons: {
+        primitiveType: 'person',
+        fetch: () => new Promise(function(resolve, reject) {
+            db.persons.where('archived').equals(1).toArray().then(primitives => { resolve(primitives); });
+        }),
+        shouldContain: (primitive) => primitive.archived
+    },
+    activePersons: {
+        primitiveType: 'person',
+        fetch: () => new Promise(function(resolve, reject) {
+            db.persons.where('archived').equals(0).toArray().then(primitives => { resolve(primitives); });
+        }),
+        shouldContain: (primitive) => !primitive.archived
+    },
+
+    // projects
+
+    // about to ipmplement archivedProjects as a fuzzy searched set of 20ish
+
+
+    archivedProjects: {
+        primitiveType: 'project',
+        fetch: () => new Promise(function(resolve, reject) {
+            let clientFilter = store.state.uiFilters.archive.clientId;
+            clientFilter ?
+                db.projects.orderBy('start').reverse().and(x => x.archived && x.client_id == clientFilter).toArray().then(primitives => { resolve(primitives); }) :
+                db.projects.orderBy('start').reverse().and(x => x.archived).limit(40).toArray().then(primitives => { resolve(primitives); });
+        }),
+        shouldContain: (primitive) => primitive.archived
+    },
+    activeProjects: {
+        primitiveType: 'project',
+        fetch: () => new Promise(function(resolve, reject) {
+            db.projects.where('archived').equals(0).toArray().then(primitives => { resolve(primitives); });
+        }),
+        shouldContain: (primitive) => !primitive.archived
+    },
+    projectsWithUnresolvedMessages: {
+        primitiveType: 'project',
+        fetch: () => new Promise(function(resolve, reject) {
+            db.messages.orderBy('datetime').reverse().and(x => x.resolved == 0).toArray(messages => {
+                let projectPromises = messages.map(message => db.projects.get(message.project_id));
+                Promise.all(projectPromises).then(primitives => {
+                    primitives = _.uniqBy(primitives.filter(x => !x.archived).reverse(), 'id').reverse();
+                    resolve(primitives);
+                });
+            });
+        }),
+        watch: {
+            message: (mutation) => {
+                if (
+                    mutation.action == 'update' && mutation.property_name == 'resolved' ||
+                    mutation.action != 'update'
+                ) {
+                    store.dispatch('fetch', {bufferName: 'projectsWithUnresolvedMessages', force: true});
+                }
+            }
+        }
+    },
+    projectsForTimesInPeriod: {
+        primitiveType: 'project',
+        fetch: () => new Promise(function(resolve, reject) {
+            db.times.where('date').between(
+                store.state.uiFilters.times.period.start,
+                store.state.uiFilters.times.period.end
+            ).toArray().then(times => {
+                let projectIds = _.uniq(times.filter(x => x.project_id).map(x => x.project_id));
+                db.projects.where('id').anyOf(projectIds).toArray()
+                    .then(primitives => { resolve(primitives); });
+            });
+        }),
+        watch: {
+            time: (mutation) => {
+                if (
+                    mutation.action == 'update' && mutation.property_name == 'date' ||
+                    mutation.action != 'update'
+                ) {
+                    store.dispatch('fetch', {bufferName: 'projectsForTimesInPeriod', force: true });
+                }
+            }
+        }
+    },
+
+    // messages
+    messagesByProject: {
+        primitiveType: 'message',
+        fetch: (id) => new Promise(function(resolve, reject) {
+            db.messages.where('project_id').equals(id).toArray().then(primitives => { resolve(primitives); });
+        }),
+        shouldContain: (primitive) => buffers.messagesByProject.id && primitive.project_id === buffers.messagesByProject.id
+    },
+    resolvableMessages: {
+        primitiveType: 'message',
+        fetch: () => new Promise(function(resolve, reject) {
+            db.messages.where('resolved').equals(0).and(x => messageIsResolvable(x)).toArray().then(primitives => {
+                resolve(primitives);
+            });
+        }),
+        shouldContain: (primitive) => messageIsResolvable(primitive)
+    },
+
+    // resources
+    resourcesByProject: {
+        primitiveType: 'resource',
+        fetch: (id) => new Promise(function(resolve, reject) {
+            db.resources.where('project_id').equals(id).toArray().then(primitives => { resolve(primitives); });
+        }),
+        shouldContain: (primitive) => buffers.resourcesByProject.id && primitive.project_id == buffers.resourcesByProject.id
+    },
+
+    // times
+    balances: {
+        primitiveType: null,
+        fetch: () => new Promise(function(resolve, reject) {
+            db.persons.where('role').equals('client').and(x => !x.archived).toArray(clients => {
+                let timePromises = clients.map(client => new Promise(function(resolveInner, rejectInner) {
+                    db.times.where('client_id').equals(client.id).toArray()
+                        .then(times => {
+                            let credit = _.sumBy(times.filter(x => x.type == 'purchase'), 'hours');
+                            let debit = _.sumBy(times.filter(x => x.type != 'purchase'), 'hours');
+                            resolveInner({clientId: client.id, balance: credit - debit});
+                        });
+                }));
+                Promise.all(timePromises).then(balances => {
+                    resolve(balances);
+                });
+            });
+        }),
+        watch: {
+            time: (mutation) => {
+                if (
+                    mutation.action == 'update' && mutation.property_name == 'hours' ||
+                    mutation.action != 'update'
+                ) {
+                    store.dispatch('fetch', {bufferName: 'balances', force: true});
+                }
+            }
+        }
+    },
+    pendingTimes: {
+        primitiveType: 'time',
+        fetch: () => new Promise(function(resolve, reject) {
+            db.times.where('pending').equals(1).toArray().then(primitives => {
+                resolve(primitives);
+            });
+        }),
+        shouldContain: (primitive) => primitive.pending
+    },
+    purchases: {
+        primitiveType: 'time',
+        fetch: () => new Promise(function(resolve, reject) {
+            db.times.where('type').equals('purchase').toArray().then(primitives => {
+                resolve(primitives);
+            })
+        }),
+        shouldContain: (primitive) => primitive.type == 'purchase'
+    },
+    timesByProject: {
+        primitiveType: 'time',
+        fetch: (id) => new Promise(function(resolve, reject) {
+            db.times.where('project_id').equals(id).toArray().then(primitives => { resolve(primitives); });
+        }),
+        shouldContain: (primitive) => buffers.timesByProject.id && primitive.project_id == buffers.timesByProject.id
+    },
+    timesInPeriod: {
+        primitiveType: 'time',
+        fetch: () => new Promise(function(resolve, reject) {
+            db.times.where('date').between(
+                store.state.uiFilters.times.period.start,
+                store.state.uiFilters.times.period.end
+            ).toArray().then(primitives => { resolve(primitives); });
+        }),
+        shouldContain: (primitive) => {
+            return primitive.date >= store.state.uiFilters.times.period.start && primitive.date <= store.state.uiFilters.times.period.end;
+        }
+    }
+
+};
+window.buffers = buffers; // TEMP
+
+
 const actions = {
 
-    // Object Mutation
-
-    applyMutations (context, mutations) {
-        // for (let mutation of mutations) {
-        //     context.commit('mutateObject', mutation);
-        // }
-    },
-
-    persistMutations (context, mutations) {
-        // if (!mutations) { return; }
-        // for (let mutation of mutations) {
-        //     forager.mutateObject(mutation);
-        // }
-    },
-
     exportMutations (context, mutations) {
-        // store.dispatch('applyMutations', mutations);
-        // hpmAPI('mutate', [mutations, pusher.socketId]).then(response => {
-        //     if ( response.integrity == store.state.lastMutationId) {
-        //         store.dispatch('persistMutations', mutations);
-        //         store.dispatch('setLastMutationId', response.mutation_id);
-        //     } else {
-        //         console.log('Out of sync. Last mutation should be ' + response.integrity[store.state.user.id] + ', but is ' + store.state.lastMutationId + '.', response);
-        //         alert("Hmm... looks like you're out of sync. Refresh to make sure you have the latest.");
-        //     }
-        // }, response => {
-        //     alert("Crap, got disconnected, and that didn't save. Make sure you're connected and refresh.");
-        // });
+
+        // save mutations to IndexedDB
+        Mocadex.saveMutations(mutations).then(() => {
+
+            // fetch primitives
+            let primitivePromises = [];
+            for (let mutation of mutations) {
+                primitivePromises.push(
+                    Mocadex.getPrimitive(mutation.object_type, mutation.object_id)
+                );
+            }
+            Promise.all(primitivePromises)
+                .then(primitives => {
+
+                    // update buffers
+                    context.commit('updateBuffer', {mutations, primitives});
+
+                    // sync
+
+                });
+
+        });
+
     },
 
     importMutations (context, data) {
-        // console.log(data.mutations.length + ' New Mutations Imported');
-        // store.dispatch('applyMutations', data.mutations);
-        // if ( !data.integrity || data.integrity[store.state.user.id] == store.state.lastMutationId) {
-        //     store.dispatch('setLastMutationId', data.mutation_id);
-        //     store.dispatch('persistMutations', data.mutations);
-        // } else {
-        //     console.log('Out of sync. Last mutation should be ' + data.integrity[store.state.user.id] + ', but is ' + store.state.lastMutationId + '.');
-        //     alert("Hmm... looks like you're out of sync. Refresh to make sure you have the latest.");
-        // }
-    },
 
-    setLastMutationId (context, mutationId) {
-        // context.commit('setLastMutationId', mutationId);
-        // forager.setLastMutationId(mutationId);
     },
 
     // Object Gain
@@ -341,113 +504,79 @@ const actions = {
         db.projects.where('id').notEqual('0').delete();
         db.resources.where('id').notEqual('0').delete();
         db.times.where('id').notEqual('0').delete();
-        data.messages && db.messages.bulkAdd(data.messages);
-        data.packages && db.packages.bulkAdd(data.packages);
-        data.persons && db.persons.bulkAdd(data.persons);
-        data.projects && db.projects.bulkAdd(data.projects);
-        data.resources && db.resources.bulkAdd(data.resources);
-        data.times && db.times.bulkAdd(data.times);
-
-
+        data.messages && db.messages.bulkAdd(data.messages.map(x => typifyForIdb(x)));
+        data.packages && db.packages.bulkAdd(data.packages.map(x => typifyForIdb(x)));
+        data.persons && db.persons.bulkAdd(data.persons.map(x => typifyForIdb(x)));
+        data.projects && db.projects.bulkAdd(data.projects.map(x => typifyForIdb(x)));
+        data.resources && db.resources.bulkAdd(data.resources.map(x => typifyForIdb(x)));
+        data.times && db.times.bulkAdd(data.times.map(x => typifyForIdb(x)));
     },
 
-    loadAppState (context) {
-        // load active persons
-        let persons = {};
-        db.persons.where('archived').equals(0).each((person) => { persons[person.id] = person; })
-            .then(() => {
-                context.commit('setPersons', persons);
-            });
+    // Fetch & Buffer Management
 
-        // load active projects
-        let projects = {};
-        db.projects.where('archived').equals(0).each((project) => { projects[project.id] = project; })
-            .then(() => {
-                context.commit('setProjects', projects);
-            });
-
-        // unresolved messages for counting/flagging/etc.
-        let unresolvedMessages = {};
-        db.messages.where('resolved').equals(0).each((message) => { unresolvedMessages[message.id] = message; })
-            .then(() => {
-                context.commit('setUnresolvedMessages', unresolvedMessages);
-            });
-
-        context.dispatch('fetchTimesInPeriod');
-
-        // pending times
-        let pendingTimes = {};
-        db.times.where('pending').equals(1).each((time) => { pendingTimes[time.id] = time; })
-            .then(() => {
-                context.commit('setPendingTimes', pendingTimes);
-            });
-
-        // archived projects
-        let archivedProjects = {};
-        db.projects.where('archived').equals(1).limit(20).each((project) => { archivedProjects[project.id] = project; })
-            .then(() => {
-                context.commit('setArchivedProjects', archivedProjects);
-            });
-
-        // db.persons.count((count) => {console.log(count); });
+    fetch (context, {bufferName, id, force}) {
+        if (!id && !force && store.state.buffer[bufferName]) return store.state.buffer[bufferName];
+        return new Promise(function(resolve, reject) {
+            buffers[bufferName].fetch(id)
+                .then(primitives => {
+                    let constructed = primitives.map(x =>
+                        buffers[bufferName].primitiveType ?
+                            MocaFactory.constructObject(buffers[bufferName].primitiveType, x) :
+                            x
+                    );
+                    context.commit('setBuffer', {name: bufferName, data: constructed, id: id});
+                    resolve();
+                });
+        });
     },
 
-    fetchResourcesByProject (context, id) {
-        let resources = {};
-        db.resources.where('project_id').equals(id).each((resource) => { resources[resource.id] = resource; })
-            .then(() => {
-                context.commit('setResourcesByProject', resources);
-            });
-    },
-    cleanResourcesByProject (context) {
-        context.commit('cleanResourcesByProject');
-    },
-
-    fetchTimesByProject (context, id) {
-        let times = {};
-        db.times.where('project_id').equals(id).each((time) => { times[time.id] = time; })
-            .then(() => {
-                context.commit('setTimesByProject', times);
-            });
-    },
-    cleanTimesByProject (context) {
-        context.commit('cleanTimesByProject');
-    },
-
-    fetchMessagesByProject (context, id) {
-        let messages = {};
-        db.messages.where('project_id').equals(id).each((message) => { messages[message.id] = message; })
-            .then(() => {
-                context.commit('setMessagesByProject', messages);
-            });
-    },
-    cleanMessagesByProject (context) {
-        context.commit('cleanMessagesByProject');
-    },
-
-    fetchTimesInPeriod (context ) {
-        // times in current period
-        let timesInPeriod = {};
-        db.times.where('date').between(state.uiFilters.times.period.start, state.uiFilters.times.period.end).each((time) => { timesInPeriod[time.id] = time; })
-            .then(() => {
-                context.commit('setTimesInPeriod', timesInPeriod);
-            });
+    cleanup (context, id) {
+        // @TODO - incomplete
+        db.messages.where('type').equals('mutation').and(x => x.content.object_id == id).toArray().then(primitives => {
+            let primitiveIds = primitives.map(x => x.id);
+            context.commit('cleanup', primitiveIds);
+            db.messages.bulkDelete(primitiveIds);
+        });
     },
 
     // Interface
 
-    // setSearchTerm (context, searchTerm) { context.commit('setSearchTerm', searchTerm); },
+    setSearchTerm (context, searchTerm) { context.commit('setSearchTerm', searchTerm); },
     setUiFilter (context, filterData) {
         context.commit('setUiFilter', filterData);
 
-        // @TODO - robust
         if (filterData.type == 'times' && filterData.name == 'period') {
-            store.dispatch('fetchTimesInPeriod');
+            store.dispatch('fetch', {bufferName: 'timesInPeriod', force: true});
+            store.dispatch('fetch', {bufferName: 'projectsForTimesInPeriod', force: true});
         }
+
+        if (filterData.type == 'archive' && filterData.name == 'clientId') {
+            store.dispatch('fetch', {bufferName: 'archivedProjects', force: true });
+        }
+
     },
-    setUser (context, wpId) {
+    initialize (context, wpId) {
+        let initialBuffers = [
+            {bufferName: 'activePersons'},
+            {bufferName: 'archivedPersons'},
+            {bufferName: 'activeProjects'},
+            {bufferName: 'archivedProjects'},
+            {bufferName: 'resolvableMessages'},
+            {bufferName: 'balances'},
+            {bufferName: 'pendingTimes'},
+            {bufferName: 'packages'},
+            {bufferName: 'purchases'},
+            {bufferName: 'timesInPeriod'},
+            {bufferName: 'projectsForTimesInPeriod'},
+            {bufferName: 'projectsWithUnresolvedMessages'}
+        ];
         db.persons.get({ wp_id: wpId }).then((userPrimitive) => {
             context.commit('setUser', userPrimitive.id);
+
+            let fetchPromises = initialBuffers.map(x => store.dispatch('fetch', x));
+            Promise.all(fetchPromises).then(() => {
+                bus.$emit('initialized');
+            });
         });
     },
     updateRoute (context, route) { context.commit('updateRoute', route); },

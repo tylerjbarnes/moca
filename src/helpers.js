@@ -69,3 +69,31 @@ window.debounce = (func, wait, immediate) => {
 		if (callNow) func.apply(context, args);
 	};
 };
+
+window.booleanToBinary = (val) => {
+    if (val === true) return 1;
+    if (val === false) return 0;
+    return val;
+}
+
+window.typifyForIdb = (val) => {
+    if (val === null) return val;
+    if (typeof(val) === 'object') {
+        var typified = {};
+        for (let key in val) {
+            typified[key] = booleanToBinary(val[key]);
+        }
+        return typified;
+    } else {
+        return booleanToBinary(val);
+    }
+}
+
+window.messageIsResolvable = (messagePrimitive) => {
+    if (messagePrimitive.resolved) return false;
+    let author = store.getters.person(messagePrimitive.author_id);
+    if (!author) return false; // @TODO - only needed for bad data
+    return store.getters.user.role == 'contractor' ?
+        author.role != 'contractor' :
+        author.role == 'contractor';
+}

@@ -1,6 +1,7 @@
 let path = require('path');
 let CleanWebpackPlugin = require('clean-webpack-plugin');
 let HtmlWebpackPlugin = require('html-webpack-plugin');
+let Icons = require('ceri-icon');
 
 let config = {
 
@@ -44,43 +45,35 @@ let config = {
                 options: {
                     name: '[name].[ext]?[hash]'
                 }
-            },
-            // Ceri Icon
-            {
-                test: /ceri-icon\/icon/,
-                enforce: "post",
-                loader: "ceri-icon",
-                options: {
-                    icons: [
-                        "fa-calendar-times-o",
-                        "fa-check",
-                        "fa-check-circle",
-                        "fa-chevron-left",
-                        "fa-chevron-right",
-                        "fa-clock-o",
-                        "fa-comment",
-                        "fa-comments-o",
-                        "fa-cube",
-                        "fa-eye",
-                        "fa-eye-slash",
-                        "fa-flag",
-                        "fa-minus",
-                        "fa-paper-plane",
-                        "fa-pencil",
-                        "fa-plus",
-                        "fa-recycle",
-                        "fa-search",
-                        "fa-times",
-                        "fa-wordpress",
-                        "ma-reply"
-                    ]
-                }
             }
         ]
     },
 
     // Plugins
     plugins: [
+        new Icons([
+            "fa-calendar-times-o",
+            "fa-check",
+            "fa-check-circle",
+            "fa-chevron-left",
+            "fa-chevron-right",
+            "fa-clock-o",
+            "fa-comment",
+            "fa-comments-o",
+            "fa-cube",
+            "fa-eye",
+            "fa-eye-slash",
+            "fa-flag",
+            "fa-minus",
+            "fa-paper-plane",
+            "fa-pencil",
+            "fa-plus",
+            "fa-recycle",
+            "fa-search",
+            "fa-times",
+            "fa-wordpress",
+            "ma-reply"
+        ]),
         new CleanWebpackPlugin(['dist/*.*'], {
             root: path.resolve(__dirname, '../')
         }),

@@ -23,7 +23,11 @@ class Project extends MocaObject {
     }
 
     get resources () {
-        return store.getters.resourcesByProject();
+        return store.getters.resourcesByProject(this.id);
+    }
+
+    get unresolvedMessages () {
+        return store.getters.resolvableMessagesByProject(this.id);
     }
 
     // computed properties
@@ -135,8 +139,8 @@ class Project extends MocaObject {
         return this.start >= currentPeriod.start && this.start <= currentPeriod.end;
     }
 
-    get unresolvedMessages () {
-        return store.getters.unresolvedMessagesByProject(this.id);
+    get resolvableMessages () {
+        return store.getters.resolvableMessagesByProject(this.id);
     }
 
     // actions
@@ -209,7 +213,7 @@ class Project extends MocaObject {
         if (
             this.lastMutationMessage &&
             this.lastMutationMessage.content.object_id == messagePrimitive.content.object_id &&
-            this.lastMutationMessage.author_id == store.state.user.id &&
+            this.lastMutationMessage.author_id == store.getters.user.id &&
             this.lastMutationMessage.content.property_name != 'status' &&
             this.lastMutationMessage.content.property_name != 'cycle'
         ) {

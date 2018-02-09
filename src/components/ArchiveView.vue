@@ -2,9 +2,9 @@
 
     <div class="archive-view">
         <project-collection :projects="projects" :fluid="true" :show="projectsShow"></project-collection>
-        <!-- <div class="persons" v-if="user.canManage">
+        <div class="persons" v-if="user.canManage">
             <person-row v-for="person in persons" :key="person.id" :person="person"></person-row>
-        </div> -->
+        </div>
     </div>
 
 </template>
@@ -15,7 +15,6 @@
     import PersonRow from './PersonRow.vue';
     import CanSearchProjects from '../mixins/CanSearchProjects.js';
     import CanSearchPersons from '../mixins/CanSearchPersons.js';
-    import HasMoca from '../mixins/HasMoca.js';
 
     export default {
         name: 'archive-view',
@@ -23,18 +22,17 @@
         data () {return {
             projectsShow: { contractor: true, manager: true }
         }},
-        mixins: [HasMoca,CanSearchProjects,CanSearchPersons],
+        mixins: [CanSearchProjects,CanSearchPersons],
         computed: {
             allProjects () {
-                // return this.user.canManage ?
-                // store.state.projects.filter(project => project.archived) :
-                // store.state.projects.filter(project => project.archived && project.contractor_id == store.state.user.id);
-                return this.$store.getters.archivedProjects;
-                // return [];
+                return this.user.canManage ?
+                    store.getters.archivedProjects :
+                    store.getters.archivedProjects.filter(x => x.contractor_id == this.user.id);
+                return store.getters.archivedProjects;
             },
-            // allPersons () {
-            //     return store.state.persons.filter(person => person.archived);
-            // }
+            allPersons () {
+                return store.getters.archivedPersons;
+            }
         }
     }
 

@@ -57,17 +57,17 @@
     export default {
         name: 'profile-editor',
         data () { return {
-            colorObject: this.colorObjectFromHex(this.user.color),
+            colorObject: null,
             colorUpdateTimeout: null,
-            cell_number: this.user.cell_number,
-            cell_provider: this.user.cell_provider,
+            cell_number: null,
+            cell_provider: null,
             cellProviderOptions: [
                 { id: 'verizon', name: 'Verizon' },
                 { id: 'att', name: 'AT&T' },
                 { id: 'tmobile', name: 'T-Mobile' },
                 { id: 'sprint', name: 'Sprint' }
             ],
-            time_offset: this.user.time_offset,
+            time_offset: null,
             timezoneOptions: [
                 { id: -12, name: '(GMT -12:00) Eniwetok, Kwajalein' },
                 { id: -11, name: '(GMT -11:00) Midway Island, Samoa' },
@@ -101,7 +101,7 @@
                 { id:  11, name: '(GMT +11:00) Magadan, Solomon Islands, New Caledonia' },
                 { id:  12, name: '(GMT +12:00) Auckland, Wellington, Fiji, Kamchatka' }
             ],
-            notification_time: this.user.notification_time,
+            notification_time: null,
             notificationTimeOptions: [
                 { id: 0,  name: '12:00 AM' },
                 { id: 1,  name: '1:00 AM'  },
@@ -130,9 +130,6 @@
             ]
         }},
         computed: {
-            user () {
-                return this.$store.getters.user();
-            },
             lightColor () {
                 return tinycolor(this.colorObject.hex).lighten(32).toString();
             },
@@ -186,7 +183,7 @@
                 router.go(-1);
             }
         },
-        components: {'color-picker': Sketch, PersonTag, Selector}
+        components: {'color-picker': Sketch, PersonTag, Selector},
         // watch: {
         //     colorObject: function(newVal) {
         //         let vm = this;
@@ -196,6 +193,13 @@
         //         }, 1000);
         //     }
         // }
+        created () {
+            this.colorObject = this.colorObjectFromHex(this.user.color);
+            this.cell_number = this.user.cell_number;
+            this.cell_provider = this.user.cell_provider;
+            this.time_offset = this.user.time_offset;
+            this.notification_time = this.user.notification_time;
+        }
     }
 
 </script>

@@ -31,12 +31,9 @@
     import MocaMutationSet from '../objects/mocaMutationSet.js';
     import MocaFactory from '../objects/mocaFactory.js';
 
-    import HasMoca from '../mixins/HasMoca.js';
-
     export default {
         name: 'resource-view',
         props: ['resource', 'isDraft'],
-        mixins: [HasMoca],
         data () { return {
             editing: false,
             primitive: {
@@ -102,7 +99,7 @@
             save () {
                 this.primitive.datetime = new moment().utc().format('YYYY-MM-DD HH:mm:ss');
                 if (!this.isDraft) {
-                    this.primitive.last_editor_id = store.state.user.id;
+                    this.primitive.last_editor_id = store.getters.user.id;
                     new MocaMutationSet(
                         'update', 'resource',
                         this.primitive.id, this.primitive

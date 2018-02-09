@@ -126,6 +126,7 @@
             background: white;
             box-shadow: 0px 0px 15px 0px darken($gray,5%);
             max-height: 200px;
+            overflow-y: scroll;
             position: absolute;
             width: 100%;
             z-index: 10;

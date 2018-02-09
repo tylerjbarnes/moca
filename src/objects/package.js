@@ -11,7 +11,7 @@ class Package extends MocaObject {
     }
 
     get time () {
-        return store.getters.creditByPackage(this.id);
+        return store.getters.purchaseByPackage(this.id);
     }
 
     // actions

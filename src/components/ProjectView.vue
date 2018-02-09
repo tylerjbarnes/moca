@@ -4,14 +4,6 @@
         <template v-if="project && project.resources && project.hoursLogged !== null && project.messages"><div class="project-modal">
 
             <div class="project-main">
-                <!-- <header>
-                    <div class="mode">
-                        <input type="radio" id="mode-resources" value="resources" v-model="mode">
-                        <label for="mode-resources">Resources</label>
-                        <input type="radio" id="mode-messages" value="messages" v-model="mode">
-                        <label for="mode-messages">Messages</label>
-                    </div>
-                </header> -->
                 <project-header :project="project"></project-header>
                 <div class="resources" ref="resources">
                     <div class="items">
@@ -43,6 +35,11 @@
         name: 'project-view',
         props: ['id'],
         data () { return {
+            fetch: [
+                {bufferName: 'messagesByProject', id: this.id},
+                {bufferName: 'resourcesByProject', id: this.id},
+                {bufferName: 'timesByProject', id: this.id}
+            ],
             mode: 'messages',
             draftResource: null
         }},
@@ -52,7 +49,7 @@
                 return this.$store.getters.project(this.id);
             },
             resources () {
-                return this.project.resources.reverse();
+                return this.project.resources.slice().reverse();
             },
             contractorId () {
                 return this.project.contractor_id;
@@ -76,20 +73,10 @@
         },
         watch: {
             contractorId: (newValue) => {
-                if (!store.state.user.canManage && newValue != store.state.user.id) {
+                if (!store.getters.user.canManage && newValue != store.getters.user.id) {
                     router.replace({name: store.state.route.view});
                 }
             }
-        },
-        created () {
-            this.$store.dispatch('fetchResourcesByProject', this.id);
-            this.$store.dispatch('fetchTimesByProject', this.id);
-            this.$store.dispatch('fetchMessagesByProject', this.id);
-        },
-        destroyed () {
-            this.$store.dispatch('cleanResourcesByProject');
-            this.$store.dispatch('cleanTimesByProject');
-            this.$store.dispatch('cleanMessagesByProject');
         }
     }
 

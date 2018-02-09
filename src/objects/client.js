@@ -9,16 +9,16 @@ class Client extends Person {
     }
 
     get packages () {
-        return store.getters.packagesByClient(this.id);
+        return _.orderBy(store.getters.packagesByClient(this.id), ['expiration_date'], ['desc'] );
     }
 
     get projects () {
         return store.getters.projectsByClient(this.id);
     }
 
-    get timesLogged () {
-        return store.getters.timesByClient(this.id).filter(time => time.type === 'log');
-    }
+    // get timesLogged () {
+    //     return store.getters.timesByClient(this.id).filter(time => time.type === 'log');
+    // }
 
     // computed properties
 
@@ -49,13 +49,13 @@ class Client extends Person {
         return this.projects.map(project => project.estimate).reduce((a,b) => a + b, 0);
     }
 
-    get hoursCredited() {
-        return store.getters.timesByClient(this.id).filter(time => time.type === 'credit').map(time => time.hours).reduce((a,b) => a + b, 0);
-    }
-
-    get hoursDebited() {
-        return store.getters.timesByClient(this.id).filter(time => time.type !== 'credit').map(time => time.hours).reduce((a,b) => a + b, 0);
-    }
+    // get hoursCredited() {
+    //     return store.getters.timesByClient(this.id).filter(time => time.type === 'credit').map(time => time.hours).reduce((a,b) => a + b, 0);
+    // }
+    //
+    // get hoursDebited() {
+    //     return store.getters.timesByClient(this.id).filter(time => time.type !== 'credit').map(time => time.hours).reduce((a,b) => a + b, 0);
+    // }
 
 }
 

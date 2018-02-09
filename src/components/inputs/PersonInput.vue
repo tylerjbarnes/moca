@@ -2,7 +2,7 @@
 
     <div class="person-input">
         <button class="delete" @click="clearSelection" v-if="searchTerm.length" tabindex="-1"></button>
-        <input ref="input" role="text" v-model="searchTerm" @focus="focus" @blur="isFocused = false" @keydown="handleKey" @input="input" :disabled="disabled || !persons.length">
+        <input ref="input" role="text" v-model="searchTerm" @focus="focus" @blur="isFocused = false" @keydown="handleKey" @input="input" :disabled="disabled || !persons.length" :placeholder="placeholderText">
         <div class="panel" v-show="isFocused || panelIsFocused" @mouseover="panelIsFocused = true" @mouseleave="leavePanel();panelIsFocused = false">
             <div class="items">
                 <div class="item" v-for="(person,index) in persons" @mouseover="softSelect(index)" @click="select(person)" :class="{selected:isSelected(person)}">{{ person.name }}</div>
@@ -34,7 +34,9 @@
                 return fuzzy.filter(this.searchTerm, allPersons, options).map(result => result.original);
             },
             placeholderText () {
-                return 'Select a ' + capitalizeFirstLetter(this.role);
+                return 'Select a ' + (this.roles.includes('client') ?
+                    (this.roles.length > 1 ? 'Person' : 'Client') :
+                    'Member');
             }
         },
         watch: {
@@ -127,6 +129,7 @@
             background: white;
             box-shadow: 0px 0px 15px 0px darken($gray,5%);
             max-height: 200px;
+            overflow-y: scroll;
             position: absolute;
             width: 100%;
             z-index: 10;

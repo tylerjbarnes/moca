@@ -32,7 +32,8 @@
         components: {MessageView},
         computed: {
             messages () {
-                    return this.project.messages.reverse();
+                // return this.project.messages.reverse();
+                return this.project.messages.slice().reverse();
             },
             content () {
                 return this.messagePrimitive.content;
