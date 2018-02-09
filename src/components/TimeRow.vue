@@ -1,6 +1,69 @@
 <template>
 
-    <div class="time-row">{{ time.hours | hours }} on {{ time.date | date }}</div>
+    <div class="time-row" :class="{editing, pending: time && time.pending}" @dblclick="edit">
+
+        <!-- Icon -->
+        <div class="cell time-icon" :class="object.type"><ceri-icon size="12" :name="iconName"></ceri-icon></div>
+
+        <!-- Date -->
+        <div v-if="!editing" class="cell date">{{ time.date | date(false) }} <span class="year">{{ time.date | year }}</span></div>
+        <div v-else          class="cell date"><date-input v-model="primitive.date" align="left" ref="initialInput"></date-input></div>
+
+        <!-- Worker -->
+        <div class="cell worker"><span v-if="worker" :style="{background: worker.lightColor, color: worker.darkColor}">{{ worker.firstName }}</span></div>
+
+        <!-- Client -->
+        <div v-if="!isDraft" class="cell client">{{ time.client ? time.client.name : '' }}</div>
+        <div v-else          class="cell client"><person-input :roles="['client']" v-model="primitive.client_id"></person-input></div>
+
+        <!-- Project -->
+        <template v-if="object.type == 'log'">
+            <!-- editing a draft or non-project log -->
+            <template v-if="editing && (isDraft || !primitive.project_id)">
+                <!-- editing a draft -->
+                <template v-if="isDraft">
+                    <div class="cell project"><project-input v-model="primitive.project_id" :allProjects="availableProjects"></project-input></div>
+                </template>
+                <!-- no project is set -->
+                <template v-if="!primitive.project_id">
+                    <div class="cell memo"><div class="moca-input"><input type="text" v-model="primitive.memo" placeholder="Memo"></div></div>
+                </template>
+            </template>
+            <!-- else -->
+            <template v-else>
+                <div v-if="time.project_id" class="cell project">{{ time.project ? time.project.name : '' }}<span class="cycle" v-if="time.project && time.cycle != time.project.cycle">{{ time.cycle + 1 }}</span></div>
+                <div v-else                      class="cell memo">{{ time.memo }}</div>
+            </template>
+        </template>
+
+        <!-- Details -->
+        <template v-if="object.type == 'purchase'">
+            <div v-if="!editing" class="cell project">Expires on {{ time.package.expiration_date | date }}</div>
+            <div v-else         class="cell project">
+                <date-input v-model="packagePrimitive.expiration_date"></date-input>
+            </div>
+        </template>
+        <template v-else-if="object.type == 'expiration'">
+            <div class="cell project"></div>
+        </template>
+
+        <!-- Hours -->
+        <template v-if="!editing">
+            <div class="cell outflow">{{ outflow | hours }}</div>
+            <div class="cell inflow">{{ inflow | hours }}</div>
+        </template><template v-else>
+            <div class="cell hours"><hours-input v-model="primitive.hours" :max="max"></hours-input></div>
+        </template>
+
+        <!-- Actions -->
+        <div class="actions" v-if="editing">
+            <button tabindex="-1" class="button dangerous" v-if="!isDraft" @click="deleteTime">{{ time && time.pending ? 'Reject' : 'Delete' }}</button>
+            <button tabindex="-1" class="button" @click="stopEditing">Cancel</button>
+            <button class="button primary" @click="approve" v-if="time && time.pending">Approve</button>
+            <button class="button primary" @click="save" v-else :disabled="!validates">Save</button>
+        </div>
+
+    </div>
 
 </template>
 
@@ -33,9 +96,9 @@
         }},
         computed: {
             availableProjects () {
-                let allProjects = store.state.user.canManage ?
-                    store.state.projects :
-                    store.getters.projectsByContractor(store.state.user.id);
+                let allProjects = store.getters.user.canManage ?
+                    store.getters.activeProjects :
+                    store.getters.projectsByContractor(store.getters.user.id);
                 let projectsForClient = this.object.client_id ?
                     allProjects.filter(project => project.client_id == this.object.client_id) :
                     [];
@@ -55,14 +118,14 @@
                 return !this.time;
             },
             inflow () {
-                return this.object.type == 'credit' ? this.object.hours : null;
+                return this.object.type == 'purchase' ? this.object.hours : null;
             },
             outflow () {
-                return this.object.type != 'credit' ? this.object.hours : null;
+                return this.object.type != 'purchase' ? this.object.hours : null;
             },
             iconName () {
                 switch (this.object.type) {
-                    case 'credit': return 'fa-cube';
+                    case 'purchase': return 'fa-cube';
                     case 'expiration': return 'fa-calendar-times-o';
                     default: return 'fa-pencil';
                 }
@@ -104,7 +167,7 @@
             },
             deleteTime () {
                 if (confirm("Are you sure you want to delete this entry?")) {
-                    if (this.type == 'credit' && this.time.package) {
+                    if (this.type == 'purchase' && this.time.package) {
                         new MocaMutationSet('delete', 'package', this.time.package.id).commit();
                     }
                     new MocaMutationSet('delete', 'time', this.time.id).commit();
@@ -118,13 +181,13 @@
                 }
             },
             save () {
-                this.primitive.pending = !store.state.user.canManage;
+                this.primitive.pending = !store.getters.user.canManage;
                 if (!this.isDraft) {
                     new MocaMutationSet(
                         'update', 'time',
                         this.primitive.id, this.primitive
                     ).commit();
-                    if (this.primitive.type == 'credit') {
+                    if (this.primitive.type == 'purchase') {
                         this.packagePrimitive.client_id = this.primitive.client_id;
                         this.packagePrimitive.hours = this.primitive.hours;
                         new MocaMutationSet(
@@ -138,7 +201,7 @@
                         'create', 'time',
                         this.primitive.id, this.primitive
                     ).commit();
-                    if (this.primitive.type == 'credit') {
+                    if (this.primitive.type == 'purchase') {
                         this.packagePrimitive.client_id = this.primitive.client_id;
                         this.packagePrimitive.hours = this.primitive.hours;
                         new MocaMutationSet(
@@ -166,7 +229,7 @@
             if (this._primitive_) {
                 this.editing = true;
                 Object.assign(this.primitive, this._primitive_);
-                if (this.primitive.type == 'credit'){
+                if (this.primitive.type == 'purchase'){
                     this.packagePrimitive = MocaFactory.constructPrimitive('package');
                     this.primitive.package_id = this.packagePrimitive.id;
                 }

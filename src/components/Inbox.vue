@@ -1,23 +1,32 @@
 <template>
 
-    <div id="inbox">
+    <div id="inbox" v-if="ready">
+
+        <!-- <div class="playground">
+            <button @click="createMutation">Create</button>
+            <button @click="updateMutation">Update</button>
+            <button @click="deleteMutation">Delete</button>
+        </div> -->
+
+
+
         <div class="items">
             <inbox-item v-for="item in items"
                 :key="item.object.id"
                 :type="item.type"
+                :time="item.time"
                 :object="item.object"
                 :selected="selected && item.object.id === selected.object.id"
                 @selected = "select(item)"
             ></inbox-item>
         </div>
         <div class="preview">
-            {{ selected ? selected.object : '' }}
-            <!-- <template v-if="!selected">No more items!</template>
+            <template v-if="!selected">No more items!</template>
             <template v-else-if="selected.type == 'project'">
-                <project-header :project="selected.object" :external="true"></project-header>
+                <!-- <project-header :project="selected.object" :external="true"></project-header> -->
                 <conversation-view ref="focalPoint" :project="selected.object"></conversation-view>
             </template>
-            <template v-else-if="selected.type == 'time'">
+            <!-- <template v-else-if="selected.type == 'time'">
                 <div class="time-table-wrapper">
                     <time-table :times="times"></time-table>
                     <div class="actions">
@@ -25,7 +34,7 @@
                         <button ref="focalPoint" class="primary button" @click="approveTime">Approve</button>
                     </div>
                 </div>
-            </template>
+            </template> -->
             <template v-else-if="selected.type == 'client'">
                 <div class="avatar">
                     <img :src="selected.object.avatar">
@@ -51,7 +60,7 @@
                     <button class="primary button" :disabled="!extensionDate" @click="extendPackage">Extend</button>
                     <button ref="focalPoint" class="dangerous button" @click="expirePackage">Expire</button>
                 </div>
-            </template> -->
+            </template>
         </div>
     </div>
 
@@ -59,50 +68,49 @@
 
 
 <script>
-    import InboxItem from './InboxItem.vue';
     import ConversationView from './ConversationView.vue';
-    import ProjectHeader from './ProjectHeader.vue';
     import DateInput from './inputs/DateInput.vue';
-    import TimeTable from './TimeTable.vue';
+    import InboxItem from './InboxItem.vue';
+    import MocaFactory from '../objects/mocaFactory.js';
     import MocaMutationSet from '../objects/mocaMutationSet.js';
-
-    import HasMoca from '../mixins/HasMoca.js';
+    import ProjectHeader from './ProjectHeader.vue';
+    import TimeTable from './TimeTable.vue';
 
     export default {
         name: 'inbox',
+        components: {ConversationView,DateInput,InboxItem,ProjectHeader,TimeTable},
         props: [],
         data () { return {
+            // fetch: [{bufferName: 'projectsWithUnresolvedMessages'}, {bufferName: 'balances'}, {bufferName: 'pendingTimes'}],
             selectedIndex: null,
             extensionDate: null
         }},
-        components: {InboxItem,ConversationView,TimeTable,DateInput,ProjectHeader},
-        mixins: [HasMoca],
         computed: {
             selected () {
                 return this.items[this.selectedIndex];
             },
             projectItems () {
-                let messages = store.getters.unresolvedMessages();
-                let projects = _.uniqBy(messages.filter(x => x.project).map(x => x.project), 'id');
-                // console.log(messages, projects);
-                // let projects = messages.map(message => message.project);
-                // return projects.map(project => ({type: 'project', object: project, time: store.getters.unresolvedMessagesByProject(project.id)[0].datetime}));
-                return projects.map(project => ({type: 'project', object: project, time: store.getters.unresolvedMessagesByProject(project.id)[0].datetime}));
+                let projects = store.getters.projectsWithResolvableMessages;
+                return projects
+                    .map(project => {
+                        return {
+                            type: 'project',
+                            object: project,
+                            time: store.getters.resolvableMessagesByProject(project.id)[0].datetime
+                        }
+                    });
             },
             timeItems () {
                 let times = store.getters.pendingTimes;
                 return times.map(time => ({type: 'time', object: time, time: time.date}));
             },
             clientItems () {
-                // let clients = Object.values(store.getters.clients).filter(x => x.expired);
+                let clients = store.getters.expiredClients;
                 // return clients.map(client => ({type: 'client', object: client, time: client.lastPackage.time.date}));
-                return [].map(client => ({type: 'client', object: client, time: client.lastPackage.time.date}));
+                return clients.map(client => ({type: 'client', object: client, time: client.lastPackage.time ? client.lastPackage.time.date : null})); // @TODO - only needed for bad data
             },
             items () {
-                // return [...this.projectItems, ...this.timeItems, ...this.clientItems].sort((a,b) => {
-                //     return a.time < b.time;
-                // });
-                return this.projectItems;
+                return _.orderBy([...this.projectItems, ...this.timeItems, ...this.clientItems], 'time', 'desc');
             },
             times () {
                 let times = [];
@@ -116,9 +124,37 @@
             }
         },
         methods: {
+            // createMutation() {
+            //     let id = cuid();
+            //     new MocaMutationSet(
+            //         'create', 'message',
+            //         id, MocaFactory.constructPrimitive('message', {
+            //             id: id,
+            //             content: 'Hello!',
+            //             project_id: 'c5b7fro2mo00a2ofsvutjh1skf',
+            //             type: 'chat',
+            //             author_id: 'c5b7fro2h40004ofsv7wipq31v'
+            //         })
+            //     ).commit();
+            // },
+            // updateMutation() {
+            //     new MocaMutationSet('update','message','test_id', {
+            //         content: 'Modified!'
+            //     }).commit();
+            // },
+            // deleteMutation() {
+            //     new MocaMutationSet('delete', 'message', 'test_id', null).commit();
+            // },
+            onReady() {
+                if (this.items.length && !this.selected) {
+                    this.select(this.items[0]);
+                }
+                bus.$on('keydown', (keyCode) => { this.keydown(keyCode); });
+            },
             select(item) {
                 var vm = this;
-                this.selectedIndex = this.items.indexOf(item);
+                store.dispatch('fetch', {bufferName: 'messagesByProject', id: item.object.id})
+                    .then(() => { this.selectedIndex = this.items.indexOf(item); });
                 setTimeout(function () { vm.$refs.focalPoint && vm.$refs.focalPoint.focus(); });
             },
             shiftSelection(steps) {
@@ -157,12 +193,6 @@
             expirePackage () {
                 this.selected.object.lastPackage.expire();
             }
-        },
-        mounted () {
-            if (this.items.length && !this.selected) {
-                this.select(this.items[0]);
-            }
-            bus.$on('keydown', (keyCode) => { this.keydown(keyCode); });
         }
     }
 
@@ -173,7 +203,7 @@
     @import '~styles/settings.scss';
 
     #inbox {
-        position: absolute;
+        position: fixed;
             top: $header-size; bottom: 0;
             left: $header-size; right: 0;
 
@@ -181,6 +211,7 @@
             background: white;
             border-right: 1px solid $gray;
             height: 100%;
+            overflow-y: scroll;
             position: absolute;
             width: 300px;
             z-index: 2;

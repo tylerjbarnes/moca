@@ -39,7 +39,6 @@
 
 <script>
     import Delegator from './components/Delegator.vue';
-    import HasMoca from './mixins/HasMoca.js';
     import Inbox from './components/Inbox.vue';
     import Project from './objects/project.js';
     import Toolbar from './components/Toolbar.vue';
@@ -47,7 +46,6 @@
     export default {
         name: 'app',
         components: {Delegator, Inbox, Toolbar},
-        mixins: [HasMoca],
         data () { return {
             appReady: false,
             showDelegator: false
@@ -66,7 +64,7 @@
                     this.showDelegator = true;
                 }
             });
-            bus.$on('storeLoaded', () => {
+            bus.$on('initialized', () => {
                 this.appReady = true;
             });
             document.addEventListener("keydown", (e) => {
@@ -96,8 +94,8 @@
         min-height: 100vh;
 
         > header {
-            background-color: white;
-            border-right: 1px solid $gray;
+            background-color: $darker;
+            // border-right: 1px solid $gray;
             display: flex;
             flex-flow: column;
             height: 100vh;
@@ -121,7 +119,7 @@
                     padding-bottom: 15px;
 
                     ceri-icon {
-                        color: $dark;
+                        color: white;
                         opacity: 0.5;
                         transition: 0.2s ease;
                         &:hover {
@@ -132,6 +130,7 @@
                 }
 
                 .navbar-item {
+                    color: $medium-dark;
                     text-align: center;
 
                     &:hover {
@@ -147,8 +146,8 @@
                     }
 
                     &.router-link-exact-active {
-                        background: white;
-                        color: $primary;
+                        background: $dark;
+                        color: white;
                         font-weight: 900;
                         &:hover {
                             background: inherit;

@@ -11,6 +11,7 @@ Vue.filter('hours', (value) => {
 });
 
 Vue.filter('date', (value, includeYear) => {
+    includeYear = includeYear !== false && moment(value).format('Y') !== new moment().format('Y');
     return includeYear ?
         new moment(value).format('MMM D, Y') :
         new moment(value).format('MMM D');

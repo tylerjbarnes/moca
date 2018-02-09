@@ -46,7 +46,8 @@ class Message extends MocaObject {
                 }
                 break;
             case 'resource':
-                let resourceName = store.getters.resource(this.content.object_id).name;
+                let resource = store.getters.object('resource', this.content.object_id);
+                let resourceName = resource ? resource.name : '(name not found)';
                 switch (this.content.action) {
                     case 'create': string = name + ' added a resource: ' + resourceName; break;
                     case 'update': string = name + ' edited ' + resourceName; break;
@@ -54,7 +55,7 @@ class Message extends MocaObject {
                 }
                 break;
             case 'message':
-                let request = store.getters.message(this.content.object_id);
+                // let request = store.getters.object(this.content.object_id);
                 let requesterName = request.author_id == store.getters.user.id ? 'your' : store.getters.person(request.author_id).firstName + "'s";
                 switch (request.content.granted) {
                     case true: string = name + ' allowed ' + requesterName + ' time request'; break;

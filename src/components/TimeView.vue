@@ -15,12 +15,10 @@
 
 <script>
     import TimeTable from './TimeTable.vue';
-    import HasMoca from '../mixins/HasMoca.js';
 
     export default {
         name: 'time-view',
         components: {TimeTable},
-        mixins: [HasMoca],
         computed: {
             times () {
                 return store.getters.timesInPeriod;

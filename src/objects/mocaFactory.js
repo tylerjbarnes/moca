@@ -7,7 +7,6 @@ import Resource from './resource.js';
 import Time from './time.js';
 
 class MocaFactory {
-
     static constructObject(type, primitive) {
         if (!primitive) return null;
         switch (type) {
@@ -39,7 +38,7 @@ class MocaFactory {
                     cycle: 0,
                     content: '',
                     resolved: false,
-                    datetime: null
+                    datetime: new moment().utc().format('YYYY-MM-DD HH:mm:ss')
                 }; break;
             case 'package':
                 primitive = {
@@ -70,7 +69,7 @@ class MocaFactory {
                 primitive = {
                     id: cuid(),
                     name: '',
-                    author_id: store.state.user.id,
+                    author_id: store.getters.user.id,
                     client_id: null,
                     project_id: null,
                     cycle: 0,

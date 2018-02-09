@@ -12,7 +12,7 @@
                 <span class="section-heading" :class="{active: mode == 'packages'}" @click="mode = 'packages';">Packages</span>
             </div>
             <client-project v-if="mode == 'projects'" v-for="project in projects" key="project" :project="project"></client-project>
-            <client-package v-if="mode == 'packages'" v-for="package in packages" key="package" :package="package"></client-package>
+            <client-package v-if="mode == 'packages'" v-for="clientPackage in packages" key="package" :package="clientPackage"></client-package>
         </div>
 
         <span class="signout" @click="signout">Sign Out</span>

@@ -10,7 +10,7 @@
                 <div class="inbox-subtitle">{{ subtitle }}</div>
             </div>
             <div class="meta">
-                <span class="time">{{ object.time | date }}</span>
+                <span class="time">{{ time | date }}</span>
             </div>
         </div>
     </div>
@@ -23,7 +23,7 @@
 
     export default {
         name: 'inbox-item',
-        props: ['type', 'object', 'selected'],
+        props: ['type', 'object', 'time', 'selected'],
         components: {MessageView},
         computed: {
             title () {
@@ -36,8 +36,8 @@
             },
             subtitle () {
                 switch (this.type) {
-                    case 'project': return this.object.unresolvedMessages.length +
-                        ' New Message' + (this.object.unresolvedMessages.length != 1 ? 's' : '');
+                    case 'project': return this.object.resolvableMessages.length +
+                        ' New Message' + (this.object.resolvableMessages.length != 1 ? 's' : '');
                     case 'time': return Vue.filter('hours')(this.object.hours) + ' Hours';
                     case 'client': return Vue.filter('hours')(this.object.balance) +
                         ' Hours Expired ' + Vue.filter('date')(this.object.lastPackage.expiration_date);
@@ -68,19 +68,20 @@
 
     .inbox-item {
         align-items: center;
+        background: $lighter;
         cursor: default;
         display: flex;
         width: 100%;
 
         &.selected {
-            background: $primary;
-            color: white;
+            background: white;
+            border-left: 6px solid $primary;
             .main {
-                border-top: 1px solid white;
-                    margin-top: -1px;
+                border-bottom: 1px solid white;
             }
         }
         &:not(.selected) {
+            padding-left: 6px;
             .main {
                 border-bottom: 1px solid $gray;
             }

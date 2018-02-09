@@ -50,12 +50,10 @@
     import PersonTag from './PersonTag.vue';
     import ProjectActions from './ProjectActions.vue';
     import QuickLog from './QuickLog.vue';
-    import HasMoca from '../mixins/HasMoca.js';
 
     export default {
         name: 'project-header',
         props: ['project','external'],
-        mixins: [HasMoca],
         computed: {
             managing () { return this.user.canManage && this.user.id != this.project.contractor_id; }
         },

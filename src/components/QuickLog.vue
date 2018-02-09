@@ -20,13 +20,9 @@
     import MocaFactory from '../objects/mocaFactory.js';
     import MocaMutationSet from '../objects/mocaMutationSet.js';
 
-    import HasMoca from '../mixins/HasMoca.js';
-
-
     export default {
         name: 'quick-log',
         props: ['project'],
-        mixins: [HasMoca],
         data () { return {
             logPrimitive: this.newLogPrimitive(),
             editing: false

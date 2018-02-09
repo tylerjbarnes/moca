@@ -4,13 +4,13 @@
         <div class="card-content">
 
             <!-- Header -->
-            <header>
-                <!-- <div class="avatar">
+            <header @click="toggle" :class="{expanded}">
+                <div class="avatar">
                     <img :src="person.avatar">
                     <transition name="scale">
                         <div class="online-dot" v-if="person.online"></div>
                     </transition>
-                </div> -->
+                </div>
                 <div class="titles">
                     <p class="title">{{ person.name }}</p>
                     <div class="subtitle">
@@ -21,7 +21,7 @@
                     </div>
                 </div>
                 <template v-if="person.role == 'client'">
-                    <!-- <div class="blurbs">
+                    <div class="blurbs">
                         <div class="blurb">
                             <label>Balance</label>
                             <span :class="{negative: person.balance < 0}">{{ person.balance | hours }}</span>
@@ -34,44 +34,46 @@
                             <label>Available</label>
                             <span :class="{negative: person.hoursAvailable < 0}">{{ person.hoursAvailable | hours }}</span>
                         </div>
-                    </div> -->
+                    </div>
                 </template>
             </header>
 
-            <!-- Members -->
-            <template v-if="person.role != 'client'">
-                <template v-if="person.projectsAssigned && person.activeProjectsAssigned.length">
-                    <h2 class="collection-title" v-if="person.canManage">Assigned</h2>
-                    <project-collection :projects="filterProjects(person.activeProjectsAssigned)" :person="person"></project-collection>
-                </template>
-                <template v-if="person.canManage">
-                    <h2 class="collection-title">Managing</h2>
-                    <project-collection :projects="filterProjects(person.activeProjectsManaged)" :kanban="true" :person="person"></project-collection>
-                </template>
-                <!-- <template v-if="!person.canManage && !person.activeProjectsAssigned.length">
-                    <div class="actions">
-                        <button class="button" @click="archivePerson">Archive Contractor</button>
-                    </div>
-                </template> -->
-            </template>
-
-            <!-- Clients -->
-            <template v-else>
-                <template v-if="person.activeProjectsOwned.length">
-                    <h2 class="collection-title">{{ person.activeProjectsOwned.length }} Active Projects</h2>
-                    <project-collection :projects="filterProjects(person.activeProjectsOwned)" :kanban="true" :person="person"></project-collection>
+            <template v-if="expanded">
+                <!-- Members -->
+                <template v-if="person.role != 'client'">
+                    <template v-if="person.projectsAssigned && person.projectsAssigned.length">
+                        <h2 class="collection-title" v-if="person.canManage">Assigned</h2>
+                        <project-collection :projects="filterProjects(person.projectsAssigned)" :person="person"></project-collection>
+                    </template>
+                    <template v-if="person.canManage">
+                        <h2 class="collection-title">Managing</h2>
+                        <project-collection :projects="filterProjects(person.projectsManaged)" :kanban="true" :person="person"></project-collection>
+                    </template>
+                    <template v-if="!person.canManage && !person.projectsAssigned.length">
+                        <div class="actions">
+                            <button class="button" @click="archivePerson">Archive Contractor</button>
+                        </div>
+                    </template>
                 </template>
 
-                <!-- <h2 class="collection-title">Files</h2>
-                <button class="button primary">Add File</button> -->
+                <!-- Clients -->
+                <template v-else>
+                    <template v-if="person.projects.length">
+                        <h2 class="collection-title">{{ person.projects.length }} Active Projects</h2>
+                        <project-collection :projects="filterProjects(person.projects)" :kanban="true" :person="person"></project-collection>
+                    </template>
 
-                <!-- <template v-if="!person.activeProjectsOwned.length">
-                    <div class="actions">
-                        <button class="button" @click="archivePerson">Archive Client</button>
-                    </div>
-                </template> -->
+                    <template v-if="!person.projects.length">
+                        <div class="actions">
+                            <button class="button" @click="archivePerson">Archive Client</button>
+                        </div>
+                    </template>
 
-                <!-- <files-view :client="person"></files-view> -->
+                    <h2 class="collection-title">Files</h2>
+                    <button class="button primary">Add File</button>
+                    <files-view :client="person"></files-view>
+
+                </template>
             </template>
 
         </div>
@@ -90,6 +92,7 @@
         name: 'person-panel',
         props: ['person'],
         data () { return {
+            expanded: false,
             mode: 'projects',
             draftResource: null,
             showFiles: false
@@ -100,8 +103,7 @@
             },
             subtitle () {
                 return this.person.role == 'client' ?
-                    // this.person.expirationDescription :
-                    'not implemented' :
+                    this.person.expirationDescription :
                     capitalizeFirstLetter(this.person.role);
             }
         },
@@ -113,6 +115,9 @@
             },
             archivePerson () {
                 this.person.archive();
+            },
+            toggle () {
+                this.expanded = !this.expanded;
             }
         },
         components: {ProjectCollection, ResourceView, FilesView},
@@ -128,7 +133,7 @@
     .person-panel {
         border-radius: 5px;
         box-shadow: 0px 0px 15px 0px $gray;
-        margin: 40px 40px 0 40px;
+        margin: 20px 40px 0 40px;
         max-width: 800px;
         width: 100%;
 
@@ -136,10 +141,13 @@
 
             & > header {
                 align-items: center;
-                border-bottom: 1px solid $light;
                 display: flex;
-                margin-bottom: 20px;
-                padding-bottom: 20px;
+
+                &.expanded {
+                    border-bottom: 1px solid $light;
+                    margin-bottom: 20px;
+                    padding-bottom: 20px;
+                }
 
                 .avatar {
                     flex: 0 0 50px;
@@ -245,6 +253,9 @@
             .collection-title {
                 font-weight: 700;
                 padding: 10px 0;
+                &:not(:first-of-type) {
+                    margin-top: 20px;
+                }
             }
 
             .actions {

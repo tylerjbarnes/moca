@@ -9,7 +9,7 @@ class MocaMutationSet {
         this.id = id;
         this.delta = delta;
 
-        this.authorId = store.state.user.id;
+        this.authorId = store.getters.user.id;
     }
 
     commit () {

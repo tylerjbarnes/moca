@@ -1,9 +1,14 @@
-import VueRouter from 'vue-router';
-import TeamView from './components/TeamView.vue';
-import ProjectsView from './components/ProjectsView.vue';
 import ArchiveView from './components/ArchiveView.vue';
+import ClientsView from './components/ClientsView.vue';
 import Inbox from './components/Inbox.vue';
+import ProfileEditor from './components/ProfileEditor.vue';
 import ProjectCard from './components/ProjectCard.vue';
+import ProjectEditor from './components/ProjectEditor.vue';
+import ProjectsView from './components/ProjectsView.vue';
+import ProjectView from './components/ProjectView.vue';
+import TeamView from './components/TeamView.vue';
+import TimeView from './components/TimeView.vue';
+import VueRouter from 'vue-router';
 
 const routes = [
         {
@@ -25,29 +30,29 @@ const routes = [
         {
             path: '/clients',
             name: 'clients',
-            component: require('./components/ClientsView.vue')
+            component: ClientsView
         },
         {
             path: '/time',
             name: 'time',
-            component: require('./components/TimeView.vue')
+            component: TimeView
         },
         {
             path: '/archive',
             name: 'archive',
-            component: require('./components/ArchiveView.vue')
+            component: ArchiveView
         },
         {
             path: '/profile',
             name: 'profile',
-            component: require('./components/ProfileEditor.vue')
+            component: ProfileEditor
         },
         {
             path: '/team/new-project',
             name: 'team-new-project',
             components: {
                 default: TeamView,
-                modal: require('./components/ProjectEditor.vue')
+                modal: ProjectEditor
             },
             props: {
                 default: false,
@@ -58,8 +63,8 @@ const routes = [
             path: '/clients/new-project',
             name: 'clients-new-project',
             components: {
-                default: require('./components/ClientsView.vue'),
-                modal: require('./components/ProjectEditor.vue')
+                default: ClientsView,
+                modal: ProjectEditor
             },
             props: {
                 default: false,
@@ -71,7 +76,7 @@ const routes = [
             name: 'team-project-editor',
             components: {
                 default: TeamView,
-                modal: require('./components/ProjectEditor.vue')
+                modal: ProjectEditor
             },
             props: {
                 default: false,
@@ -82,8 +87,8 @@ const routes = [
             path: '/clients/project-editor/:id',
             name: 'clients-project-editor',
             components: {
-                default: require('./components/ClientsView.vue'),
-                modal: require('./components/ProjectEditor.vue')
+                default: ClientsView,
+                modal: ProjectEditor
             },
             props: {
                 default: false,
@@ -95,7 +100,7 @@ const routes = [
             name: 'projects-project',
             components: {
                 default: ProjectsView,
-                modal: require('./components/ProjectView.vue')
+                modal: ProjectView
             },
             props: {
                 default: false,
@@ -107,7 +112,7 @@ const routes = [
             name: 'inbox-project',
             components: {
                 default: Inbox,
-                modal: require('./components/ProjectView.vue')
+                modal: ProjectView
             },
             props: {
                 default: false,
@@ -119,7 +124,7 @@ const routes = [
             name: 'team-project',
             components: {
                 default: TeamView,
-                modal: require('./components/ProjectView.vue')
+                modal: ProjectView
             },
             props: {
                 default: false,
@@ -130,8 +135,8 @@ const routes = [
             path: '/clients/:id',
             name: 'clients-project',
             components: {
-                default: require('./components/ClientsView.vue'),
-                modal: require('./components/ProjectView.vue')
+                default: ClientsView,
+                modal: ProjectView
             },
             props: {
                 default: false,
@@ -143,7 +148,7 @@ const routes = [
             name: 'archive-project',
             components: {
                 default: ArchiveView,
-                modal: require('./components/ProjectView.vue')
+                modal: ProjectView
             },
             props: {
                 default: false,

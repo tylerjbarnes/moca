@@ -9,7 +9,7 @@ import lodash from 'lodash'; window.lodash = lodash;
 import fuzzy from 'fuzzy'; window.fuzzy = fuzzy;
 import cuid from 'cuid'; window.cuid = cuid;
 import Period from './period.js'; window.currentPeriod = new Period();
-import CeriIcon from 'ceri-icon'; window.customElements.define("ceri-icon", CeriIcon);
+window.customElements.define("ceri-icon", require('ceri-icon'));
 
 // Vue & Plugins
 import Vue from 'vue'; window.Vue = Vue;
@@ -25,12 +25,39 @@ import MocaPusher from './pusher.js';
 import Dexie from 'dexie';
 window.bus = new Vue();
 
+// Global Mixin
+Vue.mixin({
+    data () { return {
+        ready: false
+    }},
+    computed: {
+        route () {
+            return this.$store.getters.route;
+        },
+        user () {
+            return this.$store.getters.user;
+        }
+    },
+    created () {
+        if (this.fetch) {
+            let fetchPromises = this.fetch.map(x => store.dispatch('fetch', x));
+            Promise.all(fetchPromises).then(() => {
+                this.ready = true;
+                this.onReady && this.onReady();
+            });
+        } else {
+            this.ready = true;
+            this.onReady && this.onReady();
+        }
+    }
+});
+
 // Define App
 window.moca = new Vue({
-  el: '#app',
-  render: mocaUserRole == "client" ? h => h(ClientApp) : h => h(App),
-  router,
-  store
+    el: '#app',
+    render: mocaUserRole == "client" ? h => h(ClientApp) : h => h(App),
+    router,
+    store
 });
 
 if (mocaUserRole == 'client') {
@@ -74,14 +101,13 @@ if (mocaUserRole == 'client') {
 
     // ... Then Set Up Store & Emit Ready Signal
     initLocalDb().then(() => {
-        store.dispatch('loadAppState');
-        store.dispatch('setUser', currentUserWpId);
+        store.dispatch('initialize', currentUserWpId);
         // store.dispatch('setLastMutationId', data.last_mutation_id);
-        window.pusher = new MocaPusher();
-        getMocaMutations().then((mutationData) => {
-            store.dispatch('importMutations', mutationData);
-            bus.$emit('storeLoaded');
-        });
+        // window.pusher = new MocaPusher();
+        // getMocaMutations().then((mutationData) => {
+        //     store.dispatch('importMutations', mutationData);
+        //     bus.$emit('storeLoaded');
+        // });
     });
 
 
