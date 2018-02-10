@@ -103,7 +103,7 @@ if (mocaUserRole == 'client') {
     initLocalDb().then(() => {
         store.dispatch('initialize', currentUserWpId);
         // store.dispatch('setLastMutationId', data.last_mutation_id);
-        // window.pusher = new MocaPusher();
+        window.pusher = new MocaPusher();
         // getMocaMutations().then((mutationData) => {
         //     store.dispatch('importMutations', mutationData);
         //     bus.$emit('storeLoaded');

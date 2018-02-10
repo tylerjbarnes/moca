@@ -38,14 +38,14 @@ class MocaPusher {
         let me = this;
         this.presenceChannel.bind('pusher:subscription_succeeded', () => {
             me.presenceChannel.members.each(member => {
-                // store.getters.person(member.id).online = true; // @TODO
+                store.dispatch('updatePresence', {id: member.id, online: true});
             });
         });
         this.presenceChannel.bind('pusher:member_added', member => {
-            // store.getters.person(member.id).online = true; // @TODO
+            store.dispatch('updatePresence', {id: member.id, online: true});
         });
         this.presenceChannel.bind('pusher:member_removed', member => {
-            // store.getters.person(member.id).online = false; // @TODO
+            store.dispatch('updatePresence', {id: member.id, online: false});
         });
     }
 

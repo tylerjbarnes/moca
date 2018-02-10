@@ -47,6 +47,7 @@ const state = {
             workerId: null
         }
     },
+    presence: [],
     route: { view: null, item: null },
     lastMutationId: 0,
     buffer: {
@@ -150,7 +151,7 @@ const getters = {
     timesInPeriod: (state, getters) => _.orderBy(getters.buffer('timesInPeriod'), 'date', 'desc'),
 
     // other
-    online: (state, getters) => (id) => true, // @TODO
+    online: (state, getters) => (id) => state.presence.includes(id),
     route: (state, getters) => store.state.route,
 
 };
@@ -214,6 +215,8 @@ const mutations = {
             }
         }
     },
+
+    updatePresence(state, {id, online}) { online ? state.presence.push(id) : state.presence = state.presence.filter(x => x != id); },
 
     cleanup(state, primitiveIds) {
         for (let bufferName in buffers) {
@@ -578,6 +581,7 @@ const actions = {
         });
     },
     updateRoute (context, route) { context.commit('updateRoute', route); },
+    updatePresence (context, {id, online}) { context.commit('updatePresence', {id, online}); },
     // ready (context) { context.commit('ready'); }
 
     setSearchTerm (context, searchTerm) {  },
