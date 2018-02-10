@@ -183,8 +183,9 @@ const mutations = {
                 let buffer = buffers[bufferName];
 
                 if (buffer.watch && buffer.watch[mutation.object_type]) {
-                    buffer.watch[mutation.object_type](mutation);
+                    buffer.watch[mutation.object_type](primitive, mutation);
                 }
+
                 if (buffer.primitiveType != mutation.object_type) continue;
 
                 let objectIndex = _.findIndex(state.buffer[bufferName], (o) => o.id == mutation.object_id);
@@ -212,6 +213,30 @@ const mutations = {
                         }
                 }
 
+            }
+        }
+    },
+
+    updateBufferForObjects(state, data) {
+        for (let type of ['messages', 'resources']) {
+            let primitives = data[type];
+            for (let primitive of primitives) {
+                for (let bufferName in buffers) {
+                    let buffer = buffers[bufferName];
+
+                    if (buffer.watch && buffer.watch[type]) {
+                        buffer.watch[type](primitive, null);
+                    }
+
+                    if (buffer.primitiveType != type) continue;
+
+                    let objectIndex = _.findIndex(state.buffer[bufferName], (o) => o.id == primitive.id);
+                    if (buffer.shouldContain && buffer.shouldContain(primitive)) {
+                        // add
+                        let object = MocaFactory.constructObject(buffer.primitiveType, primitive);
+                        state.buffer[bufferName] && state.buffer[bufferName].push(object);
+                    }
+                }
             }
         }
     },
@@ -288,10 +313,12 @@ const buffers = {
             });
         }),
         watch: {
-            message: (mutation) => {
+            message: (primitive, mutation) => {
                 if (
-                    mutation.action == 'update' && mutation.property_name == 'resolved' ||
-                    mutation.action != 'update'
+                    mutation && (
+                        mutation.action == 'update' && mutation.property_name == 'resolved' ||
+                        mutation.action != 'update'
+                    )
                 ) {
                     store.dispatch('fetch', {bufferName: 'projectsWithUnresolvedMessages', force: true});
                 }
@@ -311,10 +338,12 @@ const buffers = {
             });
         }),
         watch: {
-            time: (mutation) => {
+            time: (primitive, mutation) => {
                 if (
-                    mutation.action == 'update' && mutation.property_name == 'date' ||
-                    mutation.action != 'update'
+                    mutation && (
+                        mutation.action == 'update' && mutation.property_name == 'date' ||
+                        mutation.action != 'update'
+                    )
                 ) {
                     store.dispatch('fetch', {bufferName: 'projectsForTimesInPeriod', force: true });
                 }
@@ -368,10 +397,12 @@ const buffers = {
             });
         }),
         watch: {
-            time: (mutation) => {
+            time: (primitive, mutation) => {
                 if (
-                    mutation.action == 'update' && mutation.property_name == 'hours' ||
-                    mutation.action != 'update'
+                    mutation && (
+                        mutation.action == 'update' && mutation.property_name == 'hours' ||
+                        mutation.action != 'update'
+                    )
                 ) {
                     store.dispatch('fetch', {bufferName: 'balances', force: true});
                 }
@@ -440,7 +471,8 @@ const actions = {
                     // update buffers
                     context.commit('updateBuffer', {mutations, primitives});
 
-                    // sync
+                    // sync up
+                    hpmAPI('mutate', [mutations, pusher.socket_id]).then(response => { console.log(response); });
 
                 });
 
@@ -449,6 +481,27 @@ const actions = {
     },
 
     importMutations (context, data) {
+        let mutations = data.mutations;
+
+        // save mutations to IndexedDB
+        Mocadex.saveMutations(mutations).then(() => {
+
+            // fetch primitives
+            let primitivePromises = [];
+            for (let mutation of mutations) {
+                primitivePromises.push(
+                    Mocadex.getPrimitive(mutation.object_type, mutation.object_id)
+                );
+            }
+            Promise.all(primitivePromises)
+                .then(primitives => {
+
+                    // update buffers
+                    context.commit('updateBuffer', {mutations, primitives});
+
+                });
+
+        });
 
     },
 
@@ -456,23 +509,13 @@ const actions = {
 
     gainObject (context, object) {
 
-        // hpmAPI('object_dependents', [object.object_type, object.object_id]).then(data => {
-        //     console.log('Gained Object Dependents', data);
-        //
-        //     // Add to Local Store
-        //     context.commit('importObjects', data);
-        //
-        //     // Add to IndexedDB
-        //     for (let type of [
-        //         'message',
-        //         'resource'
-        //     ]) {
-        //         for (let primitive of data[type + 's']) {
-        //             forager.setObject(type, primitive.id, primitive);
-        //         }
-        //     }
-        //
-        // });
+        hpmAPI('object_dependents', [object.object_type, object.object_id]).then(data => {
+            console.log('Gained Object Dependents', data);
+            store.dispatch('importObjects', {data, reset: false}).then(() => {
+                context.commit('updateBufferForObjects', data);
+            });
+
+        });
 
     },
 
@@ -498,13 +541,15 @@ const actions = {
 
     // Static Objects
 
-    importObjects (context, data) {
-        db.messages.where('id').notEqual('0').delete();
-        db.packages.where('id').notEqual('0').delete();
-        db.persons.where('id').notEqual('0').delete();
-        db.projects.where('id').notEqual('0').delete();
-        db.resources.where('id').notEqual('0').delete();
-        db.times.where('id').notEqual('0').delete();
+    importObjects (context, {data, reset}) {
+        if (reset) {
+            db.messages.where('id').notEqual('0').delete();
+            db.packages.where('id').notEqual('0').delete();
+            db.persons.where('id').notEqual('0').delete();
+            db.projects.where('id').notEqual('0').delete();
+            db.resources.where('id').notEqual('0').delete();
+            db.times.where('id').notEqual('0').delete();
+        }
         data.messages && db.messages.bulkAdd(data.messages.map(x => typifyForIdb(x)));
         data.packages && db.packages.bulkAdd(data.packages.map(x => typifyForIdb(x)));
         data.persons && db.persons.bulkAdd(data.persons.map(x => typifyForIdb(x)));
@@ -582,13 +627,6 @@ const actions = {
     },
     updateRoute (context, route) { context.commit('updateRoute', route); },
     updatePresence (context, {id, online}) { context.commit('updatePresence', {id, online}); },
-    // ready (context) { context.commit('ready'); }
-
-    setSearchTerm (context, searchTerm) {  },
-    // setUiFilter (context, filterData) { },
-    // setUser (context, wpId) { },
-    // updateRoute (context, route) { },
-    ready (context) { }
 
 };
 

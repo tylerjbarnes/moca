@@ -10,9 +10,9 @@
             </template>
         </template>
         <template v-else>
-            <h1 class="title">Active</h1>
+            <h1 class="title" v-if="activeProjects.length">Active</h1>
             <project-collection :fluid="true" :projects="activeProjects"></project-collection>
-            <h1 class="title">Pending Approval</h1>
+            <h1 class="title" v-if="pendingProjects.length">Pending Approval</h1>
             <project-collection :fluid="true" :projects="pendingProjects"></project-collection>
         </template>
     </div>

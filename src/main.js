@@ -90,7 +90,7 @@ if (mocaUserRole == 'client') {
                 let remoteLoad = forceRemoteLoad || !exists;
                 console.log(remoteLoad ? 'Importing from remote DB' : 'Local DB already exists');
                 remoteLoad ?
-                    hpmAPI('objects').then(data => { store.dispatch('importObjects', data); resolve(); }) :
+                    hpmAPI('objects').then(data => { store.dispatch('importObjects', {data, reset: true}); resolve(); }) :
                     resolve();
             });
         });
