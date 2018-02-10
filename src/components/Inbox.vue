@@ -107,7 +107,7 @@
             clientItems () {
                 let clients = store.getters.expiredClients;
                 // return clients.map(client => ({type: 'client', object: client, time: client.lastPackage.time.date}));
-                return clients.map(client => ({type: 'client', object: client, time: client.lastPackage.time ? client.lastPackage.time.expiration_date : null})); // @TODO - only needed for bad data
+                return clients.map(client => ({type: 'client', object: client, time: client.lastPackage.expiration_date})); // @TODO - only needed for bad data
             },
             items () {
                 return _.orderBy([...this.projectItems, ...this.timeItems, ...this.clientItems], 'time', 'desc');
