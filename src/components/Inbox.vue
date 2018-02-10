@@ -195,7 +195,13 @@
             }
         },
         watch: {
-            items: function(val) { bus.$emit('updateInboxItems', val) } // @TODO - hacky crap
+            items: function(val) {
+                bus.$emit('updateInboxItems', val);
+                this.select(this.items[this.selectedIndex]);
+            }, // @TODO - hacky crap
+            selectedIndex: function(val) { // more hacky crap
+                this.select(this.items[val]);
+            }
         },
         mounted () {
              bus.$emit('updateInboxItems', this.items);
