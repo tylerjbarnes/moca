@@ -1,5 +1,21 @@
 <template>
     <div id="toolbar">
+        <template v-if="!route.view">
+            <div class="blurbs">
+                <div class="blurb">
+                    <span>Conversations</span>
+                    <span class="count">{{ countInboxItemsOfType('project') }}</span>
+                </div>
+                <div class="blurb">
+                    <span>Expirations</span>
+                    <span class="count">{{ countInboxItemsOfType('client') }}</span>
+                </div>
+                <div class="blurb" v-if="$store.getters.user.canManage">
+                    <span>Pending Times</span>
+                    <span class="count">{{ countInboxItemsOfType('time') }}</span>
+                </div>
+            </div>
+        </template>
         <template v-if="route.view == 'archive'">
             <person-input class="archive-client" v-model="archiveClientFilter" :roles="['client']"></person-input>
         </template>
@@ -57,6 +73,9 @@
         name: 'toolbar',
         props: ['person'],
         components: {DateInput,PersonInput,PeriodInput},
+        data () { return {
+            inboxItems: []
+        }},
         computed: {
             filters () {
                 return this.$store.state.uiFilters.projects;
@@ -91,7 +110,13 @@
             },
             signout () {
                 window.location.replace('/wp-login.php?action=logout');
+            },
+            countInboxItemsOfType(type) {
+                return this.inboxItems.filter(x => x.type == type).length;
             }
+        },
+        mounted () {
+            bus.$on('updateInboxItems', (items) => { this.inboxItems = items; } );
         }
     }
 </script>
@@ -194,17 +219,25 @@
                 align-items: center;
                 display: flex;
                 flex-flow: column;
+                padding: 0 10px;
 
                 &:not(:first-of-type) {
                     margin-left: 10px;
                 }
 
-                > span {
+                span {
                     color: $medium;
                     font-size: 0.75em;
                     font-weight: 700;
                     padding-bottom: 4px;
                     text-transform: uppercase;
+
+                }
+
+                span.count {
+                    color: $dark;
+                    font-size: 1.2em;
+                    font-weight: 300;
 
                 }
 

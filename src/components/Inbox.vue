@@ -193,6 +193,12 @@
             expirePackage () {
                 this.selected.object.lastPackage.expire();
             }
+        },
+        watch: {
+            items: function(val) { bus.$emit('updateInboxItems', val) } // @TODO - hacky crap
+        },
+        mounted () {
+             bus.$emit('updateInboxItems', this.items);
         }
     }
 

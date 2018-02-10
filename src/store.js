@@ -56,6 +56,7 @@ const state = {
 
         // persons
         activePersons: null,
+        archivedPersons: null,
 
         // projects
         activeProjects: null,
@@ -113,6 +114,7 @@ const getters = {
     packagesByClient: (state, getters) => (id) => getters.buffer('packages').filter(x => x.client_id == id),
 
     // persons
+    archivedPersons: (state, getters) => _.orderBy(getters.buffer('archivedPersons'), 'name'),
     clients: (state, getters) => _.orderBy(getters.buffer('activePersons').filter(x => x.role == 'client'), 'name'),
     members: (state, getters) => _.orderBy(getters.buffer('activePersons').filter(x => x.role != 'client'), 'name'),
     person: (state, getters) => (id) => getters.buffer('activePersons', true, id) || getters.buffer('archivedPersons', true, id),
@@ -254,17 +256,13 @@ const buffers = {
     },
 
     // projects
-
-    // about to ipmplement archivedProjects as a fuzzy searched set of 20ish
-
-
     archivedProjects: {
         primitiveType: 'project',
         fetch: () => new Promise(function(resolve, reject) {
             let clientFilter = store.state.uiFilters.archive.clientId;
             clientFilter ?
                 db.projects.orderBy('start').reverse().and(x => x.archived && x.client_id == clientFilter).toArray().then(primitives => { resolve(primitives); }) :
-                db.projects.orderBy('start').reverse().and(x => x.archived).limit(40).toArray().then(primitives => { resolve(primitives); });
+                db.projects.orderBy('start').reverse().and(x => x.archived && (store.getters.user.canManage ? true : x.contractor_id == store.getters.user.id)).limit(40).toArray().then(primitives => { resolve(primitives); });
         }),
         shouldContain: (primitive) => primitive.archived
     },
