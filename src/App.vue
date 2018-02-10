@@ -139,7 +139,7 @@
 
                     &.is-active {
                         background: inherit;
-                        color: inherit;
+                        color: $medium-dark;
                         &:hover {
                             background: $light;
                         }
