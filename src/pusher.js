@@ -21,7 +21,7 @@ class MocaPusher {
         this.bindPresenceEvents();
         this.bindMutationEvents();
         this.bindStateEvents();
-        this.bindSyncEvents();
+        // this.bindSyncEvents();
     }
 
     subscribeToChannels () {
@@ -50,23 +50,26 @@ class MocaPusher {
     }
 
     bindMutationEvents () {
-        this.pusher.bind('mutate', mutations => {
-            store.dispatch('importMutations', mutations);
+        this.pusher.bind('mutate', datetime => {
+            store.dispatch('pullMutations');
         });
     }
 
-    bindSyncEvents () {
-        this.pusher.bind('gain', object => {
-            store.dispatch('gainObject', object);
-        });
-        this.pusher.bind('lose', object => {
-            store.dispatch('loseObject', object);
-        });
-    }
+    // bindSyncEvents () {
+    //     this.pusher.bind('gain', object => {
+    //         store.dispatch('gainObject', object);
+    //     });
+    //     this.pusher.bind('lose', object => {
+    //         store.dispatch('loseObject', object);
+    //     });
+    // }
 
     bindStateEvents () {
         this.pusher.connection.bind('state_change', states => {
             console.log('Pusher State Changed: ' + states.current);
+            // if (states.current == 'connected') {
+            //     store.dispatch('exportMutations');
+            // }
         });
     }
 

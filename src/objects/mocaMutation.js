@@ -7,7 +7,7 @@ class MocaMutation {
         this.object_id = objectId;
         this.property_name = propertyName;
         this.property_value = propertyValue;
-
+        
         this.author_id = store.getters.user.id;
     }
 

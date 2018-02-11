@@ -153,6 +153,10 @@ function hpm_typify_data_from_db( $data ) {
                     break;
                 case 'content':
                 case 'property_value':
+                    if (is_object($value)) {
+                        $typified->$key = hpm_typify_data_from_db( $value );
+                        break;
+                    }
                     $first_char = substr($value, 0, 1);
                     if ( $first_char === '{' || $first_char === '[' ) {
                         $typified->$key = hpm_typify_data_from_db( json_decode( $value ) );

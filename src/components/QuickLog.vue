@@ -34,7 +34,7 @@
                     client_id: this.project.client ? this.project.client.id : null,
                     cycle: this.project.cycle,
                     project_id: this.project.id,
-                    // worker_id: this.user.id @TODO
+                    worker_id: store.getters.user.id
                 })
             },
             resetPrimitive () {

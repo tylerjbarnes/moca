@@ -33,7 +33,7 @@
         computed: {
             messages () {
                 // return this.project.messages.reverse();
-                return this.project.messages.slice().reverse();
+                return this.project.messages;
             },
             content () {
                 return this.messagePrimitive.content;

@@ -71,8 +71,15 @@ window.debounce = (func, wait, immediate) => {
 };
 
 window.booleanToBinary = (val) => {
-    if (val === true) return 1;
-    if (val === false) return 0;
+    let originalVal = val;
+    if (val === true || val === "true") return 1;
+    if (val === false || val === "false") return 0;
+    if (val instanceof Object) {
+        for (let prop in val) {
+            if (val[prop] === true || val === "true") val[prop] = 1;
+            if (val[prop] === false || val === "false") val[prop] = 0;
+        }
+    }
     return val;
 }
 

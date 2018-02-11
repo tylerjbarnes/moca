@@ -15,10 +15,10 @@
             }">
                 <div class="markup" v-html="markup"></div>
                 <span class="resolve" @click="resolveMessage" :class="{off: !message.userCanResolve}">
-                    <ceri-icon name="fa-check" size="12" hcenter></ceri-icon>
+                    <!-- <ceri-icon name="fa-check" size="12" hcenter></ceri-icon> -->
                 </span>
                 <span class="resolved" v-if="message.author.canManage == $store.getters.user.canManage && message.resolved">
-                    <ceri-icon name="fa-check" size="10" hcenter></ceri-icon>
+                    <!-- <ceri-icon name="fa-check" size="10" hcenter></ceri-icon> -->
                 </span>
             </div>
         </div>

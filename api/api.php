@@ -24,7 +24,7 @@ function hpm_api_objects() {
     $response->times = hpm_objects('time');
 
     $user_id = hpm_user_id();
-    $response->last_mutation_id = ((array) hpm_last_mutation_ids())[$user_id];
+    $response->last_mutation_time = gmdate("Y-m-d H:i:s");
 
     return $response;
 
@@ -156,7 +156,7 @@ function hpm_last_mutation_id () {
  * @param  integer $last_mutation_id
  * @return Object  mutations & new last id
  */
-function hpm_api_mutations ( $last_mutation_id = 0 ) {
+function hpm_api_mutations ( $since = NULL ) {
 
     global $wpdb;
     $table = $wpdb->prefix . 'hpm_mutations';
@@ -169,59 +169,87 @@ function hpm_api_mutations ( $last_mutation_id = 0 ) {
     // Limit Access for Contractors
     $where = 'WHERE 1 = 1';
     $user_id = hpm_user_id();
-    if ( hpm_user_role() == 'contractor' ) {
-        $where = "JOIN (
-            # object id for MPRT associated by project
-            SELECT object_id
-            FROM (
-                # object_id -> contractor_id for messages, projects, resources
-            	SELECT object_id, contractor_id
-                FROM (
-                    # object_id -> project_id for messages, projects, resources
-                    SELECT id object_id, project_id FROM $messages_table
-                    UNION ALL
-                    SELECT id object_id, id project_id FROM $projects_table
-                    UNION ALL
-                    SELECT id object_id, project_id FROM $resources_table
-                ) mesProjRes
-                LEFT JOIN (
-                    SELECT id, contractor_id
-                    FROM $projects_table
-                ) mprProj on mesProjRes.project_id = mprProj.id
-
-                UNION ALL
-
-                # object_id -> contractor_id for times
-                SELECT id object_id, worker_id contractor_id FROM $times_table
-            ) associated
-            WHERE contractor_id = '$user_id'
-
-            UNION ALL
-
-            # object id for all persons
-            SELECT id object_id FROM $persons_table
-
-            UNION ALL
-
-            # object id for all non-project resources
-            SELECT id object_id FROM (
-            	SELECT * FROM $resources_table WHERE project_id IS NULL
-            ) projectlessResources
-
-        ) valid_objects on main.object_id = valid_objects.object_id";
-    }
+    // if ( hpm_user_role() == 'contractor' ) {
+    //     $where = "JOIN (
+    //         # object id for MPRT associated by project
+    //         SELECT object_id
+    //         FROM (
+    //             # object_id -> contractor_id for messages, projects, resources
+    //         	SELECT object_id, contractor_id
+    //             FROM (
+    //                 # object_id -> project_id for messages, projects, resources
+    //                 SELECT id object_id, project_id FROM $messages_table
+    //                 UNION ALL
+    //                 SELECT id object_id, id project_id FROM $projects_table
+    //                 UNION ALL
+    //                 SELECT id object_id, project_id FROM $resources_table
+    //             ) mesProjRes
+    //             LEFT JOIN (
+    //                 SELECT id, contractor_id
+    //                 FROM $projects_table
+    //             ) mprProj on mesProjRes.project_id = mprProj.id
+    //
+    //             UNION ALL
+    //
+    //             # object_id -> contractor_id for times
+    //             SELECT id object_id, worker_id contractor_id FROM $times_table
+    //         ) associated
+    //         WHERE contractor_id = '$user_id'
+    //
+    //         UNION ALL
+    //
+    //         # object id for all persons
+    //         SELECT id object_id FROM $persons_table
+    //
+    //         UNION ALL
+    //
+    //         # object id for all non-project resources
+    //         SELECT id object_id FROM (
+    //         	SELECT * FROM $resources_table WHERE project_id IS NULL
+    //         ) projectlessResources
+    //
+    //     ) valid_objects on main.object_id = valid_objects.object_id";
+    // }
 
     // Get Rows from DB
-    $results = $wpdb->get_results( "SELECT * FROM $table main $where AND main.id > $last_mutation_id" );
+    // error_log( "SELECT * FROM $table main $where AND main.datetime > '$since'" );
+    $results = $wpdb->get_results( "SELECT * FROM $table main $where AND main.datetime >= '$since'" );
+
+    // Limit Access for Contractors
+    if ( hpm_user_role() == 'contractor' ) {
+        $results = array_filter($results, function( $result ) {
+            switch ($result->object_type) {
+                case 'time':
+                    $time = hpm_object('time', $result->object_id );
+                    return $time->contractor_id == hpm_user_id();
+                case 'resource':
+                case 'message':
+                    $object = hpm_object( $result->object_type, $result->object_id );
+                    if (!$object->project_id) break;
+                    $project = hpm_object('project', $object->project_id );
+                    return $project->contractor_id == hpm_user_id();
+                default:
+                    return true;
+            }
+        });
+    }
 
     // Typify Mutations
     $mutations = array_map(function($row){
         return hpm_typify_data_from_db( $row );
-    }, $results);
+    }, array_values( $results ) );
+
+    // $last_mutation_time = max(
+    //     array_values(array_map(function($mutation) {
+    //         return $mutation->datetime;
+    //     }, $mutations))
+    // );
+    $last_sync = $wpdb->get_var( "SELECT datetime FROM $table ORDER BY datetime DESC LIMIT 1" );
 
     $response = new stdClass();
     $response->mutations = $mutations;
-    $response->mutation_id = hpm_last_mutation_id();
+    $response->last_sync = $last_sync;
+    // $response->last_mutation_time = gmdate("Y-m-d H:i:s");
     return $response;
 
 }
@@ -299,15 +327,17 @@ function hpm_api_mutate ( $mutations, $socket_id ) {
     $table = $wpdb->prefix . "hpm_mutations";
     foreach( $mutations as $mutation ) {
         $flattened_mutation = clone $mutation;
-        $flattened_mutation->property_value = json_encode( $flattened_mutation->property_value );
+        $flattened_mutation->property_value = is_string($flattened_mutation->property_value) ? $flattened_mutation->property_value : json_encode( $flattened_mutation->property_value );
+        $flattened_mutation->datetime = gmdate("Y-m-d H:i:s");
         $wpdb->insert( $table, (array) $flattened_mutation, array("%s","%s","%s","%s","%s","%s") );
     }
-    $mutation_id = $wpdb->insert_id;
+    // $mutation_id = $wpdb->insert_id;
 
     // Push Mutations
-    $data = (object) ['mutations' => $mutations, 'mutation_id' => $mutation_id, 'integrity' => hpm_last_mutation_ids()];
+    // $data = (object) ['mutations' => $mutations, 'mutation_id' => $mutation_id, 'integrity' => hpm_last_mutation_ids()];
+    $data = (object) ['datetime' => gmdate("Y-m-d H:i:s")];
     $channels = hpm_channels( $mutations );
-    hpm_set_last_mutation_ids( $channels, $mutation_id );
+    // hpm_set_last_mutation_ids( $channels, $mutation_id );
     $pusher->trigger($channels, 'mutate', $data, $socket_id);
 
     // Apply Mutations
@@ -331,11 +361,11 @@ function hpm_api_mutate ( $mutations, $socket_id ) {
     foreach ( $mutations as $mutation ) {
         if ( $mutation->object_type == 'project' && $mutation->property_name == 'contractor_id' ) {
             if ( $mutation->property_value ) {
-                $pusher->trigger(
-                    'private-contractor-' . $mutation->property_value, 'gain',
-                    (object) ['object_type' => $mutation->object_type, 'object_id' => $mutation->object_id],
-                    $socket_id
-                );
+                // $pusher->trigger(
+                //     'private-contractor-' . $mutation->property_value, 'gain',
+                //     (object) ['object_type' => $mutation->object_type, 'object_id' => $mutation->object_id],
+                //     $socket_id
+                // );
                 hpm_send_project_assigned_notification( $mutation->property_value, $mutation->object_id );
             }
         }
@@ -356,8 +386,9 @@ function hpm_api_mutate ( $mutations, $socket_id ) {
 
     // Respond
     $response = new stdClass();
-    $response->mutation_id = $mutation_id;
-    $response->integrity = $previous_mutation_id;
+    $response->success = true;
+    // $response->mutation_id = $mutation_id;
+    // $response->integrity = $previous_mutation_id;
     return $response;
 
 }

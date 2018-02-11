@@ -19,6 +19,7 @@ import Period from './period.js';
 
 import Dexie from 'dexie';
 import Mocadex from './mocadex.js';
+import Barista from './barista.js';
 
 // prepare the mocadex
 window.db = new Dexie('mocadex');
@@ -28,7 +29,10 @@ db.version(1).stores({
     persons: '&id,&wp_id,archived,role',
     projects: '&id,archived,start',
     resources: '&id,project_id',
-    times: '&id,date,pending,project_id,client_id,type'
+    times: '&id,date,pending,project_id,client_id,type',
+    appliedMutations: '&id',
+    stagedMutations: '&id',
+    ui: '&id'
 });
 
 const state = {
@@ -49,7 +53,8 @@ const state = {
     },
     presence: [],
     route: { view: null, item: null },
-    lastMutationId: 0,
+    lastMutationTime: null,
+    recentMutations: [],
     buffer: {
 
         // packages
@@ -106,7 +111,7 @@ const getters = {
     },
 
     // messages
-    messagesByProject: (state, getters) => (id) => getters.buffer('messagesByProject', false, id),
+    messagesByProject: (state, getters) => (id) => _.orderBy(getters.buffer('messagesByProject', false, id), 'datetime', 'desc'),
     resolvableMessages: (state, getters) => getters.buffer('resolvableMessages'),
     resolvableMessagesByProject: (state, getters) => (id) => getters.resolvableMessages.filter(x => x.project_id == id),
 
@@ -168,16 +173,52 @@ const mutations = {
     setSearchTerm(state, searchTerm) { state.searchTerm = searchTerm; },
     setUiFilter(state, filterData) { state.uiFilters[filterData.type][filterData.name] = filterData.value; },
     setUser(state, id) { state.userId = id; },
-    // setLastMutationId(state, mutationId) { state.lastMutationId = mutationId; },
+    setLastMutationTime(state, datetime) { state.lastMutationTime = datetime; },
+    updateRecentMutations(state, mutations) {
+
+        // add new mutations to recent set
+        for (let mutation of mutations) {
+            if (!_.find(state.recentMutations, x => x.id == mutation.id)) {
+                state.recentMutations.push(mutation);
+                console.log('added to recent mutations: ', mutation);
+            }
+        }
+
+        // clear out mutations older than lastSync
+        let cleanedMutations = [];
+        for (let mutation of state.recentMutations) {
+            if (mutation.datetime >= state.lastMutationTime) {
+                cleanedMutations.push(mutation);
+            } else {
+                console.log('removed from recent mutations: ', mutation);
+            }
+        }
+
+        state.recentMutations = cleanedMutations;
+        localStorage.setItem('mocaRecentMutations', JSON.stringify(state.recentMutations || []));
+
+    },
+    addRecentMutations(state, mutations) {
+        for (let mutation of mutations) {
+            if (!_.find(state.recentMutations, x => x.id == mutation.id)) {
+                state.recentMutations.push(mutation);
+                console.log('added to recent mutations: ', mutation);
+            }
+        }
+        localStorage.setItem('mocaRecentMutations', JSON.stringify(state.recentMutations || []));
+    },
+    loadRecentMutations(state) {
+        state.recentMutations = localStorage.getItem('mocaRecentMutations') ? JSON.parse(localStorage.getItem('mocaRecentMutations')) : [];
+    },
     updateRoute(state, route) { state.route = route; },
     // ready(state) { state.ready = true; }
 
     setBuffer(state, {name, data, id}) { state.buffer[name] = data; buffers[name].id = id; },
 
     updateBuffer(state, {mutations, primitives}) {
+        console.log(mutations, primitives);
         for (let mutation of mutations) {
             let primitive = _.find(primitives, ['id', mutation.object_id]);
-            console.log(mutation.object_type, mutation.property_name, mutation.property_value);
 
             for (let bufferName in buffers) {
                 let buffer = buffers[bufferName];
@@ -239,6 +280,32 @@ const mutations = {
                 }
             }
         }
+    },
+
+    loseProject(state, primitive) { // @TODO
+        // for (let type of ['messages', 'resources']) {
+        //     let primitives = store.getters.project(primitive.id)[type];
+        //     console.log(primitives);
+        //     for (let primitive of primitives) {
+        //         for (let bufferName in buffers) {
+        //             let buffer = buffers[bufferName];
+        //
+        //             if (buffer.primitiveType != type) continue;
+        //
+        //             if (buffer.watch && buffer.watch[type]) {
+        //                 buffer.watch[type](primitive, null);
+        //             }
+        //
+        //             let objectIndex = _.findIndex(state.buffer[bufferName], (o) => o.id == primitive.id);
+        //             if (buffer.shouldContain && buffer.shouldContain(primitive)) {
+        //                 // delete
+        //                 if (objectIndex >= 0) {
+        //                     state.buffer[bufferName].splice(objectIndex, 1);
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
     },
 
     updatePresence(state, {id, online}) { online ? state.presence.push(id) : state.presence = state.presence.filter(x => x != id); },
@@ -453,63 +520,83 @@ window.buffers = buffers; // TEMP
 
 const actions = {
 
-    exportMutations (context, mutations) {
-
-        // save mutations to IndexedDB
-        Mocadex.saveMutations(mutations).then(() => {
-
-            // fetch primitives
-            let primitivePromises = [];
-            for (let mutation of mutations) {
-                primitivePromises.push(
-                    Mocadex.getPrimitive(mutation.object_type, mutation.object_id)
-                );
-            }
-            Promise.all(primitivePromises)
-                .then(primitives => {
-
-                    // update buffers
-                    context.commit('updateBuffer', {mutations, primitives});
-
-                    // sync up
-                    hpmAPI('mutate', [mutations, pusher.socket_id]).then(response => { console.log(response); });
-
-                });
-
+    pushMutations (context, mutations) {
+        Mocadex.applyMutations(mutations, {shouldStage: true}).then(() => {
+            Barista.requestExport();
+        }).catch(error => {
+            console.log(error);
         });
-
     },
 
-    importMutations (context, data) {
-        let mutations = data.mutations;
-
-        // save mutations to IndexedDB
-        Mocadex.saveMutations(mutations).then(() => {
-
-            // fetch primitives
-            let primitivePromises = [];
-            for (let mutation of mutations) {
-                primitivePromises.push(
-                    Mocadex.getPrimitive(mutation.object_type, mutation.object_id)
-                );
-            }
-            Promise.all(primitivePromises)
-                .then(primitives => {
-
-                    // update buffers
-                    context.commit('updateBuffer', {mutations, primitives});
-
-                });
-
-        });
-
+    pullMutations () {
+        Barista.sync();
     },
+
+    // importMutations (context, data) {
+    //
+    //     console.log(data && data.datetime ? ('Push notification at ' + data.datetime) : 'Retrying...');
+    //
+    //     // if (window.syncing) {
+    //     //     console.log('already syncing, delay...');
+    //     //     if (window.syncTimeout) {
+    //     //         clearTimeout(window.syncTimeout);
+    //     //     }
+    //     //     window.syncTimeout = setTimeout(function(){
+    //     //         store.dispatch('importMutations');
+    //     //     }, 1000);
+    //     //     return;
+    //     // }
+    //     // window.syncing = true;
+    //     hpmAPI('mutations', [store.state.lastMutationTime]).then(response => {
+    //
+    //         // filter out recent mutations
+    //         let mutations = response.mutations.filter(x => {
+    //             return !store.state.recentMutations.map(x => x.id).includes(x.id);
+    //         });
+    //
+    //         // save new mutations
+    //         let savePromise = Mocadex.saveMutations(mutations);
+    //         savePromise.then(() => {
+    //
+    //             // update buffers
+    //             let primitivePromises = [];
+    //             for (let mutation of mutations) {
+    //                 primitivePromises.push(
+    //                     Mocadex.getPrimitive(mutation.object_type, mutation.object_id)
+    //                 );
+    //             }
+    //             Promise.all(primitivePromises)
+    //                 .then(primitives => {
+    //                     context.commit('updateBuffer', {mutations, primitives});
+    //                 });
+    //
+    //             // update recent mutations
+    //             context.commit('updateRecentMutations', mutations);
+    //
+    //             // update last sync
+    //             Mocadex.updateLastMutationTime(response.last_mutation_time).then(() => {
+    //                 console.log('set last mutation time', response.last_mutation_time);
+    //                 context.commit('setLastMutationTime', response.last_mutation_time);
+    //                 // window.syncing = false;
+    //                 console.log('done syncing');
+    //             });
+    //
+    //         }, () => {
+    //             console.log('save failed');
+    //         });
+    //
+    //     }, error => {
+    //         // window.syncing = false;
+    //         console.log('failed syncing');
+    //     });
+    //
+    // },
 
     // Object Gain
 
-    gainObject (context, object) {
+    gainProject (context, primitive) {
 
-        hpmAPI('object_dependents', [object.object_type, object.object_id]).then(data => {
+        hpmAPI('object_dependents', ['project', primitive.id]).then(data => {
             console.log('Gained Object Dependents', data);
             store.dispatch('importObjects', {data, reset: false}).then(() => {
                 context.commit('updateBufferForObjects', data);
@@ -519,24 +606,8 @@ const actions = {
 
     },
 
-    loseObject (context, object) {
-
-        // // Only Support Projects for Now
-        // console.log('Losing Access to Project', object);
-        //
-        // // Remove from IndexedDB
-        // for (let type of [
-        //     'message',
-        //     'resource'
-        // ]) {
-        //     for (let primitive of store.state[type + 's'].filter(dep => dep.project_id == object.object_id)) {
-        //         forager.removeObject(type, primitive.id);
-        //     }
-        // }
-        //
-        // // Remove from Local Store
-        // context.commit('loseProject', object.object_id);
-
+    loseProject (context, primitive) {
+        context.commit('loseProject', primitive);
     },
 
     // Static Objects
@@ -549,6 +620,10 @@ const actions = {
             db.projects.where('id').notEqual('0').delete();
             db.resources.where('id').notEqual('0').delete();
             db.times.where('id').notEqual('0').delete();
+            console.log(data);
+            Mocadex.updateLastMutationTime(data.last_mutation_time).then(() => {
+                context.commit('setLastMutationTime', data.last_mutation_time);
+            });
         }
         data.messages && db.messages.bulkAdd(data.messages.map(x => typifyForIdb(x)));
         data.packages && db.packages.bulkAdd(data.packages.map(x => typifyForIdb(x)));
@@ -583,6 +658,10 @@ const actions = {
             context.commit('cleanup', primitiveIds);
             db.messages.bulkDelete(primitiveIds);
         });
+    },
+
+    updateBuffer (context, {mutations, primitives}) {
+        context.commit('updateBuffer', {mutations, primitives});
     },
 
     // Interface
@@ -624,6 +703,14 @@ const actions = {
                 bus.$emit('initialized');
             });
         });
+        Mocadex.getLastMutationTime().then((lastSync) => {
+            context.commit('setLastMutationTime', lastSync ? lastSync.value : null);
+
+            // store.dispatch('importMutations');
+
+        });
+        context.commit('loadRecentMutations');
+        Barista.sync();
     },
     updateRoute (context, route) { context.commit('updateRoute', route); },
     updatePresence (context, {id, online}) { context.commit('updatePresence', {id, online}); },

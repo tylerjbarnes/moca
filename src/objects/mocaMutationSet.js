@@ -25,13 +25,14 @@ class MocaMutationSet {
                 )];
                 if (!mutations.length) { return; }
                 this.notifyProjectOfMutations(mutations);
-                store.dispatch('exportMutations', mutations);
+                store.dispatch('pushMutations', mutations);
                 break;
             case 'update':
                 mutations = [];
                 for (let propertyName of Object.keys(this.delta)) {
                     let object = store.getters.object(this.type, this.id);
-                    if (object[propertyName] != this.delta[propertyName]) {
+                    // if (object[propertyName] != this.delta[propertyName]) {
+                    if (!_.isEqual(object[propertyName], this.delta[propertyName])) {
                         mutations.push(new MocaMutation(
                             'update',
                             this.type,
@@ -43,7 +44,7 @@ class MocaMutationSet {
                 }
                 if (!mutations.length) { return; }
                 this.notifyProjectOfMutations(mutations);
-                store.dispatch('exportMutations', mutations);
+                store.dispatch('pushMutations', mutations);
                 break;
             case 'delete':
                 mutations = [new MocaMutation(
@@ -55,7 +56,7 @@ class MocaMutationSet {
                 )];
                 if (!mutations.length) { return; }
                 this.notifyProjectOfMutations(mutations);
-                store.dispatch('exportMutations', mutations);
+                store.dispatch('pushMutations', mutations);
                 break;
             default: return;
         }
