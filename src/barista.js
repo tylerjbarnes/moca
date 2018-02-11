@@ -29,7 +29,6 @@ class Barista {
 
         // push
         let pushMutations = await Mocadex.getStagedMutations();
-        // console.log('Pushing ' + pushMutations.length);
         if (pushMutations.length) {
             await hpmAPI('mutate', [pushMutations, pusher.socketId]).then(response => {
                 if (!response || !response.success) throw new Error(response && response.error ? response.error : 'No response from server.');
@@ -45,7 +44,6 @@ class Barista {
         // pull
         await hpmAPI('mutations', [this.lastSync]).then(async (response) => {
             if (!response || !response.mutations) throw new Error(response && response.error ? response.error : 'No response from server.');
-            // console.log('Pulling ' + response.mutations.length);
             await Mocadex.applyMutations(response.mutations, {shouldStage: false}).then(async () =>{
                 await this.updateSyncMeta(response.last_sync);
             });

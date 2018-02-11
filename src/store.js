@@ -216,7 +216,6 @@ const mutations = {
     setBuffer(state, {name, data, id}) { state.buffer[name] = data; buffers[name].id = id; },
 
     updateBuffer(state, {mutations, primitives}) {
-        console.log(mutations, primitives);
         for (let mutation of mutations) {
             let primitive = _.find(primitives, ['id', mutation.object_id]);
 
@@ -594,14 +593,12 @@ const actions = {
 
     // Object Gain
 
-    gainProject (context, primitive) {
+    gainProject (context, id) {
 
-        hpmAPI('object_dependents', ['project', primitive.id]).then(data => {
-            console.log('Gained Object Dependents', data);
+        hpmAPI('object_dependents', ['project', id]).then(data => {
             store.dispatch('importObjects', {data, reset: false}).then(() => {
                 context.commit('updateBufferForObjects', data);
             });
-
         });
 
     },
@@ -620,17 +617,16 @@ const actions = {
             db.projects.where('id').notEqual('0').delete();
             db.resources.where('id').notEqual('0').delete();
             db.times.where('id').notEqual('0').delete();
-            console.log(data);
             Mocadex.updateLastMutationTime(data.last_mutation_time).then(() => {
                 context.commit('setLastMutationTime', data.last_mutation_time);
             });
         }
-        data.messages && db.messages.bulkAdd(data.messages.map(x => typifyForIdb(x)));
-        data.packages && db.packages.bulkAdd(data.packages.map(x => typifyForIdb(x)));
-        data.persons && db.persons.bulkAdd(data.persons.map(x => typifyForIdb(x)));
-        data.projects && db.projects.bulkAdd(data.projects.map(x => typifyForIdb(x)));
-        data.resources && db.resources.bulkAdd(data.resources.map(x => typifyForIdb(x)));
-        data.times && db.times.bulkAdd(data.times.map(x => typifyForIdb(x)));
+        data.messages && db.messages.bulkPut(data.messages.map(x => typifyForIdb(x)));
+        data.packages && db.packages.bulkPut(data.packages.map(x => typifyForIdb(x)));
+        data.persons && db.persons.bulkPut(data.persons.map(x => typifyForIdb(x)));
+        data.projects && db.projects.bulkPut(data.projects.map(x => typifyForIdb(x)));
+        data.resources && db.resources.bulkPut(data.resources.map(x => typifyForIdb(x)));
+        data.times && db.times.bulkPut(data.times.map(x => typifyForIdb(x)));
     },
 
     // Fetch & Buffer Management

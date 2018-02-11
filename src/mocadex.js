@@ -45,12 +45,14 @@ class Mocadex {
         return new Promise(function(resolve, reject) {
             db.transaction('rw', db.persons, db.times, db.packages, db.resources, db.messages, db.projects,
             db.appliedMutations, db.stagedMutations, async () => {
-                await Promise.all(mutations.map(x => self.applyMutation(x)));
+                let appliedMutationIds = (await Promise.all(mutations.map(x => self.applyMutation(x)))).filter(x => x !== undefined);
                 await self.logMutationsAsApplied(mutations);
                 if (shouldStage) await self.stageMutations(mutations);
-            }).then(async () => {
-                let mutatedPrimitives = await Promise.all(mutations.map(x => self.getPrimitive(x.object_type, x.object_id)));
-                store.dispatch('updateBuffer', {mutations, primitives: mutatedPrimitives});
+                return appliedMutationIds;
+            }).then(async (appliedMutationIds) => {
+                let appliedMutations = mutations.filter(x => appliedMutationIds.includes(x.id));
+                let mutatedPrimitives = await Promise.all(appliedMutations.map(x => self.getPrimitive(x.object_type, x.object_id)));
+                store.dispatch('updateBuffer', {mutations: appliedMutations, primitives: mutatedPrimitives});
                 resolve();
             }).catch(error => {
                 reject('Failed to Apply - ' + error);
@@ -82,37 +84,29 @@ class Mocadex {
      */
      async applyMutation(mutation) {
         if (await this.mutationAlreadyApplied(mutation)) {
-            // console.log('Skipping duplicate:', mutation);
             return;
         }
         let typifiedVal = typifyForIdb(mutation.property_value);
         switch (mutation.action) {
             case 'create':
-                return new Promise(function(resolve, reject) {
-                    db[mutation.object_type + 's'].add(booleanToBinary(mutation.property_value))
-                        .then(success => {
-                            success? resolve() : console.log(new Error('Dexie create failed.'));
-                        });
-                });
+                await db[mutation.object_type + 's'].add(booleanToBinary(mutation.property_value));
+                return mutation.id;
             case 'update':
+                if (
+                    mutation.object_type == 'project' &&
+                    mutation.property_name == 'contractor_id' &&
+                    mutation.property_value == store.getters.user.id
+                ) {
+                    store.dispatch('gainProject', mutation.object_id);
+                }
                 var preparedVal = booleanToBinary(mutation.property_value);
-                return new Promise(function(resolve, reject) {
-                    db[mutation.object_type + 's'].where('id').equals(mutation.object_id)
-                        .modify({[mutation.property_name]: preparedVal})
-                        .then(success => {
-                            success? resolve() : console.log(new Error('Dexie update failed.'), mutation);
-                        });
-                });
+                await db[mutation.object_type + 's'].where('id').equals(mutation.object_id)
+                    .modify({[mutation.property_name]: preparedVal});
+                return mutation.id;
             case 'delete':
                 store.dispatch('cleanup', mutation.object_id);
-                return new Promise(function(resolve, reject) {
-                    db[mutation.object_type + 's'].delete(mutation.object_id)
-                        .then(() => {
-                            resolve();
-                        }, error => {
-                            console.log(new Error('Dexie delete failed.', error));
-                        });
-                });
+                await db[mutation.object_type + 's'].delete(mutation.object_id);
+                return mutation.id;
         }
     }
 
@@ -142,7 +136,7 @@ class Mocadex {
      * @return {boolean}
      */
     async mutationAlreadyApplied(mutation) {
-        return await db[mutation.object_type + 's'].get(mutation.object_id) !== undefined;
+        return await db.appliedMutations.get(mutation.id) !== undefined;
     }
 
     /**
