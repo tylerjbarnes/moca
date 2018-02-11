@@ -15,16 +15,18 @@ require 'functions.php';
 function hpm_api_objects() {
 
     $response = new stdClass();
+    $objects = new stdClass();
 
-    $response->messages = hpm_objects('message');
-    $response->packages = hpm_objects('package');
-    $response->persons = hpm_objects('person');
-    $response->projects = hpm_objects('project');
-    $response->resources = hpm_objects('resource');
-    $response->times = hpm_objects('time');
+    $objects->messages = hpm_objects('message');
+    $objects->packages = hpm_objects('package');
+    $objects->persons = hpm_objects('person');
+    $objects->projects = hpm_objects('project');
+    $objects->resources = hpm_objects('resource');
+    $objects->times = hpm_objects('time');
 
     $user_id = hpm_user_id();
-    $response->last_mutation_time = gmdate("Y-m-d H:i:s");
+    $response->objects = $objects;
+    $response->last_sync = gmdate("Y-m-d H:i:s");
 
     return $response;
 
@@ -220,8 +222,9 @@ function hpm_api_mutations ( $since = NULL ) {
         $results = array_filter($results, function( $result ) {
             switch ($result->object_type) {
                 case 'time':
+                    if ($result->action == 'delete') return true;
                     $time = hpm_object('time', $result->object_id );
-                    return $time->contractor_id == hpm_user_id();
+                    return $time->worker_id == hpm_user_id();
                 case 'resource':
                 case 'message':
                     $object = hpm_object( $result->object_type, $result->object_id );

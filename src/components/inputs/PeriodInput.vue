@@ -2,12 +2,12 @@
 
     <div class="period-input">
         <button class="decrement" @click="decrement()" tabindex="-1">
-            <ceri-icon name="fa-chevron-left" size="10" hcenter></ceri-icon>
+            <icon name="chevron-left"></icon>
         </button>
         <date-input ref="input" v-model="date" @input="setFromInput()"></date-input>
         <!-- <input type="text" ref="input" :value="inputReadout" @input="updateValue($event.target.value)" @keydown="handleKey" @focus="updateStringValue();isFocused = true" @blur="updateStringValue();isFocused = false"> -->
         <button class="increment" @click="increment()" tabindex="-1">
-            <ceri-icon name="fa-chevron-right" size="10" hcenter></ceri-icon>
+            <icon name="chevron-right"></icon>
         </button>
     </div>
 

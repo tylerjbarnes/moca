@@ -152,6 +152,7 @@ const getters = {
     },
     pendingTimes: (state, getters) => getters.buffer('pendingTimes'),
     purchaseByPackage: (state, getters) => (id) => getters.buffer('purchases').find(x => x.package_id == id),
+    time: (state, getters) => (id) => getters.buffer('timesInPeriod', true, id) || getters.buffer('timesByProject', true, id),
     timesByProject: (state, getters) => (id) => getters.buffer('timesByProject', false, id),
     timesInPeriod: (state, getters) => _.orderBy(getters.buffer('timesInPeriod'), 'date', 'desc'),
 
@@ -519,6 +520,8 @@ window.buffers = buffers; // TEMP
 
 const actions = {
 
+    // Sync Mutations
+
     pushMutations (context, mutations) {
         Mocadex.applyMutations(mutations, {shouldStage: true}).then(() => {
             Barista.requestExport();
@@ -531,103 +534,55 @@ const actions = {
         Barista.sync();
     },
 
-    // importMutations (context, data) {
-    //
-    //     console.log(data && data.datetime ? ('Push notification at ' + data.datetime) : 'Retrying...');
-    //
-    //     // if (window.syncing) {
-    //     //     console.log('already syncing, delay...');
-    //     //     if (window.syncTimeout) {
-    //     //         clearTimeout(window.syncTimeout);
-    //     //     }
-    //     //     window.syncTimeout = setTimeout(function(){
-    //     //         store.dispatch('importMutations');
-    //     //     }, 1000);
-    //     //     return;
-    //     // }
-    //     // window.syncing = true;
-    //     hpmAPI('mutations', [store.state.lastMutationTime]).then(response => {
-    //
-    //         // filter out recent mutations
-    //         let mutations = response.mutations.filter(x => {
-    //             return !store.state.recentMutations.map(x => x.id).includes(x.id);
-    //         });
-    //
-    //         // save new mutations
-    //         let savePromise = Mocadex.saveMutations(mutations);
-    //         savePromise.then(() => {
-    //
-    //             // update buffers
-    //             let primitivePromises = [];
-    //             for (let mutation of mutations) {
-    //                 primitivePromises.push(
-    //                     Mocadex.getPrimitive(mutation.object_type, mutation.object_id)
-    //                 );
-    //             }
-    //             Promise.all(primitivePromises)
-    //                 .then(primitives => {
-    //                     context.commit('updateBuffer', {mutations, primitives});
-    //                 });
-    //
-    //             // update recent mutations
-    //             context.commit('updateRecentMutations', mutations);
-    //
-    //             // update last sync
-    //             Mocadex.updateLastMutationTime(response.last_mutation_time).then(() => {
-    //                 console.log('set last mutation time', response.last_mutation_time);
-    //                 context.commit('setLastMutationTime', response.last_mutation_time);
-    //                 // window.syncing = false;
-    //                 console.log('done syncing');
-    //             });
-    //
-    //         }, () => {
-    //             console.log('save failed');
-    //         });
-    //
-    //     }, error => {
-    //         // window.syncing = false;
-    //         console.log('failed syncing');
-    //     });
-    //
-    // },
+    // Mocadex Setup
+
+    installMocadex (context, {objects, lastSync}) {
+        return new Promise(function(resolve, reject) {
+            Mocadex.clearData().then(() => {
+                return Mocadex.addObjects(objects);
+            }).then(() => {
+                return Mocadex.setLastSync(lastSync);
+            }).then(() => {
+                resolve();
+            });
+        });
+    },
+
 
     // Object Gain
 
     gainProject (context, id) {
-
-        hpmAPI('object_dependents', ['project', id]).then(data => {
-            store.dispatch('importObjects', {data, reset: false}).then(() => {
-                context.commit('updateBufferForObjects', data);
-            });
+        hpmAPI('object_dependents', ['project', id]).then(async (data) => {
+            await Mocadex.addObjects(data);
+            context.commit('updateBufferForObjects', data);
         });
-
     },
 
-    loseProject (context, primitive) {
-        context.commit('loseProject', primitive);
-    },
+    // loseProject (context, primitive) {
+    //     context.commit('loseProject', primitive);
+    // },
 
     // Static Objects
 
-    importObjects (context, {data, reset}) {
-        if (reset) {
-            db.messages.where('id').notEqual('0').delete();
-            db.packages.where('id').notEqual('0').delete();
-            db.persons.where('id').notEqual('0').delete();
-            db.projects.where('id').notEqual('0').delete();
-            db.resources.where('id').notEqual('0').delete();
-            db.times.where('id').notEqual('0').delete();
-            Mocadex.updateLastMutationTime(data.last_mutation_time).then(() => {
-                context.commit('setLastMutationTime', data.last_mutation_time);
-            });
-        }
-        data.messages && db.messages.bulkPut(data.messages.map(x => typifyForIdb(x)));
-        data.packages && db.packages.bulkPut(data.packages.map(x => typifyForIdb(x)));
-        data.persons && db.persons.bulkPut(data.persons.map(x => typifyForIdb(x)));
-        data.projects && db.projects.bulkPut(data.projects.map(x => typifyForIdb(x)));
-        data.resources && db.resources.bulkPut(data.resources.map(x => typifyForIdb(x)));
-        data.times && db.times.bulkPut(data.times.map(x => typifyForIdb(x)));
-    },
+    // importObjects (context, {data, reset}) {
+    //     if (reset) {
+    //         db.messages.where('id').notEqual('0').delete();
+    //         db.packages.where('id').notEqual('0').delete();
+    //         db.persons.where('id').notEqual('0').delete();
+    //         db.projects.where('id').notEqual('0').delete();
+    //         db.resources.where('id').notEqual('0').delete();
+    //         db.times.where('id').notEqual('0').delete();
+    //         Mocadex.updateLastMutationTime(data.last_mutation_time).then(() => {
+    //             context.commit('setLastMutationTime', data.last_mutation_time);
+    //         });
+    //     }
+    //     data.messages && db.messages.bulkPut(data.messages.map(x => typifyForIdb(x)));
+    //     data.packages && db.packages.bulkPut(data.packages.map(x => typifyForIdb(x)));
+    //     data.persons && db.persons.bulkPut(data.persons.map(x => typifyForIdb(x)));
+    //     data.projects && db.projects.bulkPut(data.projects.map(x => typifyForIdb(x)));
+    //     data.resources && db.resources.bulkPut(data.resources.map(x => typifyForIdb(x)));
+    //     data.times && db.times.bulkPut(data.times.map(x => typifyForIdb(x)));
+    // },
 
     // Fetch & Buffer Management
 
@@ -699,13 +654,13 @@ const actions = {
                 bus.$emit('initialized');
             });
         });
-        Mocadex.getLastMutationTime().then((lastSync) => {
-            context.commit('setLastMutationTime', lastSync ? lastSync.value : null);
-
-            // store.dispatch('importMutations');
-
-        });
-        context.commit('loadRecentMutations');
+        // Mocadex.getLastMutationTime().then((lastSync) => {
+        //     context.commit('setLastMutationTime', lastSync ? lastSync.value : null);
+        //
+        //     // store.dispatch('importMutations');
+        //
+        // });
+        // context.commit('loadRecentMutations');
         Barista.sync();
     },
     updateRoute (context, route) { context.commit('updateRoute', route); },

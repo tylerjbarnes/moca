@@ -9,12 +9,12 @@ import lodash from 'lodash'; window.lodash = lodash;
 import fuzzy from 'fuzzy'; window.fuzzy = fuzzy;
 import cuid from 'cuid'; window.cuid = cuid;
 import Period from './period.js'; window.currentPeriod = new Period();
-window.customElements.define("ceri-icon", require('ceri-icon'));
 
 // Vue & Plugins
 import Vue from 'vue'; window.Vue = Vue;
 import VueRouter from 'vue-router';
 Vue.use(VueRouter);
+import Icon from 'vue-awesome'; Vue.component('icon', Icon)
 
 // App Parts
 import App from './App.vue';
@@ -68,55 +68,19 @@ if (mocaUserRole == 'client') {
     });
 
 } else {
-
-    // Fetch Objects & Mutations...
     let forceRemoteLoad = false;
-    // function getMocaObjects() {
-    //     return new Promise(function(resolve, reject) {
-    //         Dexie.exists('mocadex').then(exists => {
-    //             if (exists && !forceRemoteLoad) {
-    //                 console.log('Local DB Already Exists');
-    //             } else {
-    //                 console.log('Importing from Remote DB');
-    //                 hpmAPI('objects').then(data => { resolve(data); });
-    //             }
-    //         });
-    //     });
-    // }
 
-    function initLocalDb() {
-        return new Promise(function(resolve, reject) {
-            Dexie.exists('mocadex').then(exists => {
-                let remoteLoad = forceRemoteLoad || !exists;
-                console.log(remoteLoad ? 'Importing from remote DB' : 'Local DB already exists');
-                remoteLoad ?
-                    hpmAPI('objects').then(data => { store.dispatch('importObjects', {data, reset: true}); resolve(); }) :
-                    resolve();
-            });
-        });
-    }
-    function getMocaMutations() {
-        return hpmAPI('mutations', { last_mutation_id: store.state.lastMutationId });
+    // Install Mocadex
+    async function initLocalDb() {
+        if (!forceRemoteLoad && (await Dexie.exists('mocadex'))) return;
+        let initialData = await hpmAPI('objects');
+        await store.dispatch('installMocadex', {objects: initialData.objects, lastSync: initialData.last_sync});
     }
 
-    // ... Then Set Up Store & Emit Ready Signal
-    initLocalDb().then(() => {
-        store.dispatch('initialize', currentUserWpId).then(() => {
-            window.pusher = new MocaPusher();
-        });
-        // store.dispatch('setLastMutationId', data.last_mutation_id);
-        // getMocaMutations().then((mutationData) => {
-        //     store.dispatch('importMutations', mutationData);
-        //     bus.$emit('storeLoaded');
-        // });
+    // Then Initialize Store & Create Pusher
+    initLocalDb().then(async () => {
+        await store.dispatch('initialize', currentUserWpId);
+        window.pusher = new MocaPusher();
     });
-
-
-
-
-
-
-
-
 
 }

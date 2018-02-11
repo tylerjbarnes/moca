@@ -1,15 +1,6 @@
 <template>
 
     <div id="inbox" v-if="ready">
-
-        <!-- <div class="playground">
-            <button @click="createMutation">Create</button>
-            <button @click="updateMutation">Update</button>
-            <button @click="deleteMutation">Delete</button>
-        </div> -->
-
-
-
         <div class="items">
             <inbox-item v-for="item in items"
                 :key="item.object.id"
@@ -26,7 +17,7 @@
                 <!-- <project-header :project="selected.object" :external="true"></project-header> -->
                 <conversation-view ref="focalPoint" :project="selected.object"></conversation-view>
             </template>
-            <!-- <template v-else-if="selected.type == 'time'">
+            <template v-else-if="selected.type == 'time'">
                 <div class="time-table-wrapper">
                     <time-table :times="times"></time-table>
                     <div class="actions">
@@ -34,7 +25,7 @@
                         <button ref="focalPoint" class="primary button" @click="approveTime">Approve</button>
                     </div>
                 </div>
-            </template> -->
+            </template>
             <template v-else-if="selected.type == 'client'">
                 <div class="avatar">
                     <img :src="selected.object.avatar">
@@ -124,27 +115,6 @@
             }
         },
         methods: {
-            // createMutation() {
-            //     let id = cuid();
-            //     new MocaMutationSet(
-            //         'create', 'message',
-            //         id, MocaFactory.constructPrimitive('message', {
-            //             id: id,
-            //             content: 'Hello!',
-            //             project_id: 'c5b7fro2mo00a2ofsvutjh1skf',
-            //             type: 'chat',
-            //             author_id: 'c5b7fro2h40004ofsv7wipq31v'
-            //         })
-            //     ).commit();
-            // },
-            // updateMutation() {
-            //     new MocaMutationSet('update','message','test_id', {
-            //         content: 'Modified!'
-            //     }).commit();
-            // },
-            // deleteMutation() {
-            //     new MocaMutationSet('delete', 'message', 'test_id', null).commit();
-            // },
             onReady() {
                 if (this.items.length && !this.selected) {
                     this.select(this.items[0]);

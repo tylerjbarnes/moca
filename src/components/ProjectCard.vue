@@ -3,13 +3,13 @@
     <div @click="open" tag="div" class="project-card" :class="{dragging: isDragDelegate, delegating}" :style="{transform:'translate(' + dragDelta.x + 'px,' + dragDelta.y + 'px)'}">
         <template v-if="!project.archived">
             <div class="cycles" :class="{ active: project.autocycle }">
-                <ceri-icon name="fa-recycle" size="12" offset-y="-5" hcenter></ceri-icon>
+                <icon name="recycle" scale="0.8"></icon>
             </div>
             <div class="flag" :class="{ active: project.flagged }">
-                <ceri-icon name="fa-flag" size="11" hcenter></ceri-icon>
+                <icon name="flag" scale="0.8"></icon>
             </div>
             <div class="unresolved" :class="{ active: project.unresolvedMessages.length }">
-                <ceri-icon name="fa-comment" size="11" offset-y="7" hcenter></ceri-icon>
+                <icon name="comment" scale="0.8"></icon>
             </div>
         </template>
         <div class="content">
@@ -144,19 +144,13 @@
             transition: all 0.15s ease;
             width: 25px; height: 18px;
 
-            ceri-icon {
-                height: 17px;
-
-            }
         }
         .cycles {
             right: 70px;
 
             &.active {
                 background: lighten($primary, 35%);
-                ceri-icon {
-                    color: $primary;
-                }
+                color: $primary;
             }
         }
         .flag {
@@ -164,20 +158,20 @@
 
             &.active {
                 background: lighten($red, 35%);
-                ceri-icon {
-                    color: $red;
-                }
+                color: $red;
             }
 
         }
         .unresolved {
             right: 40px;
 
+            .fa-icon {
+                transform: translateY(-1px);
+            }
+
             &.active {
                 background: lighten($orange, 35%);
-                ceri-icon {
-                    color: $orange;
-                }
+                color: $orange;
             }
 
         }

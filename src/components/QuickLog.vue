@@ -2,13 +2,13 @@
     <div class="quick-log" :class="{open: editing}">
         <div class="wrapper">
             <button v-if="editing" class="cancel" @click="cancel">
-                <ceri-icon name="fa-times" size="10" ></ceri-icon>
+                <icon name="times"></icon>
             </button>
             <hours-input v-if="editing" v-model="logPrimitive.hours" :max="project.max - project.hoursLogged"></hours-input>
             <span v-if="!editing" class="logged" :class="{locked: project.hoursLogged >= project.max || project.status != 'do'}">{{ project.hoursLogged | hours }} Logged</span>
             <button class="log" @click="editOrSave" v-if="project.hoursLogged < project.max && project.status == 'do'">
-                <ceri-icon v-if="!editing" name="fa-plus" size="10" hcenter></ceri-icon>
-                <ceri-icon v-if="editing" name="fa-check" size="10" hcenter></ceri-icon>
+                <icon v-if="!editing" name="plus" scale="1"></icon>
+                <icon v-if="editing" name="check" scale="1"></icon>
             </button>
         </div>
     </div>

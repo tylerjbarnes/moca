@@ -40,8 +40,9 @@ class Mocadex {
      * @param  {object} config
      * @returns {Promise}
      */
-    applyMutations(mutations, {shouldStage}) {
+    async applyMutations(mutations, {shouldStage}) {
         let self = this;
+        await self.gainObjects(mutations);
         return new Promise(function(resolve, reject) {
             db.transaction('rw', db.persons, db.times, db.packages, db.resources, db.messages, db.projects,
             db.appliedMutations, db.stagedMutations, async () => {
@@ -92,13 +93,6 @@ class Mocadex {
                 await db[mutation.object_type + 's'].add(booleanToBinary(mutation.property_value));
                 return mutation.id;
             case 'update':
-                if (
-                    mutation.object_type == 'project' &&
-                    mutation.property_name == 'contractor_id' &&
-                    mutation.property_value == store.getters.user.id
-                ) {
-                    store.dispatch('gainProject', mutation.object_id);
-                }
                 var preparedVal = booleanToBinary(mutation.property_value);
                 await db[mutation.object_type + 's'].where('id').equals(mutation.object_id)
                     .modify({[mutation.property_name]: preparedVal});
@@ -166,91 +160,163 @@ class Mocadex {
         return db.appliedMutations.bulkDelete(obsoleteIds);
     }
 
-
-
-
-
-
-
-
-
-
     /**
-     * Remove mutations from Pending Queue
-     * @param  {MocaMutation[]} mutations
+     * Remove all objects from Mocadex
      * @return {Promise}
      */
-    confirmMutations(mutations) {
+    async clearData() {
         return new Promise(function(resolve, reject) {
-            db.pendingMutations.bulkDelete(mutations.map(x => x.id)).then(() => { resolve(); });
+            db.transaction('rw', db.persons, db.times, db.packages, db.resources, db.messages, db.projects, async () => {
+                await Promise.all([
+                    'messages',
+                    'packages',
+                    'persons',
+                    'projects',
+                    'resources',
+                    'times'
+                ].map(x => { db[x].clear(); } ));
+            }).then(() => {
+                resolve(true);
+            }).catch(error => {
+                reject('Failed to Clear Data - ' + error);
+            });
         });
     }
 
     /**
-     * Update Last Mutation Time
-     * @param  {string} datetime
+     * Delete Mocadex
+     */
+    uninstall() {
+        db.delete();
+    }
+
+    /**
+     * Add objects to Mocadex
+     * @param  {object}  data - dictionary by table
      * @return {Promise}
      */
-    updateLastMutationTime(datetime) {
+    async addObjects(data) {
         return new Promise(function(resolve, reject) {
-            db.ui.put({id: 'lastSync', value: datetime}).then(() => { resolve(); });
+            db.transaction('rw', db.persons, db.times, db.packages, db.resources, db.messages, db.projects, async () => {
+                return Promise.all([
+                    'messages',
+                    'packages',
+                    'persons',
+                    'projects',
+                    'resources',
+                    'times'
+                ].filter(x => data[x] && data[x].length).map(x => { db[x].bulkAdd(data[x]); } ));
+            }).then(() => {
+                resolve(true);
+            }).catch(error => {
+                reject('Failed to Add Objects - ' + error);
+            });
         });
     }
 
     /**
-     * Get Last Mutation Time
+     * Dispatch store action to download object dependents
+     * @param  {MocaMutation[]}  mutations
      * @return {Promise}
      */
-    getLastMutationTime() {
-        return new Promise(function(resolve, reject) {
-            db.ui.get('lastSync').then(datetime => { resolve(datetime); });
-        });
-    }
-
-
-
-    /**
-     * Upload mutations & download missed mutations
-     */
-    sync() {
-        // upload mutations
-        // if integrity check fails (pusher events have been missed)
-        // -- rollback processing queue
-        // -- download & add missing mutations to processing queue
-        // -- re-apply queue
-    }
-
-
-
-    /**
-     * Dispatch buffer update to Vuex
-     * @param  {mocaMutation} mutation
-     */
-    dispatchBufferUpdate(mutation) {
-        for (let bufferName in buffers) {
-            let buffer = buffers[bufferName];
-            if (buffer.primitiveType != mutation.object_type) continue;
-
-            switch (mutation.action) {
-                case 'create':
-                case 'update':
-                    buffer.shouldContain(primitive) ?
-                        state.buffer[bufferName][mutation.object_id] = primitive :
-                        delete state.buffer[bufferName][mutation.object_id];
-                    var description = buffer.shouldContain(primitive) ? 'add/update: ' : 'remove: ';
-                    description += mutation.object_id + ' for ' + bufferName;
-                    console.log(description);
-                    break;
-                case 'delete':
-                    delete state.buffer[bufferName][mutation.object_id];
-                    console.log('remove: ' + mutation.object_id + ' for ' + bufferName);
-                    break;
-                default:
-                    console.log(new Error('Impossible Case'));
+    async gainObjects(mutations) {
+        for (let mutation of mutations) {
+            if (await this.mutationAlreadyApplied(mutation)) {
+                continue;
             }
-
+            if (
+                mutation.action == 'update' &&
+                mutation.object_type == 'project' &&
+                mutation.property_name == 'contractor_id' &&
+                mutation.property_value == store.getters.user.id
+            ) {
+                store.dispatch('gainProject', mutation.object_id);
+            }
         }
     }
+
+
+
+
+
+
+
+    // /**
+    //  * Remove mutations from Pending Queue
+    //  * @param  {MocaMutation[]} mutations
+    //  * @return {Promise}
+    //  */
+    // confirmMutations(mutations) {
+    //     return new Promise(function(resolve, reject) {
+    //         db.pendingMutations.bulkDelete(mutations.map(x => x.id)).then(() => { resolve(); });
+    //     });
+    // }
+    //
+    // /**
+    //  * Update Last Mutation Time
+    //  * @param  {string} datetime
+    //  * @return {Promise}
+    //  */
+    // updateLastMutationTime(datetime) {
+    //     return new Promise(function(resolve, reject) {
+    //         db.ui.put({id: 'lastSync', value: datetime}).then(() => { resolve(); });
+    //     });
+    // }
+    //
+    // /**
+    //  * Get Last Mutation Time
+    //  * @return {Promise}
+    //  */
+    // getLastMutationTime() {
+    //     return new Promise(function(resolve, reject) {
+    //         db.ui.get('lastSync').then(datetime => { resolve(datetime); });
+    //     });
+    // }
+    //
+    //
+    //
+    // /**
+    //  * Upload mutations & download missed mutations
+    //  */
+    // sync() {
+    //     // upload mutations
+    //     // if integrity check fails (pusher events have been missed)
+    //     // -- rollback processing queue
+    //     // -- download & add missing mutations to processing queue
+    //     // -- re-apply queue
+    // }
+    //
+    //
+    //
+    // /**
+    //  * Dispatch buffer update to Vuex
+    //  * @param  {mocaMutation} mutation
+    //  */
+    // dispatchBufferUpdate(mutation) {
+    //     for (let bufferName in buffers) {
+    //         let buffer = buffers[bufferName];
+    //         if (buffer.primitiveType != mutation.object_type) continue;
+    //
+    //         switch (mutation.action) {
+    //             case 'create':
+    //             case 'update':
+    //                 buffer.shouldContain(primitive) ?
+    //                     state.buffer[bufferName][mutation.object_id] = primitive :
+    //                     delete state.buffer[bufferName][mutation.object_id];
+    //                 var description = buffer.shouldContain(primitive) ? 'add/update: ' : 'remove: ';
+    //                 description += mutation.object_id + ' for ' + bufferName;
+    //                 console.log(description);
+    //                 break;
+    //             case 'delete':
+    //                 delete state.buffer[bufferName][mutation.object_id];
+    //                 console.log('remove: ' + mutation.object_id + ' for ' + bufferName);
+    //                 break;
+    //             default:
+    //                 console.log(new Error('Impossible Case'));
+    //         }
+    //
+    //     }
+    // }
 
 
 

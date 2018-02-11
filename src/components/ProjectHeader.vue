@@ -7,7 +7,7 @@
                 <div class="subtitles">
                     <h2 class="client-name">{{ project.client ? project.client.name : 'No Client' }}</h2>
                     <span class="cycle" v-if="user.canManage">{{ project.cycle + 1 }}</span>
-                    <span class="flagged" v-if="project.flagged"><ceri-icon name="fa-flag" size="14" hcenter></ceri-icon></span>
+                    <span class="flagged" v-if="project.flagged"><icon name="flag"></icon></span>
                 </div>
                 <h1 class="project-name" :class="{external}" @click="open">{{ project.name }}</h1>
             </div>

@@ -7,7 +7,7 @@
         </div>
         <span class="hours">{{ project.spent | hours }} Hours Spent</span>
         <div class="status">
-            <ceri-icon v-if="project.complete" name="fa-check-circle" size="20" h-center></ceri-icon>
+            <icon v-if="project.complete" name="check-circle"></icon>
             <span>{{ project.complete ? 'Complete' : 'Active' }}</span>
         </div>
     </div>

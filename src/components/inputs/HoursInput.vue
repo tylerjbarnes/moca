@@ -2,11 +2,11 @@
 
     <div class="hours-input">
         <button class="decrement" @click="decrement()" tabindex="-1">
-            <ceri-icon name="fa-minus" size="10" hcenter></ceri-icon>
+            <icon name="minus" scale="0.8"></icon>
         </button>
         <input type="text" ref="input" :value="inputReadout" @input="updateValue($event.target.value)" @keydown="handleKey" @focus="updateStringValue();isFocused = true" @blur="updateStringValue();isFocused = false">
         <button class="increment" @click="increment()" tabindex="-1">
-            <ceri-icon name="fa-plus" size="10" hcenter></ceri-icon>
+            <icon name="plus" scale="0.8"></icon>
         </button>
     </div>
 

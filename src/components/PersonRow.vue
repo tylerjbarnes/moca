@@ -3,7 +3,7 @@
     <div class="person-row">
         <img :src="person.avatar" class="avatar">
         <span class="name">{{ person.name }}</span>
-        <ceri-icon name="fa-recycle" size="20" h-center @click="unarchive"></ceri-icon>
+        <icon name="recycle" @click="unarchive" scale="1.5"></icon>
     </div>
 
 </template>
@@ -59,7 +59,7 @@
 
         }
 
-        ceri-icon {
+        .fa-icon {
             opacity: 0.5;
             transition: 0.2s ease;
 

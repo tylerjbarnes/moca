@@ -15,10 +15,9 @@
             }">
                 <div class="markup" v-html="markup"></div>
                 <span class="resolve" @click="resolveMessage" :class="{off: !message.userCanResolve}">
-                    <!-- <ceri-icon name="fa-check" size="12" hcenter></ceri-icon> -->
+                    <icon name="check"></icon>
                 </span>
                 <span class="resolved" v-if="message.author.canManage == $store.getters.user.canManage && message.resolved">
-                    <!-- <ceri-icon name="fa-check" size="10" hcenter></ceri-icon> -->
                 </span>
             </div>
         </div>
@@ -249,6 +248,9 @@
                     border-radius: 50%;
                     color: white;
                     cursor: pointer;
+                    display: flex;
+                        align-items: center;
+                        justify-content: center;
                     height: 25px; width: 25px;
                     position: absolute;
                         bottom: -10px; right: -10px;

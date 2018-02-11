@@ -10,7 +10,7 @@
                 <div class="clone" ref="clone"></div>
             </div>
             <button class="send" @click="createMessage" :disabled="!messagePrimitive.content.length">
-                <ceri-icon name="fa-paper-plane" size="15" hcenter></ceri-icon>
+                <icon name="paper-plane" scale="1.5"></icon>
             </button>
         </div>
     </div>

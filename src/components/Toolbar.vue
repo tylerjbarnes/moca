@@ -20,16 +20,16 @@
             <person-input class="archive-client" v-model="archiveClientFilter" :roles="['client']"></person-input>
         </template>
         <template v-if="['team','clients','archive','projects'].includes($store.state.route.view)">
-            <ceri-icon size="16" name="fa-search" hcenter></ceri-icon>
+            <icon name="search"></icon>
             <input v-model="searchTerm" type="text" id="search" placeholder="Filter by name...">
             <div v-if="searchTerm.length" @click="searchTerm = '';" class="clear">
-                <ceri-icon size="16" name="fa-times" hcenter></ceri-icon>
+                <icon name="times"></icon>
             </div>
         </template>
         <template v-if="['team','clients'].includes($store.state.route.view)">
             <div class="filter" @click="toggleStartedFilter">
-                <ceri-icon v-if="filters.started" size="16" name="fa-eye-slash" hcenter></ceri-icon>
-                <ceri-icon v-else                 size="16" name="fa-eye" hcenter></ceri-icon>
+                <icon v-if="filters.started" name="eye-slash"></icon>
+                <icon v-else                 name="eye"></icon>
                 <span>Future</span>
             </div>
             <div class="actions">
@@ -57,6 +57,7 @@
         </template>
         <template v-if="$store.state.route.view == 'profile'">
             <div class="actions only">
+                <button class="big dangerous button" @click="resetApp">Reset App</button>
                 <button class="big primary button" @click="signout">Sign Out</button>
             </div>
         </template>
@@ -68,6 +69,7 @@
     import DateInput from './inputs/DateInput.vue';
     import PersonInput from './inputs/PersonInput.vue';
     import PeriodInput from './inputs/PeriodInput.vue';
+    import Mocadex from '../mocadex.js';
 
     export default {
         name: 'toolbar',
@@ -111,6 +113,10 @@
             signout () {
                 window.location.replace('/wp-login.php?action=logout');
             },
+            resetApp () {
+                Mocadex.uninstall();
+                window.location.replace('/dashboard/profile');
+            },
             countInboxItemsOfType(type) {
                 return this.inboxItems.filter(x => x.type == type).length;
             }
@@ -137,7 +143,7 @@
             top: 0; right: 0; left: $header-size;
         z-index: 3;
 
-        > ceri-icon, .filter ceri-icon {
+        > .fa-icon, .filter .fa-icon {
             opacity: 0.25;
             margin-right: 10px;
 
@@ -149,9 +155,14 @@
             justify-content: center;
             // margin-right: $header-size * -0.5;
 
+            .fa-icon {
+                align-self: center;
+                opacity: 0.25;
+            }
+
             &:hover {
 
-                ceri-icon {
+                .fa-icon {
                     opacity: 0.5;
 
                 }
@@ -206,6 +217,10 @@
 
             &.only {
                 flex-grow: 1;
+
+                .button:not(:first-of-type) {
+                    margin-left: 10px;
+                }
             }
 
         }

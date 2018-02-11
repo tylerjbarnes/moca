@@ -11,8 +11,8 @@
                 <span class="section-heading" :class="{active: mode == 'projects'}" @click="mode = 'projects';">Projects</span>
                 <span class="section-heading" :class="{active: mode == 'packages'}" @click="mode = 'packages';">Packages</span>
             </div>
-            <client-project v-if="mode == 'projects'" v-for="project in projects" key="project" :project="project"></client-project>
-            <client-package v-if="mode == 'packages'" v-for="clientPackage in packages" key="package" :package="clientPackage"></client-package>
+            <client-project v-if="mode == 'projects'" v-for="project in projects" :key="project.id" :project="project"></client-project>
+            <client-package v-if="mode == 'packages'" v-for="clientPackage in packages" :key="clientPackage.id" :package="clientPackage"></client-package>
         </div>
 
         <span class="signout" @click="signout">Sign Out</span>
@@ -80,7 +80,8 @@
             background: white;
             border-radius: 20px;
             box-shadow: 0px 7.5px 25px 0px darken($light,5%);
-            margin: 20px 20px 40px 20px;
+            margin: 20px auto 40px auto;
+            max-width: 600px;
             padding-top: 20px;
             overflow: hidden;
 
@@ -117,6 +118,7 @@
             font-size: 0.9em;
             display: block;
             text-align: center;
+            margin-bottom: 40px;
             opacity: 0.5;
             transition: 0.3s ease;
 

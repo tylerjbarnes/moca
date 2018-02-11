@@ -2,7 +2,7 @@
 
     <div class="inbox-item" @click="select" :class="{selected}">
         <div class="icon">
-            <ceri-icon :name="iconName" size=20 h-center></ceri-icon>
+            <icon :name="iconName" scale="1.5"></icon>
         </div>
         <div class="main">
             <div class="titles">
@@ -46,9 +46,9 @@
             },
             iconName () {
                 switch (this.type) {
-                    case 'project': return 'fa-comments-o';
-                    case 'time': return 'fa-clock-o';
-                    case 'client': return 'fa-calendar-times-o';
+                    case 'project': return 'comments-o';
+                    case 'time': return 'clock-o';
+                    case 'client': return 'calendar-times-o';
                     default: return 'fa-close';
                 }
             }

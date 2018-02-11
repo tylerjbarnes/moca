@@ -3,7 +3,7 @@
     <div class="time-row" :class="{editing, pending: time && time.pending}" @dblclick="edit">
 
         <!-- Icon -->
-        <div class="cell time-icon" :class="object.type"><ceri-icon size="12" :name="iconName"></ceri-icon></div>
+        <div class="cell time-icon" :class="object.type"><icon :name="iconName"></icon></div>
 
         <!-- Date -->
         <div v-if="!editing" class="cell date">{{ time.date | date(false) }} <span class="year">{{ time.date | year }}</span></div>
@@ -57,9 +57,9 @@
 
         <!-- Actions -->
         <div class="actions" v-if="editing">
-            <button tabindex="-1" class="button dangerous" v-if="!isDraft" @click="deleteTime">{{ time && time.pending ? 'Reject' : 'Delete' }}</button>
+            <button tabindex="-1" class="button dangerous" v-if="!isDraft && user.canManage" @click="deleteTime">{{ time && time.pending ? 'Reject' : 'Delete' }}</button>
             <button tabindex="-1" class="button" @click="stopEditing">Cancel</button>
-            <button class="button primary" @click="approve" v-if="time && time.pending">Approve</button>
+            <button class="button primary" @click="approve" v-if="time && time.pending && user.canManage">Approve</button>
             <button class="button primary" @click="save" v-else :disabled="!validates">Save</button>
         </div>
 
@@ -125,9 +125,9 @@
             },
             iconName () {
                 switch (this.object.type) {
-                    case 'purchase': return 'fa-cube';
-                    case 'expiration': return 'fa-calendar-times-o';
-                    default: return 'fa-pencil';
+                    case 'purchase': return 'cube';
+                    case 'expiration': return 'calendar-times-o';
+                    default: return 'pencil';
                 }
             },
             timeProject () {

@@ -5,7 +5,7 @@
             <input type="checkbox" @change="updateValue($event.target.checked)" :checked="value">
             <span class="slider">
                 <span class="puck">
-                    <ceri-icon name="fa-flag" hcenter></ceri-icon>
+                    <icon name="flag"></icon>
                 </span>
             </span>
         </label>
@@ -69,6 +69,10 @@
                 transition: .3s;
                 text-align: center;
                 color: $light;
+
+                .fa-icon {
+                    transform: translateY(4px);
+                }
             }
         }
 

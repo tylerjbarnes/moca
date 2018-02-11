@@ -11,7 +11,7 @@
             </nav>
             <nav class="secondary-nav">
                 <a href="/wp-admin" v-if="user.canManage">
-                    <ceri-icon name="fa-wordpress" size="30" h-center></ceri-icon>
+                    <icon name="wordpress" scale="2" color="white"></icon>
                 </a>
                 <router-link :to="{name: 'profile'}" class="profile-link">
                     <img :src="user.avatar">
@@ -113,19 +113,23 @@
 
                 &.secondary-nav {
                     align-items: center;
+                    color: white;
                     display: flex;
                     flex-flow: column;
                     justify-content: center;
                     padding-bottom: 15px;
 
-                    ceri-icon {
-                        color: white;
-                        opacity: 0.5;
-                        transition: 0.2s ease;
-                        &:hover {
-                            opacity: 1;
-                        }
-                    }
+                    // .fa-icon {
+                    //     color: white;
+                    //     display: block;
+                    //     height: 40px !important;
+                    //     width: 40px !important;
+                    //     opacity: 0.5;
+                    //     transition: 0.2s ease;
+                    //     &:hover {
+                    //         opacity: 1;
+                    //     }
+                    // }
 
                 }
 
