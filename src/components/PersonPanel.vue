@@ -131,6 +131,7 @@
     @import '~styles/settings.scss';
 
     .person-panel {
+        background: #fcfdfe;
         border-radius: 5px;
         box-shadow: 0px 0px 15px 0px $gray;
         margin: 20px 40px 0 40px;

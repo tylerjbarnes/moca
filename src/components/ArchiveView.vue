@@ -33,6 +33,10 @@
             allPersons () {
                 return store.getters.archivedPersons;
             }
+        },
+        mounted () {
+            let savedScroll = localStorage['archiveScroll'];
+            document.body.scrollTop = savedScroll;
         }
     }
 

@@ -24,8 +24,8 @@
         },
         mixins: [CanSearchPersons],
         mounted () {
-            // let savedScroll = localStorage['clientsScroll'];
-            // document.body.scrollTop = savedScroll;
+            let savedScroll = localStorage['clientsScroll'];
+            document.body.scrollTop = savedScroll;
         }
     }
 
