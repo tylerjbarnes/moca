@@ -186,8 +186,8 @@ class Mocadex {
     /**
      * Delete Mocadex
      */
-    uninstall() {
-        db.delete();
+    async uninstall() {
+        await db.delete();
     }
 
     /**

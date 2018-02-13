@@ -111,11 +111,14 @@
                 this.$store.dispatch('setUiFilter', {type: 'projects', name: 'started', value: !this.filters.started})
             },
             signout () {
-                window.location.replace('/wp-login.php?action=logout');
+                Mocadex.uninstall().then(() => {
+                    window.location.replace('/wp-login.php?action=logout');
+                });
             },
             resetApp () {
-                Mocadex.uninstall();
-                window.location.replace('/dashboard/profile');
+                Mocadex.uninstall().then(() => {
+                    window.location.replace('/dashboard/profile');
+                });
             },
             countInboxItemsOfType(type) {
                 return this.inboxItems.filter(x => x.type == type).length;
