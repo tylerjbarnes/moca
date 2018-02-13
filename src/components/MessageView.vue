@@ -18,6 +18,7 @@
                     <icon name="check"></icon>
                 </span>
                 <span class="resolved" v-if="message.author.canManage == $store.getters.user.canManage && message.resolved">
+                    <icon name="check" scale="0.8"></icon>
                 </span>
             </div>
         </div>
@@ -281,7 +282,7 @@
                 .resolved {
                     height: 12px;
                     position: absolute;
-                        bottom: 4px; right: 3px;
+                        bottom: 6px; right: 3px;
                     opacity: 0.37;
                 }
 
