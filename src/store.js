@@ -602,13 +602,24 @@ const actions = {
         });
     },
 
-    cleanup (context, id) {
-        // @TODO - incomplete
+    cleanup (context, {type, id}) {
+
+        // remove mutation messages
         db.messages.where('type').equals('mutation').and(x => x.content.object_id == id).toArray().then(primitives => {
             let primitiveIds = primitives.map(x => x.id);
             context.commit('cleanup', primitiveIds);
             db.messages.bulkDelete(primitiveIds);
         });
+
+        // remove packages
+        if (type == 'time') {
+            Mocadex.getPrimitive(type, id).then(primitive => {
+                if (!primitive.package_id) return;
+                context.commit('cleanup', [primitive.package_id]);
+                db.packages.delete(primitive.package_id);
+            });
+        }
+
     },
 
     updateBuffer (context, {mutations, primitives}) {

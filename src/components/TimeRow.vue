@@ -38,7 +38,7 @@
 
         <!-- Details -->
         <template v-if="object.type == 'purchase'">
-            <div v-if="!editing" class="cell project">Expires on {{ time.package.expiration_date | date }}</div>
+            <div v-if="!editing && time.package" class="cell project">Expires on {{ time.package.expiration_date | date }}</div>
             <div v-else         class="cell project">
                 <date-input v-model="packagePrimitive.expiration_date"></date-input>
             </div>

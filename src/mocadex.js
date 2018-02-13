@@ -98,7 +98,7 @@ class Mocadex {
                     .modify({[mutation.property_name]: preparedVal});
                 return mutation.id;
             case 'delete':
-                store.dispatch('cleanup', mutation.object_id);
+                await store.dispatch('cleanup', {type: mutation.object_type, id: mutation.object_id});
                 await db[mutation.object_type + 's'].delete(mutation.object_id);
                 return mutation.id;
         }
