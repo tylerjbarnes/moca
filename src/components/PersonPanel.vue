@@ -121,7 +121,16 @@
             }
         },
         components: {ProjectCollection, ResourceView, FilesView},
-        mixins: [DragDropController]
+        mixins: [DragDropController],
+        created () {
+            let expanded = localStorage.getItem('panel-' + this.person.id);
+            if (expanded == 1) this.expanded = true;
+        },
+        watch: {
+            expanded: function(val) {
+                localStorage.setItem('panel-' + this.person.id, val ? 1 : 0);
+            }
+        }
     }
 
 </script>
