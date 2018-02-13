@@ -103,14 +103,16 @@
                     new MocaMutationSet(
                         'update', 'resource',
                         this.primitive.id, this.primitive
-                    ).commit();
-                    this.closeEditor();
+                    ).commit().then(() => {
+                        this.closeEditor();
+                    });
                 } else {
                     new MocaMutationSet(
                         'create', 'resource',
                         this.primitive.id, this.primitive
-                    ).commit();
-                    this.$emit('closeDraft');
+                    ).commit().then(() => {
+                        this.$emit('closeDraft');
+                    });
                 }
             },
             deleteResource () {

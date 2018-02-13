@@ -522,8 +522,8 @@ const actions = {
 
     // Sync Mutations
 
-    pushMutations (context, mutations) {
-        Mocadex.applyMutations(mutations, {shouldStage: true}).then(() => {
+    async pushMutations (context, mutations) {
+        await Mocadex.applyMutations(mutations, {shouldStage: true}).then(() => {
             Barista.requestExport();
         }).catch(error => {
             console.log(error);

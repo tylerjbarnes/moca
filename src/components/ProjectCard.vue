@@ -75,6 +75,9 @@
             didSurrenderDragDelegacy () {
                 bus.$off('delegationInvite');
                 bus.$off('delegationUninvite');
+            },
+            hide () {
+                this.$el.parentNode.removeChild(this.$el);
             }
         }
     }
@@ -94,7 +97,7 @@
         margin: 20px 0;
         padding: 10px;
         position: relative;
-        transition: 0.3s ease;
+        transition: box-shadow 0.3s ease, border 0.3s ease;
         width: 100%;
         @include unselectable;
         &:hover {

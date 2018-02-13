@@ -57,18 +57,23 @@ export default {
 
         },
         endDrag (e) {
-            this.dragDelegate.surrenderDragDelegacy();
-            this.dragDelegate = null;
+
             this.dragStart = null;
             this.delta = {x:0, y:0};
             bus.$emit('didEndDrag', e);
 
             if (this.dropDelegateEl) {
                 this.dropDelegateEl.dispatchEvent(
+                    new CustomEvent('setDragEl', {detail:this.dragDelegate}) // @TODO - hack
+                );
+                this.dropDelegateEl.dispatchEvent(
                     new CustomEvent('drop', {detail:this.payload})
                 );
                 this.dropDelegateEl = null;
             }
+
+            this.dragDelegate.surrenderDragDelegacy();
+            this.dragDelegate = null;
 
         }
     },

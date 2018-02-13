@@ -1,10 +1,10 @@
 <template>
 
-    <div class="kanban-column column dropzone" @dragenter="dragenter" @dragexit="dragexit" @drop="drop" :class="{inviteDrop}">
+    <div class="kanban-column column dropzone" @dragenter="dragenter" @dragexit="dragexit" @drop="drop" @setDragEl="setDragEl" :class="{inviteDrop}">
         <header><span>{{ title }}</span></header>
         <div class="items">
             <!-- <transition-group name="list"> -->
-                <project-card v-for="project in items" :project="project" :show="tagsToShow" :key="project.id" :class="{pending: projectIsPending(project)}"></project-card>
+                <project-card v-for="project in items" :project="project" :show="tagsToShow" :key="project.id + (projectIsPending(project) ? '-p' : '')" :class="{pending: projectIsPending(project)}"></project-card>
             <!-- </transition-group> -->
         </div>
     </div>
@@ -71,8 +71,6 @@
                 let changingManager = this.person.canManage && this.person.id != project.manager_id;
                 let changingContractor = this.person.role == 'contractor' && this.person.id != project.contractor_id;
 
-                this.inviteDrop = false;
-                this.pendingProjects = [];
                 new MocaMutationSet(
                     'update', 'project',
                     project.id, {
@@ -80,7 +78,13 @@
                         manager_id: changingManager ? this.person.id : project.manager_id,
                         contractor_id: this.title == 'delegate' ? null : (changingContractor ? this.person.id : project.contractor_id)
                     }
-                ).commit();
+                ).commit().then(() => {
+                    this.pendingProjects = [];
+                    this.inviteDrop = false;
+                });
+            },
+            setDragEl ({detail: dragDelegate}) {
+                dragDelegate.hide();
             }
         }
     }

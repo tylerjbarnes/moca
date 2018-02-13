@@ -12,7 +12,7 @@ class MocaMutationSet {
         this.authorId = store.getters.user.id;
     }
 
-    commit () {
+    async commit () {
         let mutations = [];
         switch (this.action) {
             case 'create':
@@ -25,7 +25,7 @@ class MocaMutationSet {
                 )];
                 if (!mutations.length) { return; }
                 this.notifyProjectOfMutations(mutations);
-                store.dispatch('pushMutations', mutations);
+                await store.dispatch('pushMutations', mutations);
                 break;
             case 'update':
                 mutations = [];
@@ -44,7 +44,7 @@ class MocaMutationSet {
                 }
                 if (!mutations.length) { return; }
                 this.notifyProjectOfMutations(mutations);
-                store.dispatch('pushMutations', mutations);
+                await store.dispatch('pushMutations', mutations);
                 break;
             case 'delete':
                 mutations = [new MocaMutation(
@@ -56,7 +56,7 @@ class MocaMutationSet {
                 )];
                 if (!mutations.length) { return; }
                 this.notifyProjectOfMutations(mutations);
-                store.dispatch('pushMutations', mutations);
+                await store.dispatch('pushMutations', mutations);
                 break;
             default: return;
         }
