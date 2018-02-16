@@ -101,7 +101,9 @@
                 return clients.map(client => ({type: 'client', object: client, time: client.lastPackage.expiration_date})); // @TODO - only needed for bad data
             },
             items () {
-                return _.orderBy([...this.projectItems, ...this.timeItems, ...this.clientItems], 'time', 'desc');
+                return this.user.canManage ?
+                    _.orderBy([...this.projectItems, ...this.timeItems, ...this.clientItems], 'time', 'desc') :
+                    _.orderBy([...this.projectItems], 'time', 'desc');
             },
             times () {
                 return [store.getters.time(this.selected.object.id)];
