@@ -22,6 +22,10 @@
             <div class="main">
                 <toolbar></toolbar>
                 <router-view></router-view>
+                <div class="sync-error" :class="{off: !appError}">
+                    <h1>Sync Failed. Retrying...</h1>
+                    <h2>If this doesn't go away, try refreshing. If it still fails, go to the profile editor and click Reset App. (Resetting will lose unsyced changes.)</h2>
+                </div>
             </div>
         </div>
         <transition name="modal-fade">
@@ -53,6 +57,9 @@
         computed: {
             modalOpen () {
                 return this.route.itemId !== null;
+            },
+            appError () {
+                return store.state.mocaSyncError;
             }
         },
         created () {
@@ -191,6 +198,28 @@
                 margin-bottom: 20px;
                 padding-top: $header-size;
                 right: 0; left: 0;
+
+                .sync-error {
+                    background: darken($red, 15);
+                    border-radius: 5px;
+                    color: white;
+                    font-size: 1.2em;
+                    padding: 15px;
+                    position: fixed;
+                        right: 20px; bottom: 20px; left: 100px;
+                    text-align: center;
+                    transition: 0.5s ease;
+                    z-index: 50;
+
+                    &.off {
+                        transform: translateY(120px);
+                    }
+
+                    h1 {
+                        font-size: 1.4em;
+                        font-weight: 900;
+                    }
+                }
 
             }
 

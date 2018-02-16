@@ -34,9 +34,11 @@ class Barista {
                 if (!response || !response.success) throw new Error(response && response.error ? response.error : 'No response from server.');
             }).then(() => {
                 Mocadex.unstageMutations(pushMutations);
+                store.dispatch('setMocaSyncError', false);
             }).catch(error => {
                 console.log('Failed to upload mutations. ' + error);
                 this.retrySync();
+                store.dispatch('setMocaSyncError', true);
                 return;
             });
         }
@@ -46,10 +48,12 @@ class Barista {
             if (!response || !response.mutations) throw new Error(response && response.error ? response.error : 'No response from server.');
             await Mocadex.applyMutations(response.mutations, {shouldStage: false}).then(async () =>{
                 await this.updateSyncMeta(response.last_sync);
+                store.dispatch('setMocaSyncError', false);
             });
         }).catch(error => {
             console.log('Failed to download mutations. ' + error);
             this.retrySync();
+            store.dispatch('setMocaSyncError', true);
             return;
         });
 

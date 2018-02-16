@@ -51,6 +51,7 @@ const state = {
             workerId: null
         }
     },
+    mocaSyncError: false,
     presence: [],
     route: { view: null, item: null },
     lastMutationTime: null,
@@ -319,7 +320,9 @@ const mutations = {
                 buffer.splice(foundIndex, 1);
             }
         }
-    }
+    },
+
+    setMocaSyncError(state, isFailing) { state.mocaSyncError = isFailing; }
 
 };
 
@@ -676,6 +679,7 @@ const actions = {
     },
     updateRoute (context, route) { context.commit('updateRoute', route); },
     updatePresence (context, {id, online}) { context.commit('updatePresence', {id, online}); },
+    setMocaSyncError (context, isFailing) { context.commit('setMocaSyncError', isFailing); }
 
 };
 
