@@ -6,7 +6,7 @@
                     <span>Conversations</span>
                     <span class="count">{{ countInboxItemsOfType('project') }}</span>
                 </div>
-                <div class="blurb">
+                <div class="blurb" v-if="$store.getters.user.canManage">
                     <span>Expirations</span>
                     <span class="count">{{ countInboxItemsOfType('client') }}</span>
                 </div>
