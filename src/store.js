@@ -152,7 +152,7 @@ const getters = {
     },
     pendingTimes: (state, getters) => getters.buffer('pendingTimes'),
     purchaseByPackage: (state, getters) => (id) => getters.buffer('purchases').find(x => x.package_id == id),
-    time: (state, getters) => (id) => getters.buffer('timesInPeriod', true, id) || getters.buffer('timesByProject', true, id),
+    time: (state, getters) => (id) => getters.buffer('timesInPeriod', true, id) || getters.buffer('timesByProject', true, id) || getters.buffer('pendingTimes', true, id),
     timesByProject: (state, getters) => (id) => getters.buffer('timesByProject', false, id),
     timesInPeriod: (state, getters) => _.orderBy(getters.buffer('timesInPeriod'), 'date', 'desc'),
 

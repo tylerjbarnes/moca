@@ -104,9 +104,7 @@
                 return _.orderBy([...this.projectItems, ...this.timeItems, ...this.clientItems], 'time', 'desc');
             },
             times () {
-                let times = [];
-                times.push(store.getters.time(this.selected.object.id));
-                return times;
+                return [store.getters.time(this.selected.object.id)];
             },
             disabledDates () {
                 return {
