@@ -509,7 +509,9 @@ const buffers = {
         fetch: () => new Promise(function(resolve, reject) {
             db.times.where('date').between(
                 store.state.uiFilters.times.period.start,
-                store.state.uiFilters.times.period.end
+                store.state.uiFilters.times.period.end,
+                true,
+                true
             ).toArray().then(primitives => { resolve(primitives); });
         }),
         shouldContain: (primitive) => {
