@@ -56,7 +56,7 @@ class Mocadex {
                 store.dispatch('updateBuffer', {mutations: appliedMutations, primitives: mutatedPrimitives});
                 resolve();
             }).catch(error => {
-                reject('Failed to Apply - ' + error);
+                reject('Failed to Apply - ' + error + ' - ' + mutations.map(x => x.id).join());
             });
         });
     }

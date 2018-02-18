@@ -30,6 +30,7 @@ class Barista {
         // push
         let pushMutations = await Mocadex.getStagedMutations();
         if (pushMutations.length) {
+            console.log('pushing');
             await hpmAPI('mutate', [pushMutations, pusher.socketId]).then(response => {
                 if (!response || !response.success) throw new Error(response && response.error ? response.error : 'No response from server.');
             }).then(() => {
@@ -37,7 +38,8 @@ class Barista {
                 store.dispatch('setMocaSyncError', false);
             }).catch(error => {
                 console.log('Failed to upload mutations. ' + error);
-                this.retrySync();
+                hpmAPI('log_error', [{user: store.getters.user.name, action: 'push', mutations: pushMutations}])
+                // this.retrySync();
                 store.dispatch('setMocaSyncError', true);
                 return;
             });
@@ -52,7 +54,8 @@ class Barista {
             });
         }).catch(error => {
             console.log('Failed to download mutations. ' + error);
-            this.retrySync();
+            hpmAPI('log_error', [{user: store.getters.user.name, action: 'pull', error: error}])
+            // this.retrySync();
             store.dispatch('setMocaSyncError', true);
             return;
         });
@@ -81,7 +84,7 @@ class Barista {
         setTimeout(() => {
             console.log('Attempting to re-connect.');
             self.sync();
-        }, 5000);
+        }, 15000);
     }
 
 }

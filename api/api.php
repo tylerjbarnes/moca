@@ -248,6 +248,7 @@ function hpm_api_mutations ( $since = NULL ) {
     //     }, $mutations))
     // );
     $last_sync = $wpdb->get_var( "SELECT datetime FROM $table ORDER BY datetime DESC LIMIT 1" );
+    if (!$last_sync) $last_sync = gmdate("Y-m-d H:i:s");
 
     $response = new stdClass();
     $response->mutations = $mutations;
@@ -393,6 +394,23 @@ function hpm_api_mutate ( $mutations, $socket_id ) {
     // $response->mutation_id = $mutation_id;
     // $response->integrity = $previous_mutation_id;
     return $response;
+
+}
+
+function hpm_api_log_error($data) {
+    global $wpdb;
+
+    // Push
+    $pusher = hpm_get_pusher();
+    $pusher->trigger(
+        'admin', 'error',
+        $data,
+        $socket_id
+    );
+    
+    // Store Mutations
+    $table = $wpdb->prefix . "hpm_errors";
+    $wpdb->insert( $table, ['data' => json_encode( $data )] );
 
 }
 

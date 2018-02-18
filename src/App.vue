@@ -23,8 +23,8 @@
                 <toolbar></toolbar>
                 <router-view></router-view>
                 <div class="sync-error" :class="{off: !appError}">
-                    <h1>Sync Failed. Retrying...</h1>
-                    <h2>If this doesn't go away, try refreshing. If it still fails, go to the profile editor and click Reset App. (Resetting will lose unsyced changes.)</h2>
+                    <h1>Sync Failed</h1>
+                    <h2>Please try refreshing. If it still fails, go to the profile editor and click Reset App. (Resetting will lose unsyced changes.)</h2>
                 </div>
             </div>
         </div>
@@ -212,7 +212,7 @@
                     z-index: 50;
 
                     &.off {
-                        transform: translateY(120px);
+                        transform: translateY(200px);
                     }
 
                     h1 {

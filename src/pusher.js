@@ -51,6 +51,7 @@ class MocaPusher {
 
     bindMutationEvents () {
         this.pusher.bind('mutate', datetime => {
+            console.log('pulling');
             store.dispatch('pullMutations');
         });
     }
@@ -66,7 +67,6 @@ class MocaPusher {
 
     bindStateEvents () {
         this.pusher.connection.bind('state_change', states => {
-            console.log('Pusher State Changed: ' + states.current);
             // if (states.current == 'connected') {
             //     store.dispatch('exportMutations');
             // }

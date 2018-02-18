@@ -74,6 +74,7 @@ if (mocaUserRole == 'client') {
     async function initLocalDb() {
         if (!forceRemoteLoad && (await Dexie.exists('mocadex'))) return;
         let initialData = await hpmAPI('objects');
+        console.log(initialData);
         await store.dispatch('installMocadex', {objects: initialData.objects, lastSync: initialData.last_sync});
     }
 
