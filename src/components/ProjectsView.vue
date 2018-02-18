@@ -2,12 +2,8 @@
 
     <div class="projects-view">
         <template v-if="$store.getters.user.canManage">
-            <template v-for="status in statuses">
-                <template v-if="projectsByStatus(status).length">
-                    <h1 class="title">{{ status | capitalize }}</h1>
-                    <project-collection :projects="projectsByStatus(status)"></project-collection>
-                </template>
-            </template>
+            <h1 class="title">Undelegated</h1>
+            <project-collection :fluid="true" :projects="undelegatedProjects"></project-collection>
         </template>
         <template v-else>
             <h1 class="title" v-if="activeProjects.length">Active</h1>
@@ -23,6 +19,7 @@
 <script>
     import ProjectCollection from './ProjectCollection.vue';
     import CanSearchProjects from '../mixins/CanSearchProjects.js';
+    import DragDropController from '../mixins/DragDropController.js';
 
     export default {
         name: 'projects-view',
@@ -32,21 +29,21 @@
         }},
         computed: {
             allProjects () {
-                return store.getters.user.projectsAssigned;
+                return this.user.canManage ?
+                    store.getters.activeProjects :
+                    store.getters.user.projectsAssigned;
             },
             activeProjects () {
                 return this.projects.filter(project => project.status == 'do');
             },
             pendingProjects () {
                 return this.projects.filter(project => project.status == 'approve');
+            },
+            undelegatedProjects () {
+                return this.projects.filter(x => x.status == 'delegate');
             }
         },
-        methods: {
-            projectsByStatus (status) {
-                return store.getters.projectsByStatus(status);
-            }
-        },
-        mixins: [CanSearchProjects]
+        mixins: [CanSearchProjects,DragDropController]
     }
 
 </script>

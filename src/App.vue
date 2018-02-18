@@ -3,7 +3,7 @@
         <header>
             <nav class="primary-nav">
                 <router-link :to="{name:'inbox'}"    class="navbar-item"                       >Inbox</router-link>
-                <router-link :to="{name:'projects'}" class="navbar-item" v-if="!user.canManage">Projects</router-link>
+                <router-link :to="{name:'projects'}" class="navbar-item"                       >Projects</router-link>
                 <router-link :to="{name:'team'}"     class="navbar-item" v-if="user.canManage" >Team</router-link>
                 <router-link :to="{name:'clients'}"  class="navbar-item" v-if="user.canManage" >Clients</router-link>
                 <router-link :to="{name:'time'}"     class="navbar-item"                       >Time</router-link>

@@ -22,11 +22,12 @@
         components: {Kanban,ProjectCard},
         computed: {
             sortedProjects () {
-                return this.projects.sort((a,b) => {
-                    let dateA = a.earliestDue ? a.earliestDue : null;
-                    let dateB = b.earliestDue ? b.earliestDue : null;
-                    return dateA == dateB ? a.name > b.name : dateA > dateB || dateA == null;
-                });
+                return _.orderBy(this.projects, 'due');
+                // return this.projects.sort((a,b) => {
+                //     let dateA = a.earliestDue ? a.earliestDue : null;
+                //     let dateB = b.earliestDue ? b.earliestDue : null;
+                //     return dateA == dateB ? a.name > b.name : dateA > dateB || dateA == null;
+                // });
             }
         }
     }
