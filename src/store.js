@@ -557,10 +557,12 @@ const actions = {
     // Object Gain
 
     gainProject (context, id) {
-        hpmAPI('object_dependents', ['project', id]).then(async (data) => {
-            await Mocadex.addObjects(data);
-            context.commit('updateBufferForObjects', data);
-        });
+        if (!store.getters.user.canManage) {
+            hpmAPI('object_dependents', ['project', id]).then(async (data) => {
+                await Mocadex.addObjects(data);
+                context.commit('updateBufferForObjects', data);
+            });
+        }
     },
 
     // loseProject (context, primitive) {

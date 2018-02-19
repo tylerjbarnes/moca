@@ -96,6 +96,18 @@ const routes = [
             }
         },
         {
+            path: '/projects/project-editor/:id',
+            name: 'projects-project-editor',
+            components: {
+                default: ProjectsView,
+                modal: ProjectEditor
+            },
+            props: {
+                default: false,
+                modal: true
+            }
+        },
+        {
             path: '/projects/:id',
             name: 'projects-project',
             components: {
