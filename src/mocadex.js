@@ -42,6 +42,10 @@ class Mocadex {
      */
     async applyMutations(mutations, {shouldStage}) {
         let self = this;
+        let createMutations = mutations.filter(x => x.action == 'create');
+        let updateMutations = mutations.filter(x => x.action == 'update');
+        let deleteMutations = mutations.filter(x => x.action == 'delete');
+        mutations = [...createMutations, ...updateMutations, ...deleteMutations];
         await self.gainObjects(mutations);
         return new Promise(function(resolve, reject) {
             db.transaction('rw', db.persons, db.times, db.packages, db.resources, db.messages, db.projects,
