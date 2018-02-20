@@ -38,7 +38,7 @@ class Barista {
                 store.dispatch('setMocaSyncError', false);
             }).catch(error => {
                 console.log('Failed to upload mutations. ' + error);
-                hpmAPI('log_error', [{user: store.getters.user.name, action: 'push', mutations: pushMutations}])
+                hpmAPI('log_error', [{user: store.getters.user.name, action: 'push', mutations: pushMutations, error}])
                 // this.retrySync();
                 store.dispatch('setMocaSyncError', true);
                 return;
@@ -76,7 +76,7 @@ class Barista {
      */
     async updateSyncMeta(lastSync) {
         await Mocadex.setLastSync(lastSync);
-        await Mocadex.flushAppliedMutations(lastSync);
+        // await Mocadex.flushAppliedMutations(lastSync);
     }
 
     retrySync() {
