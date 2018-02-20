@@ -88,6 +88,7 @@ class Mocadex {
      * @returns {Promise}
      */
      async applyMutation(mutation) {
+        mocaError.logString('Attempting to apply ' + mutation.id + '(' + mutation.action + ' ' + mutation.object_type + ' ' + mutation.object_id + ')');
         if (await this.mutationAlreadyApplied(mutation)) {
             return;
         }

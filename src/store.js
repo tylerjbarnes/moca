@@ -541,12 +541,14 @@ const actions = {
 
     // Mocadex Setup
 
-    installMocadex (context, {objects, lastSync}) {
+    installMocadex (context, {objects, lastSync, appliedMutations}) {
         return new Promise(function(resolve, reject) {
             Mocadex.clearData().then(() => {
                 return Mocadex.addObjects(objects);
             }).then(() => {
                 return Mocadex.setLastSync(lastSync);
+            }).then(() => {
+                return Mocadex.logMutationsAsApplied(appliedMutations);
             }).then(() => {
                 resolve();
             });
@@ -670,6 +672,7 @@ const actions = {
             let fetchPromises = initialBuffers.map(x => store.dispatch('fetch', x));
             Promise.all(fetchPromises).then(() => {
                 bus.$emit('initialized');
+                Barista.sync();
             });
         });
         // Mocadex.getLastMutationTime().then((lastSync) => {
@@ -679,7 +682,7 @@ const actions = {
         //
         // });
         // context.commit('loadRecentMutations');
-        Barista.sync();
+
     },
     updateRoute (context, route) { context.commit('updateRoute', route); },
     updatePresence (context, {id, online}) { context.commit('updatePresence', {id, online}); },

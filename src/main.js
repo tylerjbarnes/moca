@@ -25,6 +25,8 @@ import MocaPusher from './pusher.js';
 import Dexie from 'dexie';
 window.bus = new Vue();
 
+window.mocaError = null;
+
 // Global Mixin
 Vue.mixin({
     data () { return {
@@ -75,7 +77,7 @@ if (mocaUserRole == 'client') {
         if (!forceRemoteLoad && (await Dexie.exists('mocadex'))) return;
         let initialData = await hpmAPI('objects');
         console.log(initialData);
-        await store.dispatch('installMocadex', {objects: initialData.objects, lastSync: initialData.last_sync});
+        await store.dispatch('installMocadex', {objects: initialData.objects, lastSync: initialData.last_sync, appliedMutations: initialData.applied_mutations});
     }
 
     // Then Initialize Store & Create Pusher

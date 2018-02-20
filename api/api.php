@@ -26,7 +26,14 @@ function hpm_api_objects() {
 
     $user_id = hpm_user_id();
     $response->objects = $objects;
-    $response->last_sync = gmdate("Y-m-d H:i:s");
+
+    global $wpdb;
+    $table = $wpdb->prefix . 'hpm_mutations';
+    $last_sync = $wpdb->get_var( "SELECT datetime FROM $table ORDER BY datetime DESC LIMIT 1" );
+    if (!$last_sync) $last_sync = gmdate("Y-m-d H:i:s");
+    $response->last_sync = $last_sync;
+
+    $response->applied_mutations = hpm_api_mutations( $response->last_sync )->mutations;
 
     return $response;
 
@@ -407,7 +414,7 @@ function hpm_api_log_error($data) {
         $data,
         $socket_id
     );
-    
+
     // Store Mutations
     $table = $wpdb->prefix . "hpm_errors";
     $wpdb->insert( $table, ['data' => json_encode( $data )] );

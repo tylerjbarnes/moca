@@ -3,7 +3,7 @@
     <div class="person-row">
         <img :src="person.avatar" class="avatar">
         <span class="name">{{ person.name }}</span>
-        <icon name="recycle" @click="unarchive" scale="1.5"></icon>
+        <span @click="unarchive"><icon name="recycle" scale="1.5"></icon></span>
     </div>
 
 </template>
