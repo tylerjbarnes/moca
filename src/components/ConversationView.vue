@@ -39,6 +39,13 @@
                 return this.messagePrimitive.content;
             }
         },
+        watch: {
+            messages: function(newVal, oldVal) {
+                if (!oldVal || !oldVal.length) {
+                    this.$refs.items.scrollTop = this.$refs.items.scrollHeight;
+                }
+            }
+        },
         methods: {
             handleEnter (e) {
                 if (e.keyCode == 13) {
