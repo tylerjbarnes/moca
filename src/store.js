@@ -461,7 +461,7 @@ const buffers = {
     balances: {
         primitiveType: null,
         fetch: () => new Promise(function(resolve, reject) {
-            db.persons.where('role').equals('client').and(x => !x.archived).toArray(clients => {
+            db.persons.where('role').equals('client').toArray(clients => {
                 let timePromises = clients.map(client => new Promise(function(resolveInner, rejectInner) {
                     db.times.where('client_id').equals(client.id).toArray()
                         .then(times => {
@@ -682,7 +682,6 @@ const actions = {
         let fetchPromises = initialBuffers.map(x => store.dispatch('fetch', x));
         await Promise.all(fetchPromises);
         bus.$emit('initialized');
-        await Barista.sync();
 
     },
     updateRoute (context, route) { context.commit('updateRoute', route); },

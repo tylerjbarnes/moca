@@ -22,6 +22,7 @@ import ClientApp from './ClientApp.vue';
 import router from './router.js';
 import store from './store.js'; window.store = store;
 import MocaPusher from './pusher.js';
+import Barista from './barista.js';
 import Dexie from 'dexie';
 window.bus = new Vue();
 
@@ -84,6 +85,7 @@ if (mocaUserRole == 'client') {
     initLocalDb().then(async () => {
         await store.dispatch('initialize', currentUserWpId);
         window.pusher = new MocaPusher();
+        await Barista.sync();
     });
 
 }

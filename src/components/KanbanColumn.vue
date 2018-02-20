@@ -46,8 +46,9 @@
         },
         methods: {
             projectIsPending (project) {
-                let role = this.person.role == 'administrator' ? 'manager' : this.person.role;
-                let isDifferentPerson = project[role + '_id'] != this.person.id;
+                // let role = this.person.role == 'administrator' ? 'manager' : this.person.role;
+                // let isDifferentPerson = project[role + '_id'] != this.person.id;
+                let isDifferentPerson = false; // TEMP
                 return project.status != this.title || isDifferentPerson;
             },
             canAcceptProject (project) {
