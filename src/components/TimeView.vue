@@ -53,6 +53,10 @@
             addPackage() {
                 this.$refs.timeTable.newPackage();
             }
+        },
+        mounted () {
+            let savedScroll = localStorage['timeScroll'];
+            document.body.scrollTop = savedScroll;
         }
     }
 
