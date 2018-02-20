@@ -438,6 +438,15 @@ const buffers = {
         }),
         shouldContain: (primitive) => messageIsResolvable(primitive)
     },
+    // unresolvedMessages: {
+    //     primitiveType: 'message',
+    //     fetch: () => new Promise(function(resolve, reject) {
+    //         db.messages.where('resolved').equals(0).toArray().then(primitives => {
+    //             resolve(primitives);
+    //         });
+    //     }),
+    //     shouldContain: (primitive) => !message.resolved
+    // },
 
     // resources
     resourcesByProject: {
@@ -658,6 +667,7 @@ const actions = {
             {bufferName: 'activeProjects'},
             {bufferName: 'archivedProjects'},
             {bufferName: 'resolvableMessages'},
+            // {bufferName: 'unresolvedMessages'},
             {bufferName: 'balances'},
             {bufferName: 'pendingTimes'},
             {bufferName: 'packages'},

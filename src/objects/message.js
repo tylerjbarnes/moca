@@ -55,7 +55,7 @@ class Message extends MocaObject {
                 }
                 break;
             case 'message':
-                // let request = store.getters.object(this.content.object_id);
+                let request = store.getters.object('message', this.content.object_id);
                 let requesterName = request.author_id == store.getters.user.id ? 'your' : store.getters.person(request.author_id).firstName + "'s";
                 switch (request.content.granted) {
                     case true: string = name + ' allowed ' + requesterName + ' time request'; break;
