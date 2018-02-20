@@ -660,7 +660,7 @@ const actions = {
         }
 
     },
-    initialize (context, wpId) {
+    async initialize (context, wpId) {
         let initialBuffers = [
             {bufferName: 'activePersons'},
             {bufferName: 'archivedPersons'},
@@ -676,22 +676,13 @@ const actions = {
             {bufferName: 'projectsForTimesInPeriod'},
             {bufferName: 'projectsWithUnresolvedMessages'}
         ];
-        db.persons.get({ wp_id: wpId }).then((userPrimitive) => {
-            context.commit('setUser', userPrimitive.id);
+        let userPrimitive = await db.persons.get({ wp_id: wpId });
+        context.commit('setUser', userPrimitive.id);
 
-            let fetchPromises = initialBuffers.map(x => store.dispatch('fetch', x));
-            Promise.all(fetchPromises).then(() => {
-                bus.$emit('initialized');
-                Barista.sync();
-            });
-        });
-        // Mocadex.getLastMutationTime().then((lastSync) => {
-        //     context.commit('setLastMutationTime', lastSync ? lastSync.value : null);
-        //
-        //     // store.dispatch('importMutations');
-        //
-        // });
-        // context.commit('loadRecentMutations');
+        let fetchPromises = initialBuffers.map(x => store.dispatch('fetch', x));
+        await Promise.all(fetchPromises);
+        bus.$emit('initialized');
+        await Barista.sync();
 
     },
     updateRoute (context, route) { context.commit('updateRoute', route); },
