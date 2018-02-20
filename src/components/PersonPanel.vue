@@ -43,7 +43,7 @@
                 <template v-if="person.role != 'client'">
                     <template v-if="person.projectsAssigned && person.projectsAssigned.length">
                         <h2 class="collection-title" v-if="person.canManage">Assigned</h2>
-                        <project-collection :projects="filterProjects(person.projectsAssigned)" :person="person"></project-collection>
+                        <project-collection :projects="filterProjects(person.projectsAssigned)" :kanban="true" :person="person"></project-collection>
                     </template>
                     <template v-if="person.canManage">
                         <h2 class="collection-title">Managing</h2>
