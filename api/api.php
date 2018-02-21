@@ -272,7 +272,7 @@ function hpm_api_mutations ( $since = NULL ) {
  * @return Object response with new last id
  */
 function hpm_api_mutate ( $mutations, $socket_id ) {
-
+    return;
     global $wpdb;
     $previous_mutation_id = hpm_user_last_mutation_id();
 
@@ -286,10 +286,10 @@ function hpm_api_mutate ( $mutations, $socket_id ) {
                         $mutation->property_value->author_id == NULL
                     );
                     $valid_resolve = $mutation->action == 'update' && $mutation->property_name == 'resolved';
-                    if ( !$valid_create && !$valid_resolve ) { return; }
+                    if ( !$valid_create && !$valid_resolve ) { return (object) ["error" => "Invalid message mutation by contractor"]; }
                     break;
                 case 'package':
-                    return;
+                    return (object) ["error" => "Invalid package mutation by contractor"];
                 case 'person':
                     if (
                         $mutation->action !== 'update' ||
@@ -297,7 +297,7 @@ function hpm_api_mutate ( $mutations, $socket_id ) {
                         !in_array( $mutation->property_name,
                             ['color', 'time_offset', 'cell_provider', 'cell_number', 'notification_time']
                         )
-                    ) { return; }
+                    ) { return (object) ["error" => "Invalid person mutation by contractor"]; }
                     break;
                 case 'project':
                     $project = hpm_object( 'project', $mutation->object_id );
@@ -306,13 +306,13 @@ function hpm_api_mutate ( $mutations, $socket_id ) {
                         $project->contractor_id !== hpm_user_id() ||
                         $mutation->property_name !== 'status' ||
                         $mutation->property_value !== 'approve'
-                    ) { return; }
+                    ) { return (object) ["error" => "Invalid project mutation by contractor"]; }
                     break;
                 case 'resource':
-                    if ( !in_array( $mutation->action, ['create', 'update'] ) ) { return; }
+                    if ( !in_array( $mutation->action, ['create', 'update'] ) ) { return (object) ["error" => "Invalid resource mutation by contractor"]; }
                     break;
                 case 'time':
-                    if ( !in_array( $mutation->action, ['create', 'update'] ) ) { return; }
+                    if ( !in_array( $mutation->action, ['create', 'update'] ) ) { return (object) ["error" => "Invalid time mutation by contractor"]; }
                     break;
                 default: break;
             }

@@ -36,6 +36,7 @@ class Barista {
         if (pushMutations.length) {
             console.log('pushing');
             await hpmAPI('mutate', [pushMutations, pusher.socketId]).then(response => {
+                mocaError.setPushResponse(response);
                 if (!response || !response.success) throw new Error(response && response.error ? response.error : 'No response from server.');
             }).then(() => {
                 mocaError.logString('Pushed staged mutations');

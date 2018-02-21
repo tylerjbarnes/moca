@@ -18,6 +18,11 @@ class MocaError {
         this.logString('Found ' + stagedMutations.length + ' staged mutations.');
     }
 
+    setPushResponse(pushResponse) {
+        this.pushResponse = pushResponse;
+        this.logString('Received push response.');
+    }
+
     setPulledMutations (pulledMutations) {
         this.pulledMutations = pulledMutations;
         this.logString('Pulled ' + pulledMutations.length + ' mutations.');
@@ -42,6 +47,7 @@ class MocaError {
                     finalLastSync: this.finalLastSync,
                     stagedMutations: this.stagedMutations,
                     pulledMutations: this.pulledMutations,
+                    pushResponse: this.pushResponse,
                     failedProcess: this.failedProcess,
                     innerError: this.innerError
                 }
