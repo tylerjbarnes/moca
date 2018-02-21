@@ -272,7 +272,6 @@ function hpm_api_mutations ( $since = NULL ) {
  * @return Object response with new last id
  */
 function hpm_api_mutate ( $mutations, $socket_id ) {
-    return;
     global $wpdb;
     $previous_mutation_id = hpm_user_last_mutation_id();
 
@@ -318,7 +317,7 @@ function hpm_api_mutate ( $mutations, $socket_id ) {
             }
         }
     }
-
+log_error('Got past restrict mutations');
     // Push Lose Prompt
     $pusher = hpm_get_pusher();
     foreach ( $mutations as $mutation ) {
@@ -333,7 +332,7 @@ function hpm_api_mutate ( $mutations, $socket_id ) {
             }
         }
     }
-
+log_error('Got past push lose prompt');
     // Store Mutations
     $table = $wpdb->prefix . "hpm_mutations";
     foreach( $mutations as $mutation ) {
@@ -343,14 +342,14 @@ function hpm_api_mutate ( $mutations, $socket_id ) {
         $wpdb->insert( $table, (array) $flattened_mutation, array("%s","%s","%s","%s","%s","%s") );
     }
     // $mutation_id = $wpdb->insert_id;
-
+log_error('Got past store mutations');
     // Push Mutations
     // $data = (object) ['mutations' => $mutations, 'mutation_id' => $mutation_id, 'integrity' => hpm_last_mutation_ids()];
     $data = (object) ['datetime' => gmdate("Y-m-d H:i:s")];
     $channels = hpm_channels( $mutations );
     // hpm_set_last_mutation_ids( $channels, $mutation_id );
     $pusher->trigger($channels, 'mutate', $data, $socket_id);
-
+log_error('Got past push mutations');
     // Apply Mutations
     foreach( $mutations as $mutation ) {
         $table = $wpdb->prefix . 'hpm_' . $mutation->object_type . 's';
@@ -367,7 +366,7 @@ function hpm_api_mutate ( $mutations, $socket_id ) {
             default: break;
         }
     }
-
+error_log('Got past apply mutations');
     // Push Gain Prompt & Text Notification
     foreach ( $mutations as $mutation ) {
         if ( $mutation->object_type == 'project' && $mutation->property_name == 'contractor_id' ) {
@@ -381,7 +380,7 @@ function hpm_api_mutate ( $mutations, $socket_id ) {
             }
         }
     }
-
+error_log('Got past gain prompt & text notification');
     // Send Client Used All Hours Text Notification
     foreach( $mutations as $mutation ) {
         if ( $mutation->object_type == 'time' ) {
@@ -394,7 +393,7 @@ function hpm_api_mutate ( $mutations, $socket_id ) {
             }
         }
     }
-
+error_log('Got past send client used all hours notification');
     // Respond
     $response = new stdClass();
     $response->success = true;

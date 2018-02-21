@@ -78,7 +78,7 @@ function hpm_send_project_assigned_notification( $contractor_id, $project_id ) {
  */
 function hpm_send_client_used_all_hours_notification( $client_id ) {
     $client = hpm_object('person', $client_id );
-	hpm_send_notification( "1", $client->name . " has used up their hours." );
+	hpm_send_notification( "c5b7fro2h40001ofsvuunw4c13", $client->name . " has used up their hours." );
 }
 
 
