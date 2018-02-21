@@ -274,7 +274,7 @@ function hpm_api_mutations ( $since = NULL ) {
 function hpm_api_mutate ( $mutations, $socket_id ) {
     global $wpdb;
     $previous_mutation_id = hpm_user_last_mutation_id();
-
+error_log('Got past setting previous mutation id');
     // Restrict Mutations
     if ( hpm_user_role() == 'contractor' ) {
         foreach( $mutations as $mutation ) {
@@ -317,7 +317,7 @@ function hpm_api_mutate ( $mutations, $socket_id ) {
             }
         }
     }
-log_error('Got past restrict mutations');
+error_log('Got past restrict mutations');
     // Push Lose Prompt
     $pusher = hpm_get_pusher();
     foreach ( $mutations as $mutation ) {
@@ -332,7 +332,7 @@ log_error('Got past restrict mutations');
             }
         }
     }
-log_error('Got past push lose prompt');
+error_log('Got past push lose prompt');
     // Store Mutations
     $table = $wpdb->prefix . "hpm_mutations";
     foreach( $mutations as $mutation ) {
@@ -342,14 +342,14 @@ log_error('Got past push lose prompt');
         $wpdb->insert( $table, (array) $flattened_mutation, array("%s","%s","%s","%s","%s","%s") );
     }
     // $mutation_id = $wpdb->insert_id;
-log_error('Got past store mutations');
+error_log('Got past store mutations');
     // Push Mutations
     // $data = (object) ['mutations' => $mutations, 'mutation_id' => $mutation_id, 'integrity' => hpm_last_mutation_ids()];
     $data = (object) ['datetime' => gmdate("Y-m-d H:i:s")];
     $channels = hpm_channels( $mutations );
     // hpm_set_last_mutation_ids( $channels, $mutation_id );
     $pusher->trigger($channels, 'mutate', $data, $socket_id);
-log_error('Got past push mutations');
+error_log('Got past push mutations');
     // Apply Mutations
     foreach( $mutations as $mutation ) {
         $table = $wpdb->prefix . 'hpm_' . $mutation->object_type . 's';
