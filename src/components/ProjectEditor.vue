@@ -180,21 +180,23 @@
                     'project',
                     this.projectPrimitive.id,
                     this.projectPrimitive
-                ).commit();
+                ).commit().then(() => {
 
-                // Commit Resource
-                if (this.resourcePrimitive.content.body) {
-                    this.resourcePrimitive.client_id = this.projectPrimitive.client_id;
-                    this.resourcePrimitive.project_id = this.projectPrimitive.id;
-                    new MocaMutationSet(
-                        'create', 'resource', this.resourcePrimitive.id,
-                        this.resourcePrimitive
-                    ).commit();
-                }
+                    // Commit Resource
+                    if (this.resourcePrimitive.content.body) {
+                        this.resourcePrimitive.client_id = this.projectPrimitive.client_id;
+                        this.resourcePrimitive.project_id = this.projectPrimitive.id;
+                        new MocaMutationSet(
+                            'create', 'resource', this.resourcePrimitive.id,
+                            this.resourcePrimitive
+                        ).commit();
+                    }
 
-                // Route to Project
-                let currentTab = router.currentRoute.path.split("/")[1];
-                router.push({ name: currentTab + '-project', params: {id: this.projectPrimitive.id} });
+                    // Route to Project
+                    let currentTab = router.currentRoute.path.split("/")[1];
+                    router.push({ name: currentTab + '-project', params: {id: this.projectPrimitive.id} });
+                    
+                });
 
             },
             focusOnContractor () {
