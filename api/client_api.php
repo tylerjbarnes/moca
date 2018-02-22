@@ -80,18 +80,18 @@ function hpm_client_balance( $client_id ) {
 
     // Get Credit Rows from DB
     $credits = (float) $wpdb->get_var(join(' ', [
-        "SELECT SUM(hours)",
+        "SELECT SUM(ABS(hours))",
         "FROM $time_table",
         "WHERE client_id = '$client_id'",
-        "AND type = 'credit';"
+        "AND type = 'purchase';"
     ]));
 
     // Get Debit Rows from DB
     $debits = (float) $wpdb->get_var(join(' ', [
-        "SELECT SUM(hours)",
+        "SELECT SUM(ABS(hours))",
         "FROM $time_table",
         "WHERE client_id = '$client_id'",
-        "AND type != 'credit';"
+        "AND type != 'purchase';"
     ]));
 
     return $credits - $debits;
