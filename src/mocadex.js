@@ -42,15 +42,22 @@ class Mocadex {
      */
     async applyMutations(mutations, {shouldStage}) {
         let self = this;
-        let createMutations = mutations.filter(x => x.action == 'create');
-        let updateMutations = mutations.filter(x => x.action == 'update');
-        let deleteMutations = mutations.filter(x => x.action == 'delete');
-        mutations = [...createMutations, ...updateMutations, ...deleteMutations];
+        // let createMutations = mutations.filter(x => x.action == 'create');
+        // let updateMutations = mutations.filter(x => x.action == 'update');
+        // let deleteMutations = mutations.filter(x => x.action == 'delete');
+        // mutations = [...createMutations, ...updateMutations, ...deleteMutations];
         await self.gainObjects(mutations);
         return new Promise(function(resolve, reject) {
             db.transaction('rw', db.persons, db.times, db.packages, db.resources, db.messages, db.projects,
             db.appliedMutations, db.stagedMutations, async () => {
-                let appliedMutationIds = (await Promise.all(mutations.map(x => self.applyMutation(x)))).filter(x => x !== undefined);
+                let createMutations = mutations.filter(x => x.action == 'create');
+                let updateMutations = mutations.filter(x => x.action == 'update');
+                let deleteMutations = mutations.filter(x => x.action == 'delete');
+                // let appliedMutationIds = (await Promise.all(mutations.map(x => self.applyMutation(x)))).filter(x => x !== undefined);
+                let appliedCreateIds = (await Promise.all(createMutations.map(x => self.applyMutation(x)))).filter(x => x !== undefined);
+                let appliedUpdateIds = (await Promise.all(updateMutations.map(x => self.applyMutation(x)))).filter(x => x !== undefined);
+                let appliedDeleteIds = (await Promise.all(deleteMutations.map(x => self.applyMutation(x)))).filter(x => x !== undefined);
+                let appliedMutationIds = [...appliedCreateIds, ...appliedUpdateIds, ...appliedDeleteIds];
                 await self.logMutationsAsApplied(mutations);
                 if (shouldStage) await self.stageMutations(mutations);
                 return appliedMutationIds;
