@@ -116,17 +116,22 @@ function hpm_typify_data_from_db( $data ) {
             'wp_id',
             'cell_provider',
             'cell_number',
-            'target',
-            'due',
-            'max',
             'autocycle',
             'contractor_id',
             'manager_id',
             'worker_id',
-            'cycle',
             'package_id',
             'last_editor_id'
-        ])) { $typified->$key = NULL; } else {
+        ])) {
+            $typified->$key = NULL;
+        } else if ($value == "" && in_array($key,[
+            'target',
+            'due',
+            'max',
+            'cycle'
+        ])) {
+            $typified->$key = 0;
+        } else {
             switch ($key) {
                 case 'archived':
                 case 'flagged':
