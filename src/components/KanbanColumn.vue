@@ -26,13 +26,7 @@
         }},
         computed: {
             items () {
-                return _.orderBy([...this.pendingProjects, ...this.projects], 'due');
-                // return [...this.pendingProjects, ...this.projects]
-                //     .sort((a,b) => {
-                //         let dateA = a.earliestDue ? a.earliestDue : null;
-                //         let dateB = b.earliestDue ? b.earliestDue : null;
-                //         return dateA == dateB ? a.name > b.name : dateA > dateB || dateA == null;
-                //     });
+                return _.orderBy([...this.pendingProjects, ...this.projects], 'target');
             },
             tagsToShow () {
                 switch (this.person.role) {
