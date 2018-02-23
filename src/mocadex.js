@@ -42,10 +42,6 @@ class Mocadex {
      */
     async applyMutations(mutations, {shouldStage}) {
         let self = this;
-        // let createMutations = mutations.filter(x => x.action == 'create');
-        // let updateMutations = mutations.filter(x => x.action == 'update');
-        // let deleteMutations = mutations.filter(x => x.action == 'delete');
-        // mutations = [...createMutations, ...updateMutations, ...deleteMutations];
         await self.gainObjects(mutations);
         return new Promise(function(resolve, reject) {
             db.transaction('rw', db.persons, db.times, db.packages, db.resources, db.messages, db.projects,
@@ -53,7 +49,6 @@ class Mocadex {
                 let createMutations = mutations.filter(x => x.action == 'create');
                 let updateMutations = mutations.filter(x => x.action == 'update');
                 let deleteMutations = mutations.filter(x => x.action == 'delete');
-                // let appliedMutationIds = (await Promise.all(mutations.map(x => self.applyMutation(x)))).filter(x => x !== undefined);
                 let appliedCreateIds = (await Promise.all(createMutations.map(x => self.applyMutation(x)))).filter(x => x !== undefined);
                 let appliedUpdateIds = (await Promise.all(updateMutations.map(x => self.applyMutation(x)))).filter(x => x !== undefined);
                 let appliedDeleteIds = (await Promise.all(deleteMutations.map(x => self.applyMutation(x)))).filter(x => x !== undefined);
@@ -246,91 +241,6 @@ class Mocadex {
             }
         }
     }
-
-
-
-
-
-
-
-    // /**
-    //  * Remove mutations from Pending Queue
-    //  * @param  {MocaMutation[]} mutations
-    //  * @return {Promise}
-    //  */
-    // confirmMutations(mutations) {
-    //     return new Promise(function(resolve, reject) {
-    //         db.pendingMutations.bulkDelete(mutations.map(x => x.id)).then(() => { resolve(); });
-    //     });
-    // }
-    //
-    // /**
-    //  * Update Last Mutation Time
-    //  * @param  {string} datetime
-    //  * @return {Promise}
-    //  */
-    // updateLastMutationTime(datetime) {
-    //     return new Promise(function(resolve, reject) {
-    //         db.ui.put({id: 'lastSync', value: datetime}).then(() => { resolve(); });
-    //     });
-    // }
-    //
-    // /**
-    //  * Get Last Mutation Time
-    //  * @return {Promise}
-    //  */
-    // getLastMutationTime() {
-    //     return new Promise(function(resolve, reject) {
-    //         db.ui.get('lastSync').then(datetime => { resolve(datetime); });
-    //     });
-    // }
-    //
-    //
-    //
-    // /**
-    //  * Upload mutations & download missed mutations
-    //  */
-    // sync() {
-    //     // upload mutations
-    //     // if integrity check fails (pusher events have been missed)
-    //     // -- rollback processing queue
-    //     // -- download & add missing mutations to processing queue
-    //     // -- re-apply queue
-    // }
-    //
-    //
-    //
-    // /**
-    //  * Dispatch buffer update to Vuex
-    //  * @param  {mocaMutation} mutation
-    //  */
-    // dispatchBufferUpdate(mutation) {
-    //     for (let bufferName in buffers) {
-    //         let buffer = buffers[bufferName];
-    //         if (buffer.primitiveType != mutation.object_type) continue;
-    //
-    //         switch (mutation.action) {
-    //             case 'create':
-    //             case 'update':
-    //                 buffer.shouldContain(primitive) ?
-    //                     state.buffer[bufferName][mutation.object_id] = primitive :
-    //                     delete state.buffer[bufferName][mutation.object_id];
-    //                 var description = buffer.shouldContain(primitive) ? 'add/update: ' : 'remove: ';
-    //                 description += mutation.object_id + ' for ' + bufferName;
-    //                 console.log(description);
-    //                 break;
-    //             case 'delete':
-    //                 delete state.buffer[bufferName][mutation.object_id];
-    //                 console.log('remove: ' + mutation.object_id + ' for ' + bufferName);
-    //                 break;
-    //             default:
-    //                 console.log(new Error('Impossible Case'));
-    //         }
-    //
-    //     }
-    // }
-
-
 
 }
 
