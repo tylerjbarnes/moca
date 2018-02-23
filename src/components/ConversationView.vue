@@ -85,6 +85,11 @@
             focus () {
                 this.$refs.textarea.focus();
             }
+        },
+        watch: {
+            project: function(newVal) {
+                this.messagePrimitive = this.newMessagePrimitive();
+            }
         }
     }
 

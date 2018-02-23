@@ -7,17 +7,17 @@
                 :type="item.type"
                 :time="item.time"
                 :object="item.object"
-                :selected="selected && item.object.id === selected.object.id"
-                @selected = "select(item)"
+                :selected="itemIsSelected(item)"
+                @selected = "requestSelectionByItem(item)"
             ></inbox-item>
         </div>
         <div class="preview">
-            <template v-if="!selected">Wow, Inbox Zero. Nice 👌</template>
-            <template v-else-if="selected.type == 'project'">
-                <!-- <project-header :project="selected.object" :external="true"></project-header> -->
-                <conversation-view ref="focalPoint" :project="selected.object"></conversation-view>
+            <template v-if="!selectedItem">Wow, Inbox Zero. Nice 👌</template>
+            <template v-else-if="selectedItem.type == 'project'">
+                <project-header :project="selectedItem.object" :external="true"></project-header>
+                <conversation-view ref="focalPoint" :project="selectedItem.object"></conversation-view>
             </template>
-            <template v-else-if="selected.type == 'time'">
+            <template v-else-if="selectedItem.type == 'time'">
                 <div class="time-table-wrapper">
                     <time-table :times="times"></time-table>
                     <div class="actions">
@@ -26,24 +26,24 @@
                     </div>
                 </div>
             </template>
-            <template v-else-if="selected.type == 'client'">
+            <template v-else-if="selectedItem.type == 'client'">
                 <div class="avatar">
-                    <img :src="selected.object.avatar">
+                    <img :src="selectedItem.object.avatar">
                 </div>
-                <span class="title">{{ selected.object.name }}</span>
-                <span>{{ selected.object.expirationDescription }}</span>
+                <span class="title">{{ selectedItem.object.name }}</span>
+                <span>{{ selectedItem.object.expirationDescription }}</span>
                 <div class="blurbs">
                     <div class="blurb">
                         <label>Balance</label>
-                        <span :class="{negative: selected.object.balance < 0}">{{ selected.object.balance | hours }}</span>
+                        <span :class="{negative: selectedItem.object.balance < 0}">{{ selectedItem.object.balance | hours }}</span>
                     </div>
                     <div class="blurb">
                         <label>Budgeted</label>
-                        <span :class="{negative: selected.object.hoursBudgetedOnActiveProjects < 0}">{{ selected.object.hoursBudgetedOnActiveProjects | hours }}</span>
+                        <span :class="{negative: selectedItem.object.hoursBudgetedOnActiveProjects < 0}">{{ selectedItem.object.hoursBudgetedOnActiveProjects | hours }}</span>
                     </div>
                     <div class="blurb">
                         <label>Available</label>
-                        <span :class="{negative: selected.object.hoursAvailable < 0}">{{ selected.object.hoursAvailable | hours }}</span>
+                        <span :class="{negative: selectedItem.object.hoursAvailable < 0}">{{ selectedItem.object.hoursAvailable | hours }}</span>
                     </div>
                 </div>
                 <date-input v-model="extensionDate" :upward="true" :disabledDates="disabledDates" :placeholder="'New Expiration Date'"></date-input>
@@ -72,14 +72,10 @@
         components: {ConversationView,DateInput,InboxItem,ProjectHeader,TimeTable},
         props: [],
         data () { return {
-            // fetch: [{bufferName: 'projectsWithUnresolvedMessages'}, {bufferName: 'balances'}, {bufferName: 'pendingTimes'}],
-            selectedIndex: null,
+            selectedItem: null,
             extensionDate: null
         }},
         computed: {
-            selected () {
-                return this.items[this.selectedIndex];
-            },
             projectItems () {
                 let projects = store.getters.projectsWithResolvableMessages;
                 return projects
@@ -97,7 +93,6 @@
             },
             clientItems () {
                 let clients = store.getters.expiredClients;
-                // return clients.map(client => ({type: 'client', object: client, time: client.lastPackage.time.date}));
                 return clients.map(client => ({type: 'client', object: client, time: client.lastPackage.expiration_date})); // @TODO - only needed for bad data
             },
             items () {
@@ -106,40 +101,59 @@
                     _.orderBy([...this.projectItems], 'time', 'desc');
             },
             times () {
-                return [store.getters.time(this.selected.object.id)];
+                return [store.getters.time(this.selectedItem.object.id)];
             },
             disabledDates () {
                 return {
-                    to: new Date(moment(this.selected.object.lastPackage.expiration_date).add(1,'days'))
+                    to: new Date(moment(this.selectedItem.object.lastPackage.expiration_date).add(1,'days'))
                 };
             }
         },
         methods: {
-            onReady() {
-                if (this.items.length && !this.selected) {
-                    this.select(this.items[0]);
+            async requestSelectionByItem (item) {
+                if (item.type == 'project') {
+                    await store.dispatch('fetch', {bufferName: 'messagesByProject', id: item.object.id});
+                    await store.dispatch('fetch', {bufferName: 'timesByProject', id: item.object.id});
                 }
-                bus.$on('keydown', (keyCode) => { this.keydown(keyCode); });
+                this.setSelection(item.object.id);
             },
-            select(item) {
-                var vm = this;
-                store.dispatch('fetch', {bufferName: 'messagesByProject', id: item.object.id})
-                    .then(() => { this.selectedIndex = this.items.indexOf(item); });
-                setTimeout(function () { vm.$refs.focalPoint && vm.$refs.focalPoint.focus(); });
+            async requestSelectionByIndex (index) {
+                if (index < 0) index = 0;
+                if (this.items.length >= index + 1) {
+                    this.requestSelectionByItem(this.items[index]);
+                } else {
+                    this.items.length ?
+                        this.requestSelectionByIndex(this.items.length - 1) :
+                        this.setSelection(null);
+                }
             },
-            shiftSelection(steps) {
-                this.selectedIndex += steps;
-                if (this.selectedIndex < 0 || this.selectedIndex > this.items.length) {
-                    this.selectedIndex = null;
+            setSelection (objectId) {
+                this.selectedItem = _.find(this.items, x => x.object.id == objectId);
+            },
+            indexOfItem (item) {
+                return _.findIndex(this.items, x => x.object.id == item.object.id);
+            },
+            itemIsSelected (item) {
+                return this.selectedItem && this.selectedItem.object.id == item.object.id;
+            },
+            updateSelectionForChangeInItems (oldSelectedIndex) {
+                if (this.selectedItem && _.find(this.items, x => x.object.id == this.selectedItem.object.id)) return;
+                if (this.items.length >= oldSelectedIndex) {
+                    this.requestSelectionByIndex(oldSelectedIndex);
+                } else if (this.items.length) {
+                    this.requestSelectionByItem(this.items[this.items.length - 1]);
+                } else {
+                    this.setSelection(null);
                 }
             },
             keydown (keyCode) {
+                if (!this.selectedItem) return;
                 switch (keyCode) {
                     case 38: // up
-                        // this.shiftSelection(-1);
+                        this.requestSelectionByIndex(this.indexOfItem(this.selectedItem) - 1);
                         break;
                     case 40: // down
-                        // this.shiftSelection(1);
+                        this.requestSelectionByIndex(this.indexOfItem(this.selectedItem) + 1);
                         break;
                     default: break;
                 }
@@ -148,33 +162,35 @@
             approveTime () {
                 new MocaMutationSet(
                     'update', 'time',
-                    this.selected.object.id, {pending:false}
+                    this.selectedItem.object.id, {pending:false}
                 ).commit();
             },
             rejectTime () {
                 new MocaMutationSet(
-                    'delete', 'time', this.selected.object.id
+                    'delete', 'time', this.selectedItem.object.id
                 ).commit();
             },
             // Packages
             extendPackage () {
-                this.selected.object.lastPackage.extend(moment(this.extensionDate).format('YYYY-MM-DD'));
+                this.selectedItem.object.lastPackage.extend(moment(this.extensionDate).format('YYYY-MM-DD'));
             },
             expirePackage () {
-                this.selected.object.lastPackage.expire();
+                this.selectedItem.object.lastPackage.expire();
             }
         },
         watch: {
-            items: function(val) {
-                bus.$emit('updateInboxItems', val);
-                this.select(this.items[this.selectedIndex]);
-            }, // @TODO - hacky crap
-            selectedIndex: function(val) { // more hacky crap
-                this.select(this.items[val]);
+            items: function(newVal, oldVal) {
+                bus.$emit('updateInboxItems', newVal);
+                let oldSelectedIndex = this.selectedItem ?
+                    _.findIndex(oldVal, x => x.object.id == this.selectedItem.object.id) :
+                    0;
+                this.updateSelectionForChangeInItems(oldSelectedIndex);
             }
         },
         mounted () {
              bus.$emit('updateInboxItems', this.items);
+             this.requestSelectionByIndex(0);
+             bus.$on('keydown', (keyCode) => { this.keydown(keyCode); });
         }
     }
 
