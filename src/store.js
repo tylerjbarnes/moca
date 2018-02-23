@@ -580,28 +580,6 @@ const actions = {
     //     context.commit('loseProject', primitive);
     // },
 
-    // Static Objects
-
-    // importObjects (context, {data, reset}) {
-    //     if (reset) {
-    //         db.messages.where('id').notEqual('0').delete();
-    //         db.packages.where('id').notEqual('0').delete();
-    //         db.persons.where('id').notEqual('0').delete();
-    //         db.projects.where('id').notEqual('0').delete();
-    //         db.resources.where('id').notEqual('0').delete();
-    //         db.times.where('id').notEqual('0').delete();
-    //         Mocadex.updateLastMutationTime(data.last_mutation_time).then(() => {
-    //             context.commit('setLastMutationTime', data.last_mutation_time);
-    //         });
-    //     }
-    //     data.messages && db.messages.bulkPut(data.messages.map(x => typifyForIdb(x)));
-    //     data.packages && db.packages.bulkPut(data.packages.map(x => typifyForIdb(x)));
-    //     data.persons && db.persons.bulkPut(data.persons.map(x => typifyForIdb(x)));
-    //     data.projects && db.projects.bulkPut(data.projects.map(x => typifyForIdb(x)));
-    //     data.resources && db.resources.bulkPut(data.resources.map(x => typifyForIdb(x)));
-    //     data.times && db.times.bulkPut(data.times.map(x => typifyForIdb(x)));
-    // },
-
     // Fetch & Buffer Management
 
     fetch (context, {bufferName, id, force}) {
