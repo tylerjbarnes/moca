@@ -166,16 +166,17 @@ class Mocadex {
      * @return {Promise}
      */
     async clearData() {
-        await db.transaction('rw', db.persons, db.times, db.packages, db.resources, db.messages, db.projects, async () => {
-            await Promise.all([
-                'messages',
-                'packages',
-                'persons',
-                'projects',
-                'resources',
-                'times'
-            ].map(x => { db[x].clear(); } ));
-        });
+        await indexedDB.deleteDatabase('mocadex');
+        // await db.transaction('rw', db.persons, db.times, db.packages, db.resources, db.messages, db.projects, async () => {
+        //     await Promise.all([
+        //         'messages',
+        //         'packages',
+        //         'persons',
+        //         'projects',
+        //         'resources',
+        //         'times'
+        //     ].map(x => { db[x].clear(); } ));
+        // });
     }
 
     /**
