@@ -438,15 +438,6 @@ const buffers = {
         }),
         shouldContain: (primitive) => messageIsResolvable(primitive)
     },
-    // unresolvedMessages: {
-    //     primitiveType: 'message',
-    //     fetch: () => new Promise(function(resolve, reject) {
-    //         db.messages.where('resolved').equals(0).toArray().then(primitives => {
-    //             resolve(primitives);
-    //         });
-    //     }),
-    //     shouldContain: (primitive) => !message.resolved
-    // },
 
     // resources
     resourcesByProject: {
@@ -550,20 +541,16 @@ const actions = {
 
     // Mocadex Setup
 
-    installMocadex (context, {objects, lastSync, appliedMutations}) {
-        return new Promise(function(resolve, reject) {
-            Mocadex.clearData().then(() => {
-                return Mocadex.addObjects(objects);
-            }).then(() => {
-                return Mocadex.setLastSync(lastSync);
-            }).then(() => {
-                return Mocadex.logMutationsAsApplied(appliedMutations);
-            }).then(() => {
-                resolve();
-            });
-        });
+    async installMocadex (context, {objects, lastSync, appliedMutations}) {
+        await Mocadex.clearData();
+        console.log('Installing Mocadex... Cleared DB');
+        await Mocadex.addObjects(objects);
+        console.log('Installing Mocadex... Added objects.');
+        await Mocadex.setLastSync(lastSync);
+        console.log('Installing Mocadex... Set last sync: ' + lastSync);
+        await Mocadex.logMutationsAsApplied(appliedMutations);
+        console.log('Installing Mocadex... Logged mutations as applied.');
     },
-
 
     // Object Gain
 
@@ -639,13 +626,13 @@ const actions = {
 
     },
     async initialize (context, wpId) {
+        console.log('Initializing Store... for wpId: ' + wpId);
         let initialBuffers = [
             {bufferName: 'activePersons'},
             {bufferName: 'archivedPersons'},
             {bufferName: 'activeProjects'},
             {bufferName: 'archivedProjects'},
             {bufferName: 'resolvableMessages'},
-            // {bufferName: 'unresolvedMessages'},
             {bufferName: 'balances'},
             {bufferName: 'pendingTimes'},
             {bufferName: 'packages'},
@@ -655,12 +642,13 @@ const actions = {
             {bufferName: 'projectsWithUnresolvedMessages'}
         ];
         let userPrimitive = await db.persons.get({ wp_id: wpId });
+        console.log('Initializing Store... Loaded user from Mocadex.', userPrimitive);
         context.commit('setUser', userPrimitive.id);
-
+        console.log('Initializing Store... Set user id: ' + userPrimitive.id);
         let fetchPromises = initialBuffers.map(x => store.dispatch('fetch', x));
         await Promise.all(fetchPromises);
+        console.log('Initializing Store... Fetched initial buffers.');
         bus.$emit('initialized');
-
     },
     updateRoute (context, route) { context.commit('updateRoute', route); },
     updatePresence (context, {id, online}) { context.commit('updatePresence', {id, online}); },

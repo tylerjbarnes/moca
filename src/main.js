@@ -25,7 +25,6 @@ import MocaPusher from './pusher.js';
 import Barista from './barista.js';
 import Dexie from 'dexie';
 window.bus = new Vue();
-
 window.mocaError = null;
 
 // Global Mixin
@@ -73,19 +72,25 @@ if (mocaUserRole == 'client') {
 } else {
     let forceRemoteLoad = false;
 
-    // Install Mocadex
-    async function initLocalDb() {
-        if (!forceRemoteLoad && (await Dexie.exists('mocadex'))) return;
-        let initialData = await hpmAPI('objects');
-        console.log(initialData);
-        await store.dispatch('installMocadex', {objects: initialData.objects, lastSync: initialData.last_sync, appliedMutations: initialData.applied_mutations});
+    async function pourMoca() {
+        let installed = await Dexie.exists('mocadex');
+        if (forceRemoteLoad || !installed) {
+            let initialData = await hpmAPI('objects');
+            console.log('Downloaded initial Moca data.', initialData);
+            await store.dispatch('installMocadex', {
+                objects: initialData.objects,
+                lastSync: initialData.last_sync,
+                appliedMutations: initialData.applied_mutations
+            });
+            console.log('Finished installing Mocadex.');
+        }
+        await store.dispatch('initialize', currentUserWpId);
+        console.log('Finished initializing Store.');
+        window.pusher = new MocaPusher();
+        console.log('Created MocaPusher.');
+        await Barista.sync();
+        console.log('Finished initial Barista sync.');
     }
 
-    // Then Initialize Store & Create Pusher
-    initLocalDb().then(async () => {
-        await store.dispatch('initialize', currentUserWpId);
-        window.pusher = new MocaPusher();
-        await Barista.sync();
-    });
-
+    pourMoca();
 }

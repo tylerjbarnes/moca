@@ -73,14 +73,8 @@ class Mocadex {
      * @returns {Promise}
      */
     async logMutationsAsApplied(mutations) {
-        return new Promise(function(resolve, reject) {
-            db.transaction('rw', db.appliedMutations, async () => {
-                await db.appliedMutations.bulkPut(mutations);
-            }).then(() => {
-                resolve(mutations);
-            }).catch(error => {
-                reject('Failed to Stage - ' + error);
-            });
+        await db.transaction('rw', db.appliedMutations, async () => {
+            await db.appliedMutations.bulkPut(mutations);
         });
     }
 
@@ -172,21 +166,15 @@ class Mocadex {
      * @return {Promise}
      */
     async clearData() {
-        return new Promise(function(resolve, reject) {
-            db.transaction('rw', db.persons, db.times, db.packages, db.resources, db.messages, db.projects, async () => {
-                await Promise.all([
-                    'messages',
-                    'packages',
-                    'persons',
-                    'projects',
-                    'resources',
-                    'times'
-                ].map(x => { db[x].clear(); } ));
-            }).then(() => {
-                resolve(true);
-            }).catch(error => {
-                reject('Failed to Clear Data - ' + error);
-            });
+        await db.transaction('rw', db.persons, db.times, db.packages, db.resources, db.messages, db.projects, async () => {
+            await Promise.all([
+                'messages',
+                'packages',
+                'persons',
+                'projects',
+                'resources',
+                'times'
+            ].map(x => { db[x].clear(); } ));
         });
     }
 
@@ -203,21 +191,15 @@ class Mocadex {
      * @return {Promise}
      */
     async addObjects(data) {
-        return new Promise(function(resolve, reject) {
-            db.transaction('rw', db.persons, db.times, db.packages, db.resources, db.messages, db.projects, async () => {
-                return Promise.all([
-                    'messages',
-                    'packages',
-                    'persons',
-                    'projects',
-                    'resources',
-                    'times'
-                ].filter(x => data[x] && data[x].length).map(x => { db[x].bulkAdd(data[x]); } ));
-            }).then(() => {
-                resolve(true);
-            }).catch(error => {
-                reject('Failed to Add Objects - ' + error);
-            });
+        await db.transaction('rw', db.persons, db.times, db.packages, db.resources, db.messages, db.projects, async () => {
+            await Promise.all([
+                'messages',
+                'packages',
+                'persons',
+                'projects',
+                'resources',
+                'times'
+            ].filter(x => data[x] && data[x].length).map(x => { db[x].bulkAdd(data[x]); } ));
         });
     }
 
