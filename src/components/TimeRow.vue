@@ -180,8 +180,12 @@
                     this.packagePrimitive.expiration_date = this.time.package.expiration_date;
                 }
             },
-            save () {
-                this.primitive.pending = !store.getters.user.canManage;
+            async save () {
+                this.primitive.pending = !store.getters.user.canManage && !this.primitive.project_id;
+                if (this.primitive.project_id) {
+                    let project = await store.getters.object('project', this.primitive.project_id);
+                    this.primitive.cycle = project.cycle;
+                }
                 if (!this.isDraft) {
                     new MocaMutationSet(
                         'update', 'time',
