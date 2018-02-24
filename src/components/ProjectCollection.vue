@@ -18,11 +18,13 @@
 
     export default {
         name: 'project-collection',
-        props: ['projects','kanban','person','fluid','show'],
+        props: ['projects','kanban','person','fluid','show','orderBy','order'],
         components: {Kanban,ProjectCard},
         computed: {
             sortedProjects () {
-                return _.orderBy(this.projects, ['target','due']);
+                let order = this.order ? this.order : ['asc','asc'];
+                let orderBy = this.orderBy ? this.orderBy : ['target','due'];
+                return _.orderBy(this.projects, orderBy, order);
             }
         }
     }

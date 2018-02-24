@@ -1,7 +1,7 @@
 <template>
 
     <div class="archive-view">
-        <project-collection :projects="projects" :fluid="true" :show="projectsShow"></project-collection>
+        <project-collection :projects="projects" :fluid="true" :show="projectsShow" :orderBy="['target','due']" :order="['desc','desc']"></project-collection>
         <div class="persons" v-if="user.canManage">
             <person-row v-for="person in persons" :key="person.id" :person="person"></person-row>
         </div>
