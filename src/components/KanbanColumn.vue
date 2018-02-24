@@ -26,7 +26,7 @@
         }},
         computed: {
             items () {
-                return _.orderBy([...this.pendingProjects, ...this.projects], 'target');
+                return _.orderBy([...this.pendingProjects, ...this.projects], ['target','due']);
             },
             tagsToShow () {
                 switch (this.person.role) {

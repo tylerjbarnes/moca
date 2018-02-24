@@ -22,7 +22,7 @@
         components: {Kanban,ProjectCard},
         computed: {
             sortedProjects () {
-                return _.orderBy(this.projects, 'target');
+                return _.orderBy(this.projects, ['target','due']);
             }
         }
     }
