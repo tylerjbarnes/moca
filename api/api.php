@@ -78,7 +78,7 @@ function hpm_api_object_dependents( $object_type, $object_id ) {
  * @return Object
  */
 function hpm_attach_avatar( $primitive ) {
-    $primitive->avatar = get_wp_user_avatar_src( $primitive->wp_id, 'thumbnail' );
+    if ($primitive) $primitive->avatar = get_wp_user_avatar_src( $primitive->wp_id, 'thumbnail' );
     return $primitive;
 }
 
