@@ -19,6 +19,9 @@
 
 // Display Markup
 @mixin markup( $on_color: false ) {
+    word-break: break-word;
+    word-wrap: break-word;
+
     ul, ol {
         margin-left: 20px;
         padding: 10px;
@@ -33,10 +36,7 @@
     h2 { font-weight: 700; font-size: 0.8em; text-transform: uppercase; opacity: 0.8; }
 
     a {
-        display: inline-block;
-        max-width: 100%;
         text-decoration: underline;
-        word-wrap: break-word;
     }
 
     @if $on_color == true {
