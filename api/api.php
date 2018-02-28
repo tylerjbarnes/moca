@@ -246,7 +246,7 @@ function hpm_api_mutations ( $since = NULL ) {
 
     // Typify Mutations
     $mutations = array_map(function($row){
-        return hpm_typify_data_from_db( $row );
+        return hpm_typify_mutation_from_db( $row );
     }, array_values( $results ) );
 
     // $last_mutation_time = max(

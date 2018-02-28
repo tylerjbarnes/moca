@@ -182,6 +182,28 @@ function hpm_typify_data_from_db( $data ) {
     return $typified;
 }
 
+function hpm_typify_mutation_from_db( $row ) {
+    $typified = $row;
+    switch ($row->property_name) {
+        case null:
+            $typified->property_value = hpm_typify_data_from_db( json_decode( $typified->property_value ) );
+            break;
+        case 'cycle':
+        case 'time_offset':
+            $typified->property_value = (int) $typified->property_value;
+            break;
+        case 'estimate':
+        case 'hours':
+        case 'max':
+        case 'notification_time':
+            $typified->property_value = abs((float) $typified->property_value);
+            break;
+        default:
+            break;
+    }
+    return $typified;
+}
+
 /**
  * Restore Types Sent from JS
  * @param  Object $data
