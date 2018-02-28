@@ -8,7 +8,7 @@
             <request-view :project="project" v-if="requesting" @closeRequest="requesting = false"></request-view>
         </div>
         <button @click="moveProjectBackward" v-if="user.canManage && project.canMoveBackward  && !project.archived" class="button dangerous">{{ project.previousStatusActionName }}</button>
-        <button v-if="(user.canManage || project.status == 'do')  && !project.archived" @click="moveProjectForward" class="button primary">{{ project.nextStatusActionName }}</button>
+        <button v-if="(user.canManage || (project.status == 'do' && project.hoursLogged))  && !project.archived" @click="moveProjectForward" class="button primary">{{ project.nextStatusActionName }}</button>
         <button v-if="user.canManage && project.archived" @click="unarchive" class="button">Unarchive</button>
         <button v-if="user.canManage && project.archived" @click="recycle" class="button primary">Recycle</button>
     </div>
