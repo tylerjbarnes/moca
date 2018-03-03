@@ -281,20 +281,25 @@ function hpm_api_create_person( $person_data ) {
     }
 
     // Mutate
+    $cuid = new EndyJasmi\Cuid;
+    $normalCuid = $cuid->cuid();
     $mutations = [
         (object) [
+            "id" => $normalCuid,
             "action" => "create",
             "object_type" => "person",
             "object_id" => $person_data["id"],
             "property_name" => NULL,
             "property_value" => (object) [
+                "archived" => false,
                 "id" => $person_data["id"],
                 "wp_id" => $person_data["wp_id"],
                 "name" => $person_data["name"],
                 "role" => $person_data["role"],
                 "color" => "#777777"
             ],
-            "author_id" => hpm_user_id()
+            "author_id" => hpm_user_id(),
+            "datetime" => gmdate("Y-m-d H:i:s")
         ]
     ];
     hpm_api_mutate( $mutations, NULL );

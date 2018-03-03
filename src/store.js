@@ -149,7 +149,8 @@ const getters = {
     // times
     balance: (state, getters) => (id) => {
         if (!state.buffer.balances) { console.log(new Error()); }
-        return _.find(state.buffer.balances, ['clientId', id]).balance;
+        let client = _.find(state.buffer.balances, ['clientId', id]);
+        return client ? client.balance : 0;
     },
     pendingTimes: (state, getters) => getters.buffer('pendingTimes'),
     purchaseByPackage: (state, getters) => (id) => getters.buffer('purchases').find(x => x.package_id == id),
