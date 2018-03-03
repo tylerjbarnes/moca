@@ -192,6 +192,18 @@ function hpm_typify_mutation_from_db( $row ) {
         case 'time_offset':
             $typified->property_value = (int) $typified->property_value;
             break;
+        case 'content':
+            if (is_object($row->property_value)) {
+                $typified->property_value = hpm_typify_data_from_db( $typified->property_value );
+                break;
+            }
+            $first_char = substr($typified->property_value, 0, 1);
+            if ( $first_char === '{' || $first_char === '[' ) {
+                $typified->property_value = hpm_typify_data_from_db( json_decode( $typified->property_value ) );
+            } else {
+                $typified->property_value = stripslashes( $typified->property_value );
+            }
+            break;
         case 'estimate':
         case 'hours':
         case 'max':
