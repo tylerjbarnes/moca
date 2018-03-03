@@ -144,10 +144,14 @@
         },
         computed: {
             validates () {
+                let validDates = !this.projectPrimitive.due ||
+                                 !this.projectPrimitive.target ||
+                                 this.projectPrimitive.due >= this.projectPrimitive.target;
                 return this.projectPrimitive.client_id &&
                     this.projectPrimitive.name &&
                     this.projectPrimitive.manager_id &&
-                    this.projectPrimitive.max >= this.projectPrimitive.estimate;
+                    this.projectPrimitive.max >= this.projectPrimitive.estimate &&
+                    validDates;
             },
             project () {
                 return this.id ? this.$store.getters.project(this.id) : null;
@@ -195,7 +199,7 @@
                     // Route to Project
                     let currentTab = router.currentRoute.path.split("/")[1];
                     router.push({ name: currentTab + '-project', params: {id: this.projectPrimitive.id} });
-                    
+
                 });
 
             },
