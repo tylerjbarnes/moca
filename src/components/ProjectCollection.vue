@@ -22,8 +22,8 @@
         components: {Kanban,ProjectCard},
         computed: {
             sortedProjects () {
-                let order = this.order ? this.order : ['asc','asc'];
-                let orderBy = this.orderBy ? this.orderBy : ['target','due'];
+                let order = this.order ? this.order : ['asc'];
+                let orderBy = this.orderBy ? this.orderBy : ['earliestDue'];
                 return _.orderBy(this.projects, orderBy, order);
             }
         }
