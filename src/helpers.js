@@ -84,7 +84,7 @@ window.booleanToBinary = (val) => {
 }
 
 window.typifyForIdb = (val) => {
-    if (val === null) return val;
+    if (val === null || val == 'null') return null;
     if (typeof(val) === 'object') {
         var typified = {};
         for (let key in val) {

@@ -91,12 +91,11 @@ class Mocadex {
         let typifiedVal = typifyForIdb(mutation.property_value);
         switch (mutation.action) {
             case 'create':
-                await db[mutation.object_type + 's'].add(booleanToBinary(mutation.property_value));
+                await db[mutation.object_type + 's'].add(typifiedVal);
                 return mutation.id;
             case 'update':
-                var preparedVal = booleanToBinary(mutation.property_value);
                 await db[mutation.object_type + 's'].where('id').equals(mutation.object_id)
-                    .modify({[mutation.property_name]: preparedVal});
+                    .modify({[mutation.property_name]: typifiedVal});
                 return mutation.id;
             case 'delete':
                 await store.dispatch('cleanup', {type: mutation.object_type, id: mutation.object_id});
