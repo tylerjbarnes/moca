@@ -121,12 +121,13 @@ function hpm_typify_data_from_db( $data ) {
             'manager_id',
             'worker_id',
             'package_id',
-            'last_editor_id'
+            'last_editor_id',
+            'target',
+            'due'
         ])) {
             $typified->$key = NULL;
         } else if ($value == "" && in_array($key,[
-            'target',
-            'due',
+            'estimate',
             'max',
             'cycle'
         ])) {
